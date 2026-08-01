@@ -1,7 +1,7 @@
 # Computer Studies Organization (CSO) Web Portal 🚀
 ### ACLC College Mandaue City
 
-An official web application and committee registration portal for the **Computer Studies Organization (CSO)** at ACLC College Mandaue City. Built with modern web technologies, responsive dual-theme design (Soft Anti-Glare Light Mode & Obsidian Dark Mode), a full-screen interactive media gallery, and Supabase database integration.
+An official web application and committee registration portal for the **Computer Studies Organization (CSO)** at ACLC College of Mandaue.
 
 ## 🛠️ Technology Stack
 
