@@ -87,7 +87,7 @@ export default function MetricCards({ applications }: MetricCardsProps) {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-              Top Preferred Division
+              Top Preferred Committee
             </p>
             <h4 className="text-xl font-black text-neutral-900 dark:text-neutral-100 mt-1 truncate max-w-[150px]">
               {topCommittee}

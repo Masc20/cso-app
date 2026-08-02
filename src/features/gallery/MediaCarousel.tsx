@@ -129,63 +129,70 @@ const MEDIA_ITEMS: MediaItem[] = [
     title: 'Hacktoberfest 2025 Certificate - Alicaba',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-ALICABA.png',
-    subtitle: 'Open Source Contribution Excellence'
+    subtitle: 'Hackathon Participant & Winner'
   },
   {
     id: 'cert-2',
     title: 'Hacktoberfest 2025 Certificate - Cez',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-CEZ.png',
-    subtitle: 'Global Developer Challenge Completer'
+    subtitle: 'Hackathon Participant & Winner'
   },
   {
     id: 'cert-3',
     title: 'Hacktoberfest 2025 Certificate - Chavez',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-CHAVEZ.png',
-    subtitle: 'Open Source Contributor'
+    subtitle: 'Hackathon Participant'
   },
   {
     id: 'cert-4',
     title: 'Hacktoberfest 2025 Certificate - Elgin',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-ELGIN.png',
-    subtitle: 'Technical Achievement Award'
+    subtitle: 'Hackathon Participant'
   },
   {
     id: 'cert-5',
     title: 'Hacktoberfest 2025 Certificate - Mangyaw',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-MANGYAW.png',
-    subtitle: 'Code Contributor Recognition'
+    subtitle: 'Hackathon Participant'
   },
   {
     id: 'cert-6',
     title: 'Hacktoberfest 2025 Certificate - Manuel',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-MANUEL.png',
-    subtitle: 'Open Source Developer'
+    subtitle: 'Hackathon Participantr'
   },
   {
     id: 'cert-7',
     title: 'Hacktoberfest 2025 Certificate - Neil',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-NEIL.png',
-    subtitle: 'Global Hackathon Participant'
+    subtitle: 'Hackathon Participant & Winner'
   },
   {
     id: 'cert-8',
-    title: 'VJAL Leadership Certificate - Kent',
+    title: 'Hacktoberfest 2025 Certificate - Melecio',
     category: 'Certificates',
-    src: '/imgs/Certificates/VJAL-KENT.png',
-    subtitle: 'Student Leadership & Academic Merit'
+    src: '/imgs/Certificates/HACKTOBERFEST2025-MELECIO.png',
+    subtitle: 'Hackathon Participant & Winner'
   },
   {
     id: 'cert-9',
-    title: 'VJAL Leadership Certificate - Melecio',
+    title: 'VJAL Certificate - Kent',
+    category: 'Certificates',
+    src: '/imgs/Certificates/VJAL-KENT.png',
+    subtitle: 'Participating in AI for Teams Workshop'
+  },
+  {
+    id: 'cert-10',
+    title: 'VJAL Certificate - Melecio',
     category: 'Certificates',
     src: '/imgs/Certificates/VJAL-MELECIO.png',
-    subtitle: 'Academic & Organization Excellence'
+    subtitle: 'Participating in AI for Teams Workshop'
   }
 ];
 
@@ -264,7 +271,7 @@ export default function MediaCarousel() {
               {cat === 'Awards' && <Trophy className="w-3.5 h-3.5 inline mr-1 text-amber-500" />}
               {cat === 'Certificates' && <Award className="w-3.5 h-3.5 inline mr-1 text-emerald-500" />}
               {cat === 'Officers' && <Users className="w-3.5 h-3.5 inline mr-1 text-fuchsia-500" />}
-              {cat} {cat === 'Activities' ? `(${MEDIA_ITEMS.filter(i => i.category === 'Activities').length})` : ''}
+              {cat}
             </button>
           ))}
         </div>

@@ -87,7 +87,7 @@ export default function Footer() {
                   rel="noopener noreferrer" 
                   className="hover:underline font-semibold text-neutral-900 dark:text-neutral-100"
                 >
-                  facebook.com/profile.php?id=100094218363222
+                  ACLC College of Mandaue - Computer Studies Organization
                 </a>
               </li>
             </ul>
