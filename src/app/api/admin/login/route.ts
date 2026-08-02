@@ -13,7 +13,6 @@ export async function POST(req: NextRequest) {
     // Extract Client IP address using centralized formatting utility
     const clientIp = getClientIp(req);
 
-    // 1. Check Rate Limit in Server RAM (< 1ms execution, 0 DB queries)
     const limitCheck = checkServerRateLimit(clientIp);
 
     if (!limitCheck.success) {
@@ -39,7 +38,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Attempt Supabase Auth Authentication
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -69,7 +67,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Authentication Successful - Reset Server Rate Limit for this IP
     resetServerRateLimit(clientIp);
 
     return NextResponse.json({

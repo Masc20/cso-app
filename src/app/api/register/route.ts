@@ -10,10 +10,9 @@ import {
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Extract Client IP address via centralized formatting helper
+
     const clientIp = getClientIp(req);
 
-    // 2. Server RAM Rate Limit Check (Max 10 submissions per IP, 30s cooldown)
     const rateCheck = checkRegistrationRateLimit(clientIp);
 
     if (!rateCheck.success) {
@@ -27,7 +26,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Check Live Registration Status
     const isRegistrationOpen = await fetchRegistrationStatus();
     if (!isRegistrationOpen) {
       return NextResponse.json(
@@ -36,7 +34,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Parse & Sanitize Request Payload
     const body = await req.json();
 
     const cleanStudentId = sanitizeString(body.studentId || '');
@@ -72,7 +69,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Please write a brief motivation statement (minimum 10 characters).' }, { status: 400 });
     }
 
-    // 5. Upsert Application into Supabase (Prevents Duplicate Rows by student_id)
     const { error } = await supabase
       .from('committee_applications')
       .upsert(
@@ -98,7 +94,6 @@ export async function POST(req: NextRequest) {
       console.warn('Supabase upsert note:', error.message);
     }
 
-    // 6. Record Submission Attempt in Server RAM
     recordRegistrationSubmission(clientIp);
 
     return NextResponse.json({
