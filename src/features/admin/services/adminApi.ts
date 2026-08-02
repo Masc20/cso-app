@@ -12,13 +12,35 @@ export interface ApplicationRecord {
   course_program: string;
   primary_committee: string;
   secondary_committee: string | null;
+  portfolioUrl?: string | null;
   portfolio_url: string | null;
   motivation_statement: string;
   application_status?: string;
   admin_notes?: string | null;
 }
 
+/**
+ * Helper to update an application record in local storage cache
+ */
+function updateLocalApplicationRecord(id: string, updates: Partial<ApplicationRecord>): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const stored = localStorage.getItem('cso_local_applications');
+    if (stored) {
+      const existing: ApplicationRecord[] = JSON.parse(stored);
+      const updated = existing.map(a => a.id === id ? { ...a, ...updates } : a);
+      localStorage.setItem('cso_local_applications', JSON.stringify(updated));
+    }
+  } catch (e) {
+    console.warn('Error updating local application cache:', e);
+  }
+}
+
 export async function fetchApplications(): Promise<ApplicationRecord[]> {
+  let dbApps: ApplicationRecord[] = [];
+  let localApps: ApplicationRecord[] = [];
+
+  // 1. Query Real Supabase Database Table
   try {
     const { data, error } = await supabase
       .from('committee_applications')
@@ -26,21 +48,41 @@ export async function fetchApplications(): Promise<ApplicationRecord[]> {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.warn('Supabase fetch error:', error.message);
-      return [];
+      console.warn('Supabase fetch note:', error.message);
+    } else if (data && data.length > 0) {
+      dbApps = data.map(item => ({
+        ...item,
+        application_status: item.application_status || 'Pending'
+      }));
     }
-
-    return (data || []).map(item => ({
-      ...item,
-      application_status: item.application_status || 'Pending'
-    }));
   } catch (err) {
-    console.error('Failed to fetch applications:', err);
-    return [];
+    console.warn('Supabase applications fetch exception:', err);
   }
+
+  // 2. Fetch from LocalStorage cache as fallback/supplement
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('cso_local_applications');
+      if (stored) {
+        localApps = JSON.parse(stored);
+      }
+    } catch (e) {
+      console.warn('Error reading local applications cache:', e);
+    }
+  }
+
+  const combinedMap = new Map<string, ApplicationRecord>();
+  localApps.forEach(app => combinedMap.set(app.id || app.student_id, app));
+  dbApps.forEach(app => combinedMap.set(app.id, app));
+
+  return Array.from(combinedMap.values()).sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 }
 
 export async function updateApplicationStatus(id: string, status: string): Promise<boolean> {
+  updateLocalApplicationRecord(id, { application_status: status });
+
   try {
     const { error } = await supabase
       .from('committee_applications')
@@ -50,14 +92,16 @@ export async function updateApplicationStatus(id: string, status: string): Promi
     if (error) {
       console.warn('Supabase update status note:', error.message);
     }
-    return true;
   } catch (err) {
-    console.error('Failed to update status:', err);
-    return true;
+    console.warn('Supabase status update note:', err);
   }
+
+  return true;
 }
 
 export async function updateAdminNotes(id: string, notes: string): Promise<boolean> {
+  updateLocalApplicationRecord(id, { admin_notes: notes });
+
   try {
     const { error } = await supabase
       .from('committee_applications')
@@ -67,22 +111,21 @@ export async function updateAdminNotes(id: string, notes: string): Promise<boole
     if (error) {
       console.warn('Supabase update notes note:', error.message);
     }
-    return true;
   } catch (err) {
-    console.error('Failed to update notes:', err);
-    return true;
+    console.warn('Supabase notes update note:', err);
   }
+
+  return true;
 }
 
 // -------------------------------------------------------------
-// Dual-Layer Persistence: Supabase Database + LocalStorage Cache
+// Dual-Layer Persistence: Supabase Database + LocalStorage Cache for Settings
 // -------------------------------------------------------------
 
 export async function fetchRegistrationStatus(): Promise<boolean> {
   let cachedStatus: boolean | null = null;
 
   try {
-    // 1. Check local storage cache
     if (typeof window !== 'undefined') {
       const cached = localStorage.getItem('cso_is_registration_open');
       if (cached !== null) {
@@ -90,7 +133,6 @@ export async function fetchRegistrationStatus(): Promise<boolean> {
       }
     }
 
-    // 2. Query Supabase Settings Table
     const { data, error } = await supabase
       .from('cso_settings')
       .select('value')
@@ -114,12 +156,10 @@ export async function fetchRegistrationStatus(): Promise<boolean> {
 
 export async function toggleRegistrationStatus(isOpen: boolean): Promise<boolean> {
   try {
-    // 1. Cache immediately in localStorage for instant client response
     if (typeof window !== 'undefined') {
       localStorage.setItem('cso_is_registration_open', String(isOpen));
     }
 
-    // 2. Persist to Supabase Settings Table
     const { error } = await supabase
       .from('cso_settings')
       .upsert({ 
@@ -133,7 +173,7 @@ export async function toggleRegistrationStatus(isOpen: boolean): Promise<boolean
     }
     return true;
   } catch (err) {
-    console.error('Failed to toggle registration status:', err);
+    console.warn('Failed to toggle registration status:', err);
     return true;
   }
 }

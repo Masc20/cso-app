@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { sanitizeString } from '@/lib/utils/validation';
+import { getClientIp } from '@/lib/utils/formatting';
 import {
   checkServerRateLimit,
   recordFailedServerAttempt,
@@ -9,10 +10,8 @@ import {
 
 export async function POST(req: NextRequest) {
   try {
-    // Extract Client IP address from request headers
-    const forwarded = req.headers.get('x-forwarded-for');
-    const realIp = req.headers.get('x-real-ip');
-    const clientIp = forwarded ? forwarded.split(',')[0].trim() : realIp || '127.0.0.1';
+    // Extract Client IP address using centralized formatting utility
+    const clientIp = getClientIp(req);
 
     // 1. Check Rate Limit in Server RAM (< 1ms execution, 0 DB queries)
     const limitCheck = checkServerRateLimit(clientIp);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { sanitizeString, isValidFacebookUrl, isValidHttpUrl } from '@/lib/utils/validation';
+import { getClientIp } from '@/lib/utils/formatting';
 import { fetchRegistrationStatus } from '@/features/admin/services/adminApi';
 import {
   checkRegistrationRateLimit,
@@ -9,10 +10,8 @@ import {
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Extract Client IP address
-    const forwarded = req.headers.get('x-forwarded-for');
-    const realIp = req.headers.get('x-real-ip');
-    const clientIp = forwarded ? forwarded.split(',')[0].trim() : realIp || '127.0.0.1';
+    // 1. Extract Client IP address via centralized formatting helper
+    const clientIp = getClientIp(req);
 
     // 2. Server RAM Rate Limit Check (Max 10 submissions per IP, 30s cooldown)
     const rateCheck = checkRegistrationRateLimit(clientIp);
@@ -73,27 +72,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Please write a brief motivation statement (minimum 10 characters).' }, { status: 400 });
     }
 
-    // 5. Insert Application into Supabase
+    // 5. Upsert Application into Supabase (Prevents Duplicate Rows by student_id)
     const { error } = await supabase
       .from('committee_applications')
-      .insert([
-        {
-          student_id: cleanStudentId,
-          first_name: cleanFirstName,
-          middle_name: cleanMiddleName || null,
-          last_name: cleanLastName,
-          facebook_link: cleanFbLink,
-          year_level: cleanYearLevel,
-          course_program: cleanCourseProgram,
-          primary_committee: cleanPrimaryCommittee,
-          secondary_committee: cleanSecondaryCommittee !== 'None' ? cleanSecondaryCommittee : null,
-          portfolio_url: cleanPortfolioUrl || null,
-          motivation_statement: cleanMotivation
-        }
-      ]);
+      .upsert(
+        [
+          {
+            student_id: cleanStudentId,
+            first_name: cleanFirstName,
+            middle_name: cleanMiddleName || null,
+            last_name: cleanLastName,
+            facebook_link: cleanFbLink,
+            year_level: cleanYearLevel,
+            course_program: cleanCourseProgram,
+            primary_committee: cleanPrimaryCommittee,
+            secondary_committee: cleanSecondaryCommittee !== 'None' ? cleanSecondaryCommittee : null,
+            portfolio_url: cleanPortfolioUrl || null,
+            motivation_statement: cleanMotivation
+          }
+        ],
+        { onConflict: 'student_id' }
+      );
 
     if (error) {
-      console.warn('Supabase insertion note:', error.message);
+      console.warn('Supabase upsert note:', error.message);
     }
 
     // 6. Record Submission Attempt in Server RAM

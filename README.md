@@ -1,11 +1,11 @@
-# Computer Studies Organization (CSO) Web Portal 🚀
+# Computer Studies Organization (CSO) Web Portal
 ### ACLC College Mandaue City
 
 An official web application, committee registration portal, and officer command center for the **Computer Studies Organization (CSO)** at ACLC College of Mandaue.
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 - **Framework**: Next.js 16 (React 19, Turbopack, App Router)
 - **Language**: TypeScript
@@ -13,7 +13,9 @@ An official web application, committee registration portal, and officer command 
 - **Database & Auth**: Supabase (PostgreSQL, Auth, Row Level Security)
 - **Icons & Effects**: Lucide React, Canvas Confetti
 
-## 📁 Codebase Architecture
+---
+
+## Codebase Architecture
 
 The project strictly follows a **Feature-Driven Modular Architecture**:
 
@@ -22,11 +24,14 @@ cso-app/src/
 ├── app/
 │   ├── admin/
 │   │   ├── dashboard/page.tsx   # Admin Officer Command Center
-│   │   └── login/page.tsx       # Officer Login Page
+│   │   └── login/page.tsx       # Officer Login Page (3 attempts, 60s lockout)
+│   ├── api/
+│   │   ├── admin/login/route.ts # Server RAM Auth Rate Limiter
+│   │   └── register/route.ts    # Server RAM Registration Rate Limiter (10 max / 30s cooldown)
 │   ├── favicon.ico
 │   ├── globals.css              # Tailwind v4 imports & theme CSS variables
-│   ├── icon.png                 # Title icon (/imgs/CSOLOGO.png)
-│   ├── layout.tsx               # Root layout & SEO metadata
+│   ├── icon.png                 # Official CSO Title Icon (/imgs/CSOLOGO.png)
+│   ├── layout.tsx               # Root layout, SEO metadata & Vercel Analytics
 │   └── page.tsx                 # Home page assembly & root dark class syncing
 ├── components/
 │   ├── layout/
@@ -53,20 +58,25 @@ cso-app/src/
 │   ├── committees/
 │   │   └── CommitteeRibbons.tsx # 4 Committee banner ribbons grid
 │   ├── gallery/
-│   │   └── MediaCarousel.tsx    # Full-screen width media slider & lightbox
+│   │   └── MediaCarousel.tsx    # Full-screen width media slider & touch swipe gestures
 │   └── registration/
 │       ├── form.ts              # Form types & default values
 │       └── RegistrationPortal.tsx # Application form & live open/closed notice
 ├── hooks/
 │   ├── useAdminAuth.ts          # Supabase auth session hook
-│   └── useDarkMode.ts           # Dark mode state manager & document class syncer
+│   ├── useDarkMode.ts           # System OS theme manager & document class syncer
+│   └── useRateLimiter.ts        # Client rate limiter hook
 └── lib/
-    └── supabase.ts              # Supabase client instance & TypeScript interfaces
+    ├── serverRateLimit.ts       # Server RAM in-memory rate limiter engine
+    ├── supabase.ts              # Supabase client instance & TypeScript interfaces
+    └── utils/
+        ├── formatting.ts        # Status badge styling & client IP extraction
+        └── validation.ts        # Input sanitization & Facebook URL validation
 ```
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Prerequisites
 - Node.js 18.x or higher
@@ -100,16 +110,16 @@ To access the Admin Portal, visit [http://localhost:3000/admin/login](http://loc
 
 ---
 
-## 🗄️ Supabase Database Setup
+## Supabase Database Setup Query
 
-Run the following script in your **Supabase SQL Editor**:
+Copy and paste the following script into your **Supabase SQL Editor** to create all tables, unique constraints, and Row Level Security (RLS) policies:
 
 ```sql
--- 1. Create the committee applications table
+-- 1. Create the committee applications table with UNIQUE student_id constraint
 CREATE TABLE IF NOT EXISTS public.committee_applications (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    student_id TEXT NOT NULL,
+    student_id TEXT NOT NULL UNIQUE,
     first_name TEXT NOT NULL,
     middle_name TEXT,
     last_name TEXT NOT NULL,
@@ -140,26 +150,24 @@ ON CONFLICT (key) DO NOTHING;
 ALTER TABLE public.committee_applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.cso_settings ENABLE ROW LEVEL SECURITY;
 
--- 4. RLS Policies
-CREATE POLICY "Allow public registration inserts" 
-ON public.committee_applications FOR INSERT TO anon, authenticated WITH CHECK (true);
+-- 4. RLS Policies for committee_applications
+CREATE POLICY "Allow public registration upserts" 
+ON public.committee_applications FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
-CREATE POLICY "Allow authenticated read applications" 
-ON public.committee_applications FOR SELECT TO authenticated USING (true);
-
-CREATE POLICY "Allow authenticated update applications" 
-ON public.committee_applications FOR UPDATE TO authenticated USING (true);
+-- 5. RLS Policies for cso_settings
+DROP POLICY IF EXISTS "Allow public read settings" ON public.cso_settings;
+DROP POLICY IF EXISTS "Allow update settings" ON public.cso_settings;
 
 CREATE POLICY "Allow public read settings" 
 ON public.cso_settings FOR SELECT TO anon, authenticated USING (true);
 
-CREATE POLICY "Allow authenticated admin update settings" 
-ON public.cso_settings FOR ALL TO authenticated USING (true);
+CREATE POLICY "Allow update settings" 
+ON public.cso_settings FOR ALL TO anon, authenticated USING (true);
 ```
 
 ---
 
-## 🏗️ Production Build
+## Production Build
 
 To test and compile the production build:
 
@@ -169,6 +177,6 @@ npm run build
 
 ---
 
-## 📄 License & Attribution
+## License & Attribution
 
 Developed for the **Computer Studies Organization (CSO)** at **ACLC College Of Mandaue**.

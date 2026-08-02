@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Search, Filter, Download, ExternalLink, Eye, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import { ApplicationRecord } from '../services/adminApi';
+import { getStatusBadgeClass } from '@/lib/utils/formatting';
 
 interface ApplicationsTableProps {
   applications: ApplicationRecord[];
@@ -55,21 +56,6 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
-
-  const getStatusBadge = (st: string) => {
-    switch (st) {
-      case 'Approved':
-        return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
-      case 'Contacted':
-        return 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30';
-      case 'Under Review':
-        return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30';
-      case 'Rejected':
-        return 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30';
-      default:
-        return 'bg-neutral-500/10 text-neutral-600 dark:text-neutral-400 border-neutral-500/30';
-    }
   };
 
   return (
@@ -168,7 +154,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
                     {app.primary_committee.replace(' Committee', '')}
                   </td>
                   <td className="py-3.5 px-4">
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold border ${getStatusBadge(app.application_status || 'Pending')}`}>
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold border ${getStatusBadgeClass(app.application_status || 'Pending')}`}>
                       {app.application_status || 'Pending'}
                     </span>
                   </td>

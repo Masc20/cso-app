@@ -5,6 +5,7 @@ import { X, ExternalLink, GraduationCap, Code, FileText, CheckCircle2, Save } fr
 import { ApplicationRecord, updateApplicationStatus, updateAdminNotes } from '../services/adminApi';
 import Modal from '@/components/ui/Modal';
 import { sanitizeString } from '@/lib/utils/validation';
+import { getStatusBadgeClass } from '@/lib/utils/formatting';
 
 interface ApplicationDetailModalProps {
   application: ApplicationRecord | null;
@@ -43,21 +44,6 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
     setTimeout(() => {
       setSaveSuccess(false);
     }, 2500);
-  };
-
-  const getStatusBadgeClass = (st: string) => {
-    switch (st) {
-      case 'Approved':
-        return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
-      case 'Contacted':
-        return 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30';
-      case 'Under Review':
-        return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30';
-      case 'Rejected':
-        return 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30';
-      default:
-        return 'bg-neutral-500/10 text-neutral-600 dark:text-neutral-400 border-neutral-500/30';
-    }
   };
 
   return (
