@@ -6,9 +6,10 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import AdminSidebar from '@/components/layout/AdminSidebar';
 import MetricCards from '@/features/admin/components/MetricCards';
 import ApplicationsTable from '@/features/admin/components/ApplicationsTable';
-import ApplicationDetailModal from '@/features/admin/components/ApplicationDetailModal';
+import ApplicationDetailModal from '@/features/admin/modals/ApplicationDetailModal';
+import Toast from '@/components/ui/Toast';
 import { fetchApplications, fetchRegistrationStatus, toggleRegistrationStatus, ApplicationRecord } from '@/features/admin/services/adminApi';
-import { RefreshCw, Sparkles, Sun, Moon, Lock, Unlock, CheckCircle2, X } from 'lucide-react';
+import { RefreshCw, Sparkles, Sun, Moon, Lock, Unlock } from 'lucide-react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 
 export default function AdminDashboardPage() {
@@ -21,7 +22,7 @@ export default function AdminDashboardPage() {
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
   const [toggling, setToggling] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [toastType, setToastType] = useState<'success' | 'info'>('success');
+  const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('success');
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState<ApplicationRecord | null>(null);
 
@@ -47,7 +48,7 @@ export default function AdminDashboardPage() {
     setIsRegistrationOpen(nextState);
     setToggling(false);
 
-    setToastType(nextState ? 'success' : 'info');
+    setToastType(nextState ? 'success' : 'error');
     setToastMessage(nextState ? 'Registration Portal Opened! Students can now submit applications.' : 'Registration Portal Closed! Form locked on public site.');
     
     setTimeout(() => {
@@ -137,29 +138,18 @@ export default function AdminDashboardPage() {
         />
 
         {/* Application Detail & Status Modal */}
-        {selectedApp && (
-          <ApplicationDetailModal
-            application={selectedApp}
-            onClose={() => setSelectedApp(null)}
-            onUpdate={loadData}
-          />
-        )}
+        <ApplicationDetailModal
+          application={selectedApp}
+          onClose={() => setSelectedApp(null)}
+          onUpdate={loadData}
+        />
 
-        {/* Toast Notification */}
-        {toastMessage && (
-          <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-2xl border border-neutral-700 dark:border-neutral-300 text-xs font-bold transition-all duration-300 animate-bounce-short">
-            <div className={`p-1 rounded-full ${toastType === 'success' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
-              {toastType === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-            </div>
-            <span>{toastMessage}</span>
-            <button
-              onClick={() => setToastMessage(null)}
-              className="ml-2 p-1 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors opacity-80 hover:opacity-100"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
+        {/* Reusable UI Toast Component */}
+        <Toast
+          message={toastMessage}
+          type={toastType}
+          onClose={() => setToastMessage(null)}
+        />
 
       </main>
 

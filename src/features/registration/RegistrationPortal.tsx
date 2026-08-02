@@ -327,8 +327,10 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 >
                   <option value="BSIT">BSIT (Information Technology)</option>
                   <option value="BSCS">BSCS (Computer Science)</option>
-                  <option value="Associate in Computer Tech">Associate in Computer Tech</option>
-                  <option value="Other Senior High / Tech Track">Other Senior High / Tech Track</option>
+                  <option value="BSA">BSBA (Accounting)</option>
+                  <option value="BSBA">BSBA (Business Administration)</option>
+                  <option value="BSHM">BSBA (Hotel Management)</option>
+                  <option value="Other Senxcior High / Tech Track">Other Senior High / Tech Track</option>
                 </select>
               </div>
 
@@ -387,7 +389,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
 
             {/* Portfolio Link */}
             <FloatingInput
-              label="Portfolio / GitHub / Behance Link (Optional)"
+              label="Portfolio / GitHub / LinkedIn Link (Optional)"
               type="url"
               maxLength={150}
               value={formData.portfolioUrl}
