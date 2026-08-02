@@ -99,7 +99,7 @@ export default function Footer() {
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500 dark:text-neutral-400 font-medium">
           <p>&copy; {new Date().getFullYear()} Computer Studies Organization (CSO). All rights reserved.</p>
           <p className="flex items-center gap-1">
-            Develope by Melecio Andre Cabahug - CSO (2025 - 2026) Internal Vice Chairman
+            Developed by Melecio Andre Cabahug - CSO (2025 - 2026) Internal Vice Chairman
           </p>
         </div>
 
