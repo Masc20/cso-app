@@ -18,16 +18,12 @@
   --card-border: #27272a;
 }
 
-/* Prevent color/background fading delays across all DOM tags during theme toggles */
-*, *::before, *::after {
-  transition-property: transform, opacity;
-}
-
 body {
   background-color: var(--bg-page);
   color: var(--text-main);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   overflow-x: hidden;
+  transition: none !important;
 }
 
 /* Custom Downward Ribbon Shape matching Landing page layout.jpg */

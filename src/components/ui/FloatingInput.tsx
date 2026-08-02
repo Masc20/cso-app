@@ -42,11 +42,12 @@ export default function FloatingInput({
           placeholder=""
           className={`peer w-full rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm pt-5 pb-2.5 shadow-sm ${
             icon ? 'pl-10 pr-4' : 'px-4'
-          } focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all ${className}`}
+          } focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 ${className}`}
         />
 
         <label
-          className={`absolute pointer-events-none transition-all duration-200 ease-out origin-top-left ${
+          style={{ transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)' }}
+          className={`absolute pointer-events-none origin-top-left ${
             icon ? 'left-10' : 'left-4'
           } ${
             isFloating

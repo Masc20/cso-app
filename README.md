@@ -64,7 +64,7 @@ cso-app/src/
 │       └── RegistrationPortal.tsx # Application form & live open/closed notice
 ├── hooks/
 │   ├── useAdminAuth.ts          # Supabase auth session hook
-│   ├── useDarkMode.ts           # System OS theme manager & document class syncer
+│   └── useDarkMode.ts           # System OS theme manager & document class syncer
 │   └── useRateLimiter.ts        # Client rate limiter hook
 └── lib/
     ├── serverRateLimit.ts       # Server RAM in-memory rate limiter engine
@@ -110,9 +110,9 @@ To access the Admin Portal, visit [http://localhost:3000/admin/login](http://loc
 
 ---
 
-## Supabase Database Setup Query
+## Fresh Supabase Database Setup Query
 
-Copy and paste the following script into your **Supabase SQL Editor** to create all tables, unique constraints, and Row Level Security (RLS) policies:
+Copy and paste the following clean setup script into your **Supabase SQL Editor** on a fresh project:
 
 ```sql
 -- 1. Create the committee applications table with UNIQUE student_id constraint
@@ -141,25 +141,25 @@ CREATE TABLE IF NOT EXISTS public.cso_settings (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Insert initial registration status
+-- 3. Insert initial registration status (Registration OPEN by default)
 INSERT INTO public.cso_settings (key, value)
 VALUES ('is_registration_open', 'true'::jsonb)
 ON CONFLICT (key) DO NOTHING;
 
--- 3. Enable Row Level Security (RLS)
+-- 4. Enable Row Level Security (RLS)
 ALTER TABLE public.committee_applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.cso_settings ENABLE ROW LEVEL SECURITY;
 
--- 4. RLS Policies for committee_applications
-CREATE POLICY "Allow public registration upserts" 
+-- 5. Row Level Security Policies for committee_applications
+CREATE POLICY "Allow public registration inserts and updates" 
 ON public.committee_applications FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
--- 5. RLS Policies for cso_settings
+-- 6. Row Level Security Policies for cso_settings
 CREATE POLICY "Allow public read settings" 
 ON public.cso_settings FOR SELECT TO anon, authenticated USING (true);
 
-CREATE POLICY "Allow update settings" 
-ON public.cso_settings FOR ALL TO anon, authenticated USING (true); 
+CREATE POLICY "Allow admin update settings" 
+ON public.cso_settings FOR ALL TO anon, authenticated USING (true);
 ```
 
 ---

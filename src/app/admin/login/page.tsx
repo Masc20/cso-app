@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, Mail, ShieldCheck, ArrowRight, AlertCircle, Sun, Moon, ArrowLeft, Clock } from 'lucide-react';
+import { Lock, Mail, ShieldCheck, ArrowRight, AlertCircle, Sun, Moon, ArrowLeft, Clock, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import FloatingInput from '@/components/ui/FloatingInput';
 import { useDarkMode } from '@/hooks/useDarkMode';
@@ -18,11 +18,12 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  const isFormValid = email.trim().length >= 4 && email.includes('@') && password.length >= 1;
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isLocked) {
-      setErrorMsg(`Account locked due to 3 failed attempts. Please wait ${remainingSeconds}s.`);
+    if (isLocked || !isFormValid) {
       return;
     }
 
@@ -74,7 +75,7 @@ export default function AdminLoginPage() {
       <div className="absolute top-6 inset-x-6 sm:inset-x-12 flex items-center justify-between z-10">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#fafaf8] dark:bg-[#18181b] hover:bg-[#ebebe8] dark:hover:bg-[#27272a] text-xs font-extrabold text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-[#27272a] transition-colors shadow-sm"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#fafaf8] dark:bg-[#18181b] hover:bg-[#ebebe8] dark:hover:bg-[#27272a] text-xs font-extrabold text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-[#27272a] shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" /> Main Website
         </Link>
@@ -82,7 +83,7 @@ export default function AdminLoginPage() {
         <button
           onClick={() => setDarkMode(prev => !prev)}
           aria-label="Toggle Light & Dark Mode"
-          className="p-2.5 rounded-lg bg-[#fafaf8] dark:bg-[#18181b] hover:bg-[#ebebe8] dark:hover:bg-[#27272a] text-neutral-800 dark:text-neutral-200 transition-colors border border-neutral-300 dark:border-[#27272a] shadow-sm"
+          className="p-2.5 rounded-lg bg-[#fafaf8] dark:bg-[#18181b] hover:bg-[#ebebe8] dark:hover:bg-[#27272a] text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-[#27272a] shadow-sm"
           title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
           {darkMode ? (
@@ -161,14 +162,17 @@ export default function AdminLoginPage() {
             onChange={e => setPassword(e.target.value)}
           />
 
-          {/* Submit Button */}
+          {/* Submit Button with Loading State & Field Validation Disable */}
           <button
             type="submit"
-            disabled={isLocked || loading}
-            className="w-full py-3.5 px-6 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-neutral-100 dark:text-neutral-900 font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 mt-2"
+            disabled={isLocked || loading || !isFormValid}
+            className="w-full py-3.5 px-6 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-neutral-100 dark:text-neutral-900 font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed mt-2"
           >
             {loading ? (
-              <span>Authenticating...</span>
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-amber-400 dark:text-amber-600" />
+                <span>Authenticating...</span>
+              </>
             ) : isLocked ? (
               <span>Locked ({remainingSeconds}s)</span>
             ) : (

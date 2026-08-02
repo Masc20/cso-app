@@ -31,11 +31,12 @@ export default function FloatingTextarea({
         required={required}
         rows={rows}
         placeholder=""
-        className={`peer w-full rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm pt-6 pb-2.5 px-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all ${className}`}
+        className={`peer w-full rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm pt-6 pb-2.5 px-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 ${className}`}
       />
 
       <label
-        className={`absolute left-4 pointer-events-none transition-all duration-200 ease-out origin-top-left ${
+        style={{ transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)' }}
+        className={`absolute left-4 pointer-events-none origin-top-left ${
           isFloating
             ? 'top-1.5 text-[10px] font-extrabold tracking-wide text-amber-600 dark:text-amber-400'
             : 'top-3.5 text-sm font-semibold text-neutral-500 dark:text-neutral-400'

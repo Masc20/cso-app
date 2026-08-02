@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Send, CheckCircle2, AlertCircle, User, Link as LinkIcon, GraduationCap, Code, ShieldCheck, Lock, ExternalLink, Clock } from 'lucide-react';
+import { Send, CheckCircle2, AlertCircle, User, Link as LinkIcon, GraduationCap, Code, ShieldCheck, Lock, ExternalLink, Clock, Loader2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import FloatingInput from '@/components/ui/FloatingInput';
 import FloatingTextarea from '@/components/ui/FloatingTextarea';
@@ -33,6 +33,19 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
   const [errorMsg, setErrorMsg] = useState('');
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
 
+  const isFormValid = Boolean(
+    formData.firstName.trim().length >= 1 &&
+    formData.lastName.trim().length >= 1 &&
+    formData.studentId.trim().length >= 3 &&
+    formData.courseProgram &&
+    formData.yearLevel &&
+    formData.primaryCommittee &&
+    formData.facebookLink.trim().length >= 5 &&
+    isValidFacebookUrl(formData.facebookLink.trim()) &&
+    formData.motivationStatement.trim().length >= 10 &&
+    (!formData.portfolioUrl.trim() || isValidHttpUrl(formData.portfolioUrl.trim()))
+  );
+
   useEffect(() => {
     const checkStatus = async () => {
       const open = await fetchRegistrationStatus();
@@ -58,12 +71,11 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isRegistrationOpen || cooldownSeconds > 0) return;
+    if (!isRegistrationOpen || cooldownSeconds > 0 || !isFormValid) return;
 
     setLoading(true);
     setErrorMsg('');
 
-    // 1. Sanitize input fields
     const cleanStudentId = sanitizeString(formData.studentId);
     const cleanFirstName = sanitizeString(formData.firstName);
     const cleanMiddleName = sanitizeString(formData.middleName);
@@ -72,7 +84,6 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     const cleanPortfolioUrl = sanitizeString(formData.portfolioUrl);
     const cleanMotivation = sanitizeString(formData.motivationStatement);
 
-    // 2. Perform Validation Checks
     if (!cleanFirstName || !cleanLastName) {
       setErrorMsg('Please enter your full first name and last name.');
       setLoading(false);
@@ -434,14 +445,17 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               onChange={e => setFormData({ ...formData, motivationStatement: e.target.value })}
             />
 
-            {/* Submit Button */}
+            {/* Submit Button with Animated Loading State & Validation Disable */}
             <button
               type="submit"
-              disabled={cooldownSeconds > 0 || loading}
-              className="w-full py-3.5 px-6 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-[#27272a] dark:hover:bg-[#3f3f46] dark:text-neutral-100 font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 border border-transparent dark:border-[#3f3f46]"
+              disabled={cooldownSeconds > 0 || loading || !isFormValid}
+              className="w-full py-3.5 px-6 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-[#27272a] dark:hover:bg-[#3f3f46] dark:text-neutral-100 font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed border border-transparent dark:border-[#3f3f46]"
             >
               {loading ? (
-                <span>Validating & Submitting...</span>
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
+                  <span>Submitting Application...</span>
+                </>
               ) : cooldownSeconds > 0 ? (
                 <span>Cooldown ({cooldownSeconds}s)</span>
               ) : (

@@ -86,7 +86,7 @@ export async function fetchRegistrationStatus(): Promise<boolean> {
       .single();
 
     if (error || !data) {
-      return false;
+      return true;
     }
 
     if (typeof data.value === 'boolean') return data.value;
