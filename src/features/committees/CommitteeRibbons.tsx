@@ -75,13 +75,13 @@ export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbons
   return (
     <section id="committees" className="relative w-full bg-[#e5e5df] dark:bg-[#121215] pt-20 pb-20 px-4 mt-20 transition-colors">
       
-      {/* Central CSO Logo Badge with Top Shadow */}
+      {/* Central CSO Logo Badge */}
       <div className="absolute -top-16 sm:-top-20 left-1/2 -translate-x-1/2 z-20">
         <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full p-3 sm:p-4 bg-[#E5E5DF] dark:bg-[#121215] flex items-center justify-center">
           <img 
             src="/imgs/CSOLOGO.png" 
             alt="CSO Logo" 
-            className="w-full h-full object-contain drop-shadow-xl"
+            className="w-full h-full object-contain"
           />
         </div>
       </div>

@@ -36,48 +36,47 @@ function updateLocalApplicationRecord(id: string, updates: Partial<ApplicationRe
   }
 }
 
+/**
+ * Fetches applications with Supabase as the Single Source of Truth.
+ * If a record is deleted from Supabase backend, it is immediately removed from the FE table.
+ */
 export async function fetchApplications(): Promise<ApplicationRecord[]> {
-  let dbApps: ApplicationRecord[] = [];
-  let localApps: ApplicationRecord[] = [];
-
-  // 1. Query Real Supabase Database Table
   try {
     const { data, error } = await supabase
       .from('committee_applications')
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.warn('Supabase fetch note:', error.message);
-    } else if (data && data.length > 0) {
-      dbApps = data.map(item => ({
+    if (!error && data) {
+      // Sync local cache with true DB state
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('cso_local_applications', JSON.stringify(data));
+      }
+      return data.map(item => ({
         ...item,
         application_status: item.application_status || 'Pending'
       }));
+    }
+
+    if (error) {
+      console.warn('Supabase fetch query note:', error.message);
     }
   } catch (err) {
     console.warn('Supabase applications fetch exception:', err);
   }
 
-  // 2. Fetch from LocalStorage cache as fallback/supplement
   if (typeof window !== 'undefined') {
     try {
       const stored = localStorage.getItem('cso_local_applications');
       if (stored) {
-        localApps = JSON.parse(stored);
+        return JSON.parse(stored);
       }
     } catch (e) {
       console.warn('Error reading local applications cache:', e);
     }
   }
 
-  const combinedMap = new Map<string, ApplicationRecord>();
-  localApps.forEach(app => combinedMap.set(app.id || app.student_id, app));
-  dbApps.forEach(app => combinedMap.set(app.id, app));
-
-  return Array.from(combinedMap.values()).sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
+  return [];
 }
 
 export async function updateApplicationStatus(id: string, status: string): Promise<boolean> {

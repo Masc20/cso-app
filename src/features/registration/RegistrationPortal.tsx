@@ -414,7 +414,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
 
             {/* Portfolio Link */}
             <FloatingInput
-              label="Portfolio / GitHub / Behance Link (Optional)"
+              label="Portfolio / GitHub / LinkedIn Link (Optional)"
               type="url"
               disabled={cooldownSeconds > 0 || loading}
               maxLength={150}
