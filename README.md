@@ -155,14 +155,11 @@ CREATE POLICY "Allow public registration upserts"
 ON public.committee_applications FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
 -- 5. RLS Policies for cso_settings
-DROP POLICY IF EXISTS "Allow public read settings" ON public.cso_settings;
-DROP POLICY IF EXISTS "Allow update settings" ON public.cso_settings;
-
 CREATE POLICY "Allow public read settings" 
 ON public.cso_settings FOR SELECT TO anon, authenticated USING (true);
 
 CREATE POLICY "Allow update settings" 
-ON public.cso_settings FOR ALL TO anon, authenticated USING (true);
+ON public.cso_settings FOR ALL TO anon, authenticated USING (true); 
 ```
 
 ---
