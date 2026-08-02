@@ -1,49 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Send, CheckCircle2, AlertCircle, Sparkles, User, Link as LinkIcon, GraduationCap, Code, ShieldCheck, Lock, ExternalLink } from 'lucide-react';
+import { Send, CheckCircle2, AlertCircle, User, Link as LinkIcon, GraduationCap, Code, ShieldCheck, Lock, ExternalLink } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/lib/supabase';
 import FloatingInput from '@/components/ui/FloatingInput';
 import FloatingTextarea from '@/components/ui/FloatingTextarea';
 import { fetchRegistrationStatus } from '@/features/admin/services/adminApi';
+import { sanitizeString, isValidFacebookUrl, isValidHttpUrl } from '@/lib/utils/validation';
 
 interface RegistrationPortalProps {
   selectedCommittee: string;
 }
-
-// Input Sanitization Helper Function (Prevents XSS & Injection attacks)
-const sanitizeString = (str: string): string => {
-  if (!str) return '';
-  return str
-    .replace(/<[^>]*>?/gm, '') // Strip HTML tags
-    .replace(/javascript:/gi, '') // Remove dangerous URI schemes
-    .replace(/on\w+=/gi, '') // Remove inline event handlers (e.g. onload=)
-    .trim();
-};
-
-// URL Validator
-const isValidFacebookUrl = (url: string): boolean => {
-  try {
-    const parsed = new URL(url);
-    const host = parsed.hostname.toLowerCase();
-    return (
-      (host === 'facebook.com' || host === 'www.facebook.com' || host === 'm.facebook.com' || host === 'fb.com') &&
-      parsed.protocol === 'https:'
-    );
-  } catch {
-    return false;
-  }
-};
-
-const isValidHttpUrl = (url: string): boolean => {
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-  } catch {
-    return false;
-  }
-};
 
 export default function RegistrationPortal({ selectedCommittee }: RegistrationPortalProps) {
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
@@ -87,7 +55,6 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     setLoading(true);
     setErrorMsg('');
 
-    // 1. Sanitize all user input fields
     const cleanStudentId = sanitizeString(formData.studentId);
     const cleanFirstName = sanitizeString(formData.firstName);
     const cleanMiddleName = sanitizeString(formData.middleName);
@@ -96,7 +63,6 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     const cleanPortfolioUrl = sanitizeString(formData.portfolioUrl);
     const cleanMotivation = sanitizeString(formData.motivationStatement);
 
-    // 2. Perform Validation Checks
     if (!cleanFirstName || !cleanLastName) {
       setErrorMsg('Please enter your full first name and last name.');
       setLoading(false);
@@ -128,7 +94,6 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     }
 
     try {
-      // 3. Save Sanitized Payload to Supabase
       const { error } = await supabase
         .from('committee_applications')
         .insert([

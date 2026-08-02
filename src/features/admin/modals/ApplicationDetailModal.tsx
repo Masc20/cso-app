@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { X, ExternalLink, GraduationCap, Code, FileText, CheckCircle2, Save } from 'lucide-react';
 import { ApplicationRecord, updateApplicationStatus, updateAdminNotes } from '../services/adminApi';
 import Modal from '@/components/ui/Modal';
+import { sanitizeString } from '@/lib/utils/validation';
 
 interface ApplicationDetailModalProps {
   application: ApplicationRecord | null;
@@ -30,8 +31,10 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
     setSaving(true);
     setSaveSuccess(false);
 
+    const cleanNotes = sanitizeString(notes);
+
     await updateApplicationStatus(application.id, status);
-    await updateAdminNotes(application.id, notes);
+    await updateAdminNotes(application.id, cleanNotes);
 
     setSaving(false);
     setSaveSuccess(true);
@@ -194,6 +197,7 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
                 placeholder="e.g. Interview scheduled for Tuesday..."
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
+                maxLength={500}
                 className="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/50"
               />
             </div>

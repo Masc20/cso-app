@@ -2,15 +2,16 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, Mail, ShieldCheck, ArrowRight, AlertCircle, Sun, Moon, ArrowLeft } from 'lucide-react';
+import { Lock, Mail, ShieldCheck, ArrowRight, AlertCircle, Sun, Moon, ArrowLeft, Clock } from 'lucide-react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
 import FloatingInput from '@/components/ui/FloatingInput';
 import { useDarkMode } from '@/hooks/useDarkMode';
+import { useRateLimiter } from '@/hooks/useRateLimiter';
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const { darkMode, setDarkMode } = useDarkMode();
+  const { isLocked, remainingSeconds, recordFailedAttempt, resetLimiter } = useRateLimiter();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,27 +20,50 @@ export default function AdminLoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isLocked) {
+      setErrorMsg(`Account locked due to 3 failed attempts. Please wait ${remainingSeconds}s.`);
+      return;
+    }
+
     setLoading(true);
     setErrorMsg('');
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
+      // Send Request to Next.js Server API Route with Server RAM Rate Limiter
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       });
 
-      if (error) {
-        setErrorMsg(error.message);
+      const data = await res.json();
+
+      if (!res.ok) {
+        const { locked, attemptsLeft } = recordFailedAttempt();
         setLoading(false);
+
+        if (res.status === 429 || data.isLocked || locked) {
+          setErrorMsg(data.error || 'Maximum 3 failed attempts reached! Form locked for 60 seconds.');
+        } else {
+          setErrorMsg(data.error || `Invalid credentials. (${attemptsLeft} attempts remaining)`);
+        }
         return;
       }
 
-      if (data.session) {
-        router.push('/admin/dashboard');
-      }
+      // Successful login
+      resetLimiter();
+      router.push('/admin/dashboard');
+
     } catch (err: any) {
-      setErrorMsg(err?.message || 'Authentication failed. Please check your credentials.');
+      const { locked, attemptsLeft } = recordFailedAttempt();
       setLoading(false);
+
+      if (locked) {
+        setErrorMsg('Maximum 3 failed attempts reached! Form locked for 60 seconds.');
+      } else {
+        setErrorMsg(`Authentication failed. (${attemptsLeft} attempts remaining)`);
+      }
     }
   };
 
@@ -93,21 +117,35 @@ export default function AdminLoginPage() {
           </p>
         </div>
 
-        {/* Error Alert */}
-        {errorMsg && (
+        {/* Rate Limiter Lockout Banner */}
+        {isLocked && (
+          <div className="mb-6 p-4 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-extrabold flex items-center gap-3 animate-pulse">
+            <Clock className="w-5 h-5 shrink-0" />
+            <div>
+              <p>Too many failed login attempts (3/3).</p>
+              <p className="text-[11px] font-bold mt-0.5 opacity-90">
+                Form locked. Retry available in <span className="font-mono text-sm underline">{remainingSeconds}s</span>
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Standard Error Alert */}
+        {!isLocked && errorMsg && (
           <div className="mb-6 p-4 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs flex items-center gap-2 font-bold">
             <AlertCircle className="w-4 h-4 shrink-0" />
             {errorMsg}
           </div>
         )}
 
-        {/* Login Form with Animated Floating Inputs */}
+        {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           
           <FloatingInput
             label="Officer Email Address"
             type="email"
             required
+            disabled={isLocked || loading}
             icon={<Mail className="w-4 h-4" />}
             value={email}
             onChange={e => setEmail(e.target.value)}
@@ -117,6 +155,7 @@ export default function AdminLoginPage() {
             label="Password"
             type="password"
             required
+            disabled={isLocked || loading}
             icon={<Lock className="w-4 h-4" />}
             value={password}
             onChange={e => setPassword(e.target.value)}
@@ -125,11 +164,13 @@ export default function AdminLoginPage() {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={isLocked || loading}
             className="w-full py-3.5 px-6 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-neutral-100 dark:text-neutral-900 font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 mt-2"
           >
             {loading ? (
               <span>Authenticating...</span>
+            ) : isLocked ? (
+              <span>Locked ({remainingSeconds}s)</span>
             ) : (
               <>
                 Login to Admin Dashboard <ArrowRight className="w-4 h-4" />
