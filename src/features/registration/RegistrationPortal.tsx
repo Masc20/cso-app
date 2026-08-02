@@ -20,9 +20,9 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     middleName: '',
     lastName: '',
     facebookLink: '',
-    yearLevel: '',
-    courseProgram: '',
-    primaryCommittee: selectedCommittee || '',
+    yearLevel: '',           // Default empty for -- Select Year Level --
+    courseProgram: '',       // Default empty for -- Select Program / Course --
+    primaryCommittee: selectedCommittee || '', // Default empty unless committee card clicked
     secondaryCommittee: 'None',
     portfolioUrl: '',
     motivationStatement: ''
@@ -64,6 +64,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     setLoading(true);
     setErrorMsg('');
 
+    // 1. Sanitize input fields
     const cleanStudentId = sanitizeString(formData.studentId);
     const cleanFirstName = sanitizeString(formData.firstName);
     const cleanMiddleName = sanitizeString(formData.middleName);
@@ -72,6 +73,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     const cleanPortfolioUrl = sanitizeString(formData.portfolioUrl);
     const cleanMotivation = sanitizeString(formData.motivationStatement);
 
+    // 2. Perform Validation Checks
     if (!cleanFirstName || !cleanLastName) {
       setErrorMsg('Please enter your full first name and last name.');
       setLoading(false);
@@ -121,6 +123,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     }
 
     try {
+      // Post to Server API Route with In-Memory Rate Limiter & Single Insertion Point
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -174,7 +177,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
 
   return (
     <section id="register" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="bg-[#fafaf8] dark:bg-[#121215] border-2 border-[#e0e0da] dark:border-[#27272a] rounded-xl p-6 sm:p-10 shadow-xl relative overflow-hidden transition-colors">
+      <div className="bg-[#fafaf8] dark:bg-[#121215] border-2 border-[#e0e0da] dark:border-[#27272a] rounded-xl p-6 sm:p-10 shadow-xl relative overflow-hidden">
         
         {/* Top Decorative Color Line */}
         <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-amber-500 via-emerald-500 to-fuchsia-500" />
@@ -216,7 +219,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 href="https://www.facebook.com/profile.php?id=100094218363222"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1877f2] text-white font-extrabold text-xs uppercase tracking-wider hover:opacity-90 transition-opacity shadow-md"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1877f2] text-white font-extrabold text-xs uppercase tracking-wider hover:opacity-90 shadow-md"
               >
                 Follow Official CSO Facebook Page <ExternalLink className="w-4 h-4" />
               </a>
@@ -250,7 +253,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                   motivationStatement: ''
                 });
               }}
-              className="mt-4 px-6 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 text-white font-bold text-xs uppercase tracking-wider transition-opacity"
+              className="mt-4 px-6 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 text-white font-bold text-xs uppercase tracking-wider"
             >
               Submit Another Application
             </button>
@@ -437,7 +440,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
             <button
               type="submit"
               disabled={cooldownSeconds > 0 || loading}
-              className="w-full py-3.5 px-6 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-[#27272a] dark:hover:bg-[#3f3f46] dark:text-neutral-100 font-extrabold text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 border border-transparent dark:border-[#3f3f46]"
+              className="w-full py-3.5 px-6 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-[#27272a] dark:hover:bg-[#3f3f46] dark:text-neutral-100 font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 border border-transparent dark:border-[#3f3f46]"
             >
               {loading ? (
                 <span>Validating & Submitting...</span>

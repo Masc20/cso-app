@@ -68,7 +68,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className={`min-h-screen w-full bg-[#f2f2ef] text-neutral-900 dark:bg-[#09090b] dark:text-neutral-100 flex flex-col items-center justify-center p-4 transition-colors duration-300 relative ${darkMode ? 'dark' : ''}`}>
+    <div className={`min-h-screen w-full bg-[#f2f2ef] text-neutral-900 dark:bg-[#09090b] dark:text-neutral-100 flex flex-col items-center justify-center p-4 relative ${darkMode ? 'dark' : ''}`}>
       
       {/* Top Floating Controls: Back to Site & Theme Switcher */}
       <div className="absolute top-6 inset-x-6 sm:inset-x-12 flex items-center justify-between z-10">

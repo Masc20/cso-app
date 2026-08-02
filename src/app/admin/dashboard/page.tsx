@@ -62,7 +62,7 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className={`min-h-screen w-full flex flex-col md:flex-row bg-[#f2f2ef] text-neutral-900 dark:bg-[#09090b] dark:text-neutral-100 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
+    <div className={`min-h-screen w-full flex flex-col md:flex-row bg-[#f2f2ef] text-neutral-900 dark:bg-[#09090b] dark:text-neutral-100 ${darkMode ? 'dark' : ''}`}>
       
       {/* Sidebar Navigation */}
       <AdminSidebar
@@ -111,7 +111,7 @@ export default function AdminDashboardPage() {
             <button
               onClick={loadData}
               disabled={loading}
-              className="p-2.5 rounded-lg bg-[#fafaf8] dark:bg-[#18181b] hover:bg-[#ebebe8] dark:hover:bg-[#27272a] border border-neutral-300 dark:border-[#27272a] text-neutral-800 dark:text-neutral-200 transition-colors shadow-sm"
+              className="p-2.5 rounded-lg bg-[#fafaf8] dark:bg-[#18181b] hover:bg-[#ebebe8] dark:hover:bg-[#27272a] border border-neutral-300 dark:border-[#27272a] text-neutral-800 dark:text-neutral-200 shadow-sm"
               title="Refresh Data"
             >
               <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
@@ -120,7 +120,7 @@ export default function AdminDashboardPage() {
             {/* Theme Toggle */}
             <button
               onClick={() => setDarkMode(prev => !prev)}
-              className="p-2.5 rounded-lg bg-[#fafaf8] dark:bg-[#18181b] hover:bg-[#ebebe8] dark:hover:bg-[#27272a] border border-neutral-300 dark:border-[#27272a] text-neutral-800 dark:text-neutral-200 transition-colors shadow-sm"
+              className="p-2.5 rounded-lg bg-[#fafaf8] dark:bg-[#18181b] hover:bg-[#ebebe8] dark:hover:bg-[#27272a] border border-neutral-300 dark:border-[#27272a] text-neutral-800 dark:text-neutral-200 shadow-sm"
               title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
               {darkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-neutral-800" />}

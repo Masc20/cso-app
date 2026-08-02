@@ -31,7 +31,7 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
 
   return (
     <header 
-      className={`sticky top-0 z-50 w-full transition-all duration-300 border-b ${
+      className={`sticky top-0 z-50 w-full border-b ${
         scrolled 
           ? 'shadow-md py-3 backdrop-blur-md bg-[#fafaf8]/95 text-neutral-900 border-[#e0e0da] dark:bg-[#09090b]/95 dark:text-neutral-100 dark:border-[#27272a]' 
           : 'py-4 bg-[#fafaf8] text-neutral-900 border-[#e0e0da] dark:bg-[#09090b] dark:text-neutral-100 dark:border-[#27272a]'
@@ -52,7 +52,7 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
             />
           </div>
           <div>
-            <div className="font-extrabold text-base sm:text-lg tracking-wider text-neutral-900 dark:text-neutral-100 leading-none group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+            <div className="font-extrabold text-base sm:text-lg tracking-wider text-neutral-900 dark:text-neutral-100 leading-none group-hover:text-amber-600 dark:group-hover:text-amber-400">
               CSO
             </div>
             <div className="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 font-medium tracking-wide uppercase">
@@ -68,14 +68,14 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
           <nav className="hidden md:flex items-center space-x-5 font-medium text-sm">
             <button 
               onClick={() => scrollToSection('committees')} 
-              className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors flex items-center gap-1.5 py-1 text-neutral-800 dark:text-neutral-200 font-bold"
+              className="hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1.5 py-1 text-neutral-800 dark:text-neutral-200 font-bold"
             >
               <Users className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               Committees
             </button>
             <button 
               onClick={() => scrollToSection('gallery')} 
-              className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors flex items-center gap-1.5 py-1 text-neutral-800 dark:text-neutral-200 font-bold"
+              className="hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1.5 py-1 text-neutral-800 dark:text-neutral-200 font-bold"
             >
               <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               Media Gallery
@@ -93,7 +93,7 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
             href="https://www.facebook.com/profile.php?id=100094218363222"
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2.5 rounded-lg bg-[#1877f2]/10 hover:bg-[#1877f2]/20 text-[#1877f2] dark:bg-sky-500/10 dark:text-sky-400 dark:hover:bg-sky-500/20 transition-colors border border-[#1877f2]/20 dark:border-sky-500/30 focus:outline-none shadow-sm flex items-center justify-center"
+            className="p-2.5 rounded-lg bg-[#1877f2]/10 hover:bg-[#1877f2]/20 text-[#1877f2] dark:bg-sky-500/10 dark:text-sky-400 dark:hover:bg-sky-500/20 border border-[#1877f2]/20 dark:border-sky-500/30 focus:outline-none shadow-sm flex items-center justify-center"
             title="Official CSO Facebook Page"
           >
             <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
@@ -105,7 +105,7 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
           <button
             onClick={() => setDarkMode(prev => !prev)}
             aria-label="Toggle Light & Dark Mode"
-            className="p-2.5 rounded-lg bg-[#ebebe8] dark:bg-[#18181b] hover:bg-[#e0e0da] dark:hover:bg-[#27272a] text-neutral-800 dark:text-neutral-200 transition-colors border border-neutral-300 dark:border-[#27272a] focus:outline-none shadow-sm"
+            className="p-2.5 rounded-lg bg-[#ebebe8] dark:bg-[#18181b] hover:bg-[#e0e0da] dark:hover:bg-[#27272a] text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-[#27272a] focus:outline-none shadow-sm"
             title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
             {darkMode ? (

@@ -257,7 +257,7 @@ export default function MediaCarousel() {
   const currentItem = filteredItems[currentIndex] || MEDIA_ITEMS[0];
 
   return (
-    <section id="gallery" className="w-full py-12 overflow-hidden bg-[#f4f4f2] dark:bg-[#09090b] border-y border-[#e0e0da] dark:border-[#27272a] transition-colors">
+    <section id="gallery" className="w-full py-12 overflow-hidden bg-[#f4f4f2] dark:bg-[#09090b] border-y border-[#e0e0da] dark:border-[#27272a]">
       
       <div className="max-w-7xl mx-auto px-4 text-center mb-8">
         <span className="text-xs uppercase tracking-widest font-black text-amber-600 dark:text-amber-400">
@@ -279,7 +279,7 @@ export default function MediaCarousel() {
                 setActiveCategory(cat);
                 setCurrentIndex(0);
               }}
-              className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-md text-xs font-bold transition-all border ${
+              className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-md text-xs font-bold border ${
                 activeCategory === cat
                   ? 'bg-neutral-900 text-white border-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 dark:border-neutral-100 shadow-md'
                   : 'bg-[#fafaf8] text-neutral-800 border-neutral-300 dark:bg-[#18181b] dark:text-neutral-300 dark:border-[#27272a] hover:border-neutral-400'
@@ -299,7 +299,7 @@ export default function MediaCarousel() {
       <div 
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        className="relative w-full bg-[#121215] dark:bg-[#121215] shadow-2xl border-y border-[#d0d0c8] dark:border-[#27272a] select-none transition-colors"
+        className="relative w-full bg-[#121215] dark:bg-[#121215] shadow-2xl border-y border-[#d0d0c8] dark:border-[#27272a] select-none"
       >
         
         {/* Full-width Image Display Frame */}
@@ -307,7 +307,7 @@ export default function MediaCarousel() {
           
           {/* Ambient Background Blur */}
           <div 
-            className="absolute inset-0 bg-cover bg-center blur-2xl opacity-20 scale-110 pointer-events-none transition-all duration-700"
+            className="absolute inset-0 bg-cover bg-center blur-2xl opacity-20 scale-110 pointer-events-none"
             style={{ backgroundImage: `url("${currentItem.src}")` }}
           />
 
@@ -315,7 +315,7 @@ export default function MediaCarousel() {
           <img
             src={currentItem.src}
             alt={currentItem.title}
-            className="relative z-10 max-h-full max-w-full object-contain p-2 sm:p-4 transition-all duration-500 drop-shadow-2xl"
+            className="relative z-10 max-h-full max-w-full object-contain p-2 sm:p-4 drop-shadow-2xl"
           />
 
           {/* Top Floating Category Badge */}
@@ -332,23 +332,23 @@ export default function MediaCarousel() {
           {/* Zoom Fullscreen Button */}
           <button
             onClick={() => setIsZoomed(true)}
-            className="absolute top-3 right-3 sm:top-6 sm:right-6 z-20 p-2 sm:p-3 rounded-lg bg-neutral-900/80 backdrop-blur-md text-white hover:bg-neutral-900 transition-transform active:scale-95 border border-white/20 shadow-lg"
+            className="absolute top-3 right-3 sm:top-6 sm:right-6 z-20 p-2 sm:p-3 rounded-lg bg-neutral-900/80 backdrop-blur-md text-white hover:bg-neutral-900 border border-white/20 shadow-lg"
             title="Expand Fullscreen"
           >
             <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          {/* Left/Right Arrow Controls (HIDDEN ON MOBILE, VISIBLE ON TABLET & DESKTOP) */}
+          {/* Left/Right Arrow Controls */}
           <button
             onClick={handlePrev}
-            className="hidden sm:flex absolute left-6 top-1/2 -translate-y-1/2 z-20 p-3.5 rounded-lg bg-neutral-900/80 hover:bg-neutral-900 backdrop-blur-md text-white transition-transform active:scale-95 border border-white/20 shadow-2xl items-center justify-center"
+            className="hidden sm:flex absolute left-6 top-1/2 -translate-y-1/2 z-20 p-3.5 rounded-lg bg-neutral-900/80 hover:bg-neutral-900 backdrop-blur-md text-white border border-white/20 shadow-2xl items-center justify-center"
             title="Previous Image"
           >
             <ChevronLeft className="w-7 h-7" />
           </button>
           <button
             onClick={handleNext}
-            className="hidden sm:flex absolute right-6 top-1/2 -translate-y-1/2 z-20 p-3.5 rounded-lg bg-neutral-900/80 hover:bg-neutral-900 backdrop-blur-md text-white transition-transform active:scale-95 border border-white/20 shadow-2xl items-center justify-center"
+            className="hidden sm:flex absolute right-6 top-1/2 -translate-y-1/2 z-20 p-3.5 rounded-lg bg-neutral-900/80 hover:bg-neutral-900 backdrop-blur-md text-white border border-white/20 shadow-2xl items-center justify-center"
             title="Next Image"
           >
             <ChevronRight className="w-7 h-7" />
@@ -356,7 +356,7 @@ export default function MediaCarousel() {
         </div>
 
         {/* Full-width Caption & Controls Bar */}
-        <div className="w-full bg-[#fafaf8] text-neutral-900 border-t border-[#e0e0da] dark:bg-[#18181b] dark:text-white dark:border-[#27272a] px-4 sm:px-12 py-4 sm:py-5 flex flex-col sm:flex-row items-center justify-between gap-3 transition-colors">
+        <div className="w-full bg-[#fafaf8] text-neutral-900 border-t border-[#e0e0da] dark:bg-[#18181b] dark:text-white dark:border-[#27272a] px-4 sm:px-12 py-4 sm:py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-center sm:text-left">
             <h4 className="text-base sm:text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
               {currentItem.title}
@@ -370,7 +370,7 @@ export default function MediaCarousel() {
           <div className="flex items-center space-x-3">
             <button
               onClick={() => setIsPlaying(prev => !prev)}
-              className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg bg-[#ebebe8] text-neutral-800 hover:bg-[#e0e0da] border border-neutral-300 dark:bg-[#27272a] dark:text-neutral-200 dark:hover:bg-[#3f3f46] dark:border-[#3f3f46] transition-colors text-xs font-semibold flex items-center gap-1.5 shadow-sm"
+              className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg bg-[#ebebe8] text-neutral-800 hover:bg-[#e0e0da] border border-neutral-300 dark:bg-[#27272a] dark:text-neutral-200 dark:hover:bg-[#3f3f46] dark:border-[#3f3f46] text-xs font-semibold flex items-center gap-1.5 shadow-sm"
             >
               {isPlaying ? <Pause className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> : <Play className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
               {isPlaying ? 'Pause' : 'Play'}
@@ -383,7 +383,7 @@ export default function MediaCarousel() {
 
       </div>
 
-      {/* Fullscreen Lightbox Modal with Next/Prev Navigation */}
+      {/* Fullscreen Lightbox Modal */}
       {isZoomed && (
         <div 
           onTouchStart={handleTouchStart}
@@ -403,7 +403,7 @@ export default function MediaCarousel() {
             </div>
             <button
               onClick={() => setIsZoomed(false)}
-              className="p-2 sm:p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/20 shadow-lg"
+              className="p-2 sm:p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white border border-white/20 shadow-lg"
               title="Close Fullscreen (Esc)"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -412,10 +412,10 @@ export default function MediaCarousel() {
 
           {/* Center Image Display */}
           <div className="relative w-full flex-1 flex items-center justify-center my-2 sm:my-4 overflow-hidden">
-            {/* Left Nav Arrow (Hidden on Mobile) */}
+            {/* Left Nav Arrow */}
             <button
               onClick={handlePrev}
-              className="hidden sm:flex absolute left-6 z-30 p-3.5 rounded-lg bg-black/60 hover:bg-black/90 text-white transition-transform active:scale-95 border border-white/20 shadow-2xl backdrop-blur-md items-center justify-center"
+              className="hidden sm:flex absolute left-6 z-30 p-3.5 rounded-lg bg-black/60 hover:bg-black/90 text-white border border-white/20 shadow-2xl backdrop-blur-md items-center justify-center"
               title="Previous Image (Left Arrow)"
             >
               <ChevronLeft className="w-8 h-8" />
@@ -425,13 +425,13 @@ export default function MediaCarousel() {
             <img
               src={currentItem.src}
               alt={currentItem.title}
-              className="max-h-[75vh] max-w-[95vw] object-contain rounded-lg shadow-2xl drop-shadow-2xl transition-all duration-300"
+              className="max-h-[75vh] max-w-[95vw] object-contain rounded-lg shadow-2xl drop-shadow-2xl"
             />
 
-            {/* Right Nav Arrow (Hidden on Mobile) */}
+            {/* Right Nav Arrow */}
             <button
               onClick={handleNext}
-              className="hidden sm:flex absolute right-6 z-30 p-3.5 rounded-lg bg-black/60 hover:bg-black/90 text-white transition-transform active:scale-95 border border-white/20 shadow-2xl backdrop-blur-md items-center justify-center"
+              className="hidden sm:flex absolute right-6 z-30 p-3.5 rounded-lg bg-black/60 hover:bg-black/90 text-white border border-white/20 shadow-2xl backdrop-blur-md items-center justify-center"
               title="Next Image (Right Arrow)"
             >
               <ChevronRight className="w-8 h-8" />

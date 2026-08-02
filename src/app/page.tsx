@@ -22,7 +22,7 @@ export default function Home() {
   };
 
   return (
-    <div className={`min-h-screen w-full flex flex-col selection:bg-amber-500 selection:text-white bg-[#f2f2ef] text-slate-900 dark:bg-[#090a0f] dark:text-slate-100 transition-colors duration-300 ${darkMode ? 'dark' : ''}`}>
+    <div className={`min-h-screen w-full flex flex-col selection:bg-amber-500 selection:text-white bg-[#f4f4f2] text-neutral-900 dark:bg-[#09090b] dark:text-neutral-100 ${darkMode ? 'dark' : ''}`}>
       
       {/* Top Navbar */}
       <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />

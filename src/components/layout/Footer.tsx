@@ -6,7 +6,7 @@ import { COMMITTEES } from '@/data/committees';
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-[#e5e5df] text-neutral-800 border-t border-[#d0d0c8] dark:bg-[#09090b] dark:text-neutral-200 dark:border-[#27272a] pt-12 pb-8 mt-16 transition-colors">
+    <footer className="w-full bg-[#e5e5df] text-neutral-800 border-t border-[#d0d0c8] dark:bg-[#09090b] dark:text-neutral-200 dark:border-[#27272a] pt-12 pb-8 mt-16">
       <div className="w-full px-6 sm:px-10 md:px-14">
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-neutral-300 dark:border-[#27272a]">
@@ -32,7 +32,7 @@ export default function Footer() {
                 href="https://www.facebook.com/profile.php?id=100094218363222"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#3b5998]/10 text-[#3b5998] dark:bg-sky-500/10 dark:text-sky-400 border border-[#3b5998]/20 dark:border-sky-500/30 text-xs font-bold hover:opacity-80 transition-opacity"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#3b5998]/10 text-[#3b5998] dark:bg-sky-500/10 dark:text-sky-400 border border-[#3b5998]/20 dark:border-sky-500/30 text-xs font-bold hover:opacity-80"
               >
                 <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
