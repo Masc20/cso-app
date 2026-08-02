@@ -32,13 +32,13 @@ const MEDIA_ITEMS: MediaItem[] = [
     title: 'Community Favorite Award',
     category: 'Awards',
     src: '/imgs/Awards/COMMUNITYFAVORITE.png',
-    subtitle: 'Voted #1 by tech.'
+    subtitle: 'Voted #1 by campus student delegates and tech enthusiasts.'
   },
 
   // Officers
   {
     id: 'officers-1',
-    title: 'CSO Executive Officers, Committee Heads, & CS IT Mayors (2025-2026)',
+    title: 'CSO Executive Officers & Committee Heads',
     category: 'Officers',
     src: '/imgs/CSO Officers.jpg',
     subtitle: 'Leading the Computer Studies Organization towards tech excellence.'
@@ -61,10 +61,10 @@ const MEDIA_ITEMS: MediaItem[] = [
   },
   {
     id: 'act-ethph-1',
-    title: 'ETHPH Web3 & Blockchain',
+    title: 'ETHPH Web3 & Blockchain Summit',
     category: 'Activities',
     src: '/imgs/Activities/ETHPH/ETHPH.jpg',
-    subtitle: 'CSO members attending ETHPH Web3 developer mentorship & conference.'
+    subtitle: 'CSO members attending ETHPH Web3 developer conference.'
   },
   {
     id: 'act-jscebu-1',
@@ -75,17 +75,17 @@ const MEDIA_ITEMS: MediaItem[] = [
   },
   {
     id: 'act-jscebu-2',
-    title: 'JS Cebu Developer - Group Photo',
+    title: 'JS Cebu Developer Summit - Group Photo',
     category: 'Activities',
     src: '/imgs/Activities/JSCEBU/JSCEBU2.jpg',
-    subtitle: 'CSO student developers networking at JS Cebu.'
+    subtitle: 'CSO student developers networking at JS Cebu Summit.'
   },
   {
     id: 'act-jscebu-3',
     title: 'JS Cebu Tech Conference - Keynote Session',
     category: 'Activities',
     src: '/imgs/Activities/JSCEBU/JSCEBU3.jpg',
-    subtitle: 'Attending expert talks on frontend & backend frameworks.'
+    subtitle: 'Attending expert talks on frontend & backend web frameworks.'
   },
   {
     id: 'act-jscebu-4',
@@ -96,31 +96,31 @@ const MEDIA_ITEMS: MediaItem[] = [
   },
   {
     id: 'act-networking-1',
-    title: 'Networking With Senior Web3 Developers',
+    title: 'Networking Infrastructure & Server Workshop',
     category: 'Activities',
     src: '/imgs/Activities/Networking1.jpg',
-    subtitle: 'Talking with Foreign Senior Web3 Developers alongside "Tuslo buwa"'
+    subtitle: 'Hands-on server configuration and LAN network setup.'
   },
   {
     id: 'act-school-1',
     title: 'CSO Campus Community Event',
     category: 'Activities',
     src: '/imgs/Activities/School/CSO damn_2.jpg',
-    subtitle: 'Bootcamp Attendies with the Professor Sir Ryan Prudenciado'
+    subtitle: 'Student tech organization campus gathering.'
   },
   {
     id: 'act-school-2',
-    title: 'CSO shanagans',
+    title: 'CSO Student Workshop Session',
     category: 'Activities',
     src: '/imgs/Activities/School/Random Pic1.jpg',
-    subtitle: 'Its fun in CSO, with a bit of stress here and there - Internal Vice Chairman'
+    subtitle: 'Interactive student collaboration & tech tool sharing.'
   },
   {
     id: 'act-sports-1',
-    title: 'Badminton with Mentors and Senior Developer',
+    title: 'CSO Intramurals Badminton Championship',
     category: 'Activities',
     src: '/imgs/Activities/Sports/Badminton1.jpg',
-    subtitle: 'Having fun, after a stressful session of AI and programming'
+    subtitle: 'CSO members representing the department in campus sports.'
   },
 
   // Certificates
@@ -129,49 +129,49 @@ const MEDIA_ITEMS: MediaItem[] = [
     title: 'Hacktoberfest 2025 Certificate - Alicaba',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-ALICABA.png',
-    subtitle: 'Certificate of Participation'
+    subtitle: 'Open Source Contribution Excellence'
   },
   {
     id: 'cert-2',
     title: 'Hacktoberfest 2025 Certificate - Cez',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-CEZ.png',
-    subtitle: 'Certificate of Participation'
+    subtitle: 'Global Developer Challenge Completer'
   },
   {
     id: 'cert-3',
     title: 'Hacktoberfest 2025 Certificate - Chavez',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-CHAVEZ.png',
-    subtitle: 'Certificate of Participation'
+    subtitle: 'Open Source Contributor'
   },
   {
     id: 'cert-4',
     title: 'Hacktoberfest 2025 Certificate - Elgin',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-ELGIN.png',
-    subtitle: 'Certificate of Participation'
+    subtitle: 'Technical Achievement Award'
   },
   {
     id: 'cert-5',
     title: 'Hacktoberfest 2025 Certificate - Mangyaw',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-MANGYAW.png',
-    subtitle: 'Certificate of Participation'
+    subtitle: 'Code Contributor Recognition'
   },
   {
     id: 'cert-6',
     title: 'Hacktoberfest 2025 Certificate - Manuel',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-MANUEL.png',
-    subtitle: 'Certificate of Participation'
+    subtitle: 'Open Source Developer'
   },
   {
     id: 'cert-7',
     title: 'Hacktoberfest 2025 Certificate - Neil',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-NEIL.png',
-    subtitle: 'Certificate of Participation'
+    subtitle: 'Global Hackathon Participant'
   },
   {
     id: 'cert-8',
@@ -254,7 +254,7 @@ export default function MediaCarousel() {
                 setActiveCategory(cat);
                 setCurrentIndex(0);
               }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+              className={`px-4 py-2 rounded-md text-xs font-bold transition-all border ${
                 activeCategory === cat
                   ? 'bg-neutral-900 text-white border-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 dark:border-neutral-100 shadow-md'
                   : 'bg-[#fafaf8] text-neutral-800 border-neutral-300 dark:bg-[#18181b] dark:text-neutral-300 dark:border-[#27272a] hover:border-neutral-400'
@@ -264,7 +264,7 @@ export default function MediaCarousel() {
               {cat === 'Awards' && <Trophy className="w-3.5 h-3.5 inline mr-1 text-amber-500" />}
               {cat === 'Certificates' && <Award className="w-3.5 h-3.5 inline mr-1 text-emerald-500" />}
               {cat === 'Officers' && <Users className="w-3.5 h-3.5 inline mr-1 text-fuchsia-500" />}
-              {cat}
+              {cat} {cat === 'Activities' ? `(${MEDIA_ITEMS.filter(i => i.category === 'Activities').length})` : ''}
             </button>
           ))}
         </div>
@@ -291,7 +291,7 @@ export default function MediaCarousel() {
 
           {/* Top Floating Category Badge */}
           <div className="absolute top-6 left-6 z-20">
-            <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-neutral-900/90 backdrop-blur-md text-white border border-white/20 flex items-center gap-2 shadow-lg">
+            <span className="px-4 py-1.5 rounded-md text-xs font-bold bg-neutral-900/90 backdrop-blur-md text-white border border-white/20 flex items-center gap-2 shadow-lg">
               {currentItem.category === 'Activities' && <Camera className="w-4 h-4 text-emerald-400" />}
               {currentItem.category === 'Awards' && <Trophy className="w-4 h-4 text-amber-400" />}
               {currentItem.category === 'Certificates' && <Award className="w-4 h-4 text-emerald-400" />}
@@ -303,7 +303,7 @@ export default function MediaCarousel() {
           {/* Zoom Fullscreen Button */}
           <button
             onClick={() => setIsZoomed(true)}
-            className="absolute top-6 right-6 z-20 p-3 rounded-full bg-neutral-900/90 backdrop-blur-md text-white hover:bg-neutral-900 transition-transform hover:scale-110 border border-white/20 shadow-lg"
+            className="absolute top-6 right-6 z-20 p-3 rounded-lg bg-neutral-900/90 backdrop-blur-md text-white hover:bg-neutral-900 transition-transform hover:scale-105 border border-white/20 shadow-lg"
             title="Expand Fullscreen"
           >
             <Maximize2 className="w-5 h-5" />
@@ -312,14 +312,14 @@ export default function MediaCarousel() {
           {/* Full-width Left/Right Arrow Controls */}
           <button
             onClick={handlePrev}
-            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-neutral-900/90 backdrop-blur-md text-white hover:bg-neutral-900 transition-transform hover:scale-110 border border-white/20 shadow-2xl"
+            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 p-3.5 rounded-lg bg-neutral-900/90 backdrop-blur-md text-white hover:bg-neutral-900 transition-transform hover:scale-105 border border-white/20 shadow-2xl"
             title="Previous Image"
           >
             <ChevronLeft className="w-7 h-7" />
           </button>
           <button
             onClick={handleNext}
-            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-neutral-900/90 backdrop-blur-md text-white hover:bg-neutral-900 transition-transform hover:scale-110 border border-white/20 shadow-2xl"
+            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 p-3.5 rounded-lg bg-neutral-900/90 backdrop-blur-md text-white hover:bg-neutral-900 transition-transform hover:scale-105 border border-white/20 shadow-2xl"
             title="Next Image"
           >
             <ChevronRight className="w-7 h-7" />
@@ -341,12 +341,12 @@ export default function MediaCarousel() {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setIsPlaying(prev => !prev)}
-              className="px-4 py-2 rounded-xl bg-[#ebebe8] text-neutral-800 hover:bg-[#e0e0da] border border-neutral-300 dark:bg-[#27272a] dark:text-neutral-200 dark:hover:bg-[#3f3f46] dark:border-[#3f3f46] transition-colors text-xs font-semibold flex items-center gap-2 shadow-sm"
+              className="px-4 py-2 rounded-lg bg-[#ebebe8] text-neutral-800 hover:bg-[#e0e0da] border border-neutral-300 dark:bg-[#27272a] dark:text-neutral-200 dark:hover:bg-[#3f3f46] dark:border-[#3f3f46] transition-colors text-xs font-semibold flex items-center gap-2 shadow-sm"
             >
               {isPlaying ? <Pause className="w-4 h-4 text-amber-600 dark:text-amber-400" /> : <Play className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
               {isPlaying ? 'Pause' : 'Play'}
             </button>
-            <span className="text-xs font-mono font-bold text-neutral-800 dark:text-neutral-300 bg-[#ebebe8] dark:bg-[#27272a] px-3 py-1.5 rounded-lg border border-neutral-300 dark:border-[#3f3f46] shadow-sm">
+            <span className="text-xs font-mono font-bold text-neutral-800 dark:text-neutral-300 bg-[#ebebe8] dark:bg-[#27272a] px-3 py-1.5 rounded-md border border-neutral-300 dark:border-[#3f3f46] shadow-sm">
               {currentIndex + 1} / {filteredItems.length}
             </span>
           </div>
@@ -361,16 +361,16 @@ export default function MediaCarousel() {
           {/* Top Bar: Title, Count, & Close Button */}
           <div className="w-full flex items-center justify-between z-20">
             <div className="flex items-center gap-3">
-              <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-white/10 text-white border border-white/20">
+              <span className="px-3.5 py-1 rounded-md text-xs font-bold bg-white/10 text-white border border-white/20">
                 {currentItem.category}
               </span>
-              <span className="text-xs font-mono font-bold text-white/80 bg-white/10 px-3 py-1 rounded-lg border border-white/15">
+              <span className="text-xs font-mono font-bold text-white/80 bg-white/10 px-3 py-1 rounded-md border border-white/15">
                 {currentIndex + 1} / {filteredItems.length}
               </span>
             </div>
             <button
               onClick={() => setIsZoomed(false)}
-              className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/20 shadow-lg"
+              className="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/20 shadow-lg"
               title="Close Fullscreen (Esc)"
             >
               <X className="w-6 h-6" />
@@ -382,7 +382,7 @@ export default function MediaCarousel() {
             {/* Left Nav Arrow */}
             <button
               onClick={handlePrev}
-              className="absolute left-2 sm:left-6 z-30 p-4 rounded-full bg-black/60 hover:bg-black/90 text-white transition-transform hover:scale-110 border border-white/20 shadow-2xl backdrop-blur-md"
+              className="absolute left-2 sm:left-6 z-30 p-3.5 rounded-lg bg-black/60 hover:bg-black/90 text-white transition-transform hover:scale-105 border border-white/20 shadow-2xl backdrop-blur-md"
               title="Previous Image (Left Arrow)"
             >
               <ChevronLeft className="w-8 h-8" />
@@ -392,13 +392,13 @@ export default function MediaCarousel() {
             <img
               src={currentItem.src}
               alt={currentItem.title}
-              className="max-h-[78vh] max-w-[90vw] object-contain rounded-xl shadow-2xl drop-shadow-2xl transition-all duration-300"
+              className="max-h-[78vh] max-w-[90vw] object-contain rounded-lg shadow-2xl drop-shadow-2xl transition-all duration-300"
             />
 
             {/* Right Nav Arrow */}
             <button
               onClick={handleNext}
-              className="absolute right-2 sm:right-6 z-30 p-4 rounded-full bg-black/60 hover:bg-black/90 text-white transition-transform hover:scale-110 border border-white/20 shadow-2xl backdrop-blur-md"
+              className="absolute right-2 sm:right-6 z-30 p-3.5 rounded-lg bg-black/60 hover:bg-black/90 text-white transition-transform hover:scale-105 border border-white/20 shadow-2xl backdrop-blur-md"
               title="Next Image (Right Arrow)"
             >
               <ChevronRight className="w-8 h-8" />

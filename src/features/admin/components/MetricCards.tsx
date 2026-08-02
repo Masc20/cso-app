@@ -32,7 +32,7 @@ export default function MetricCards({ applications }: MetricCardsProps) {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
       
       {/* Card 1: Total Applications */}
-      <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-2xl p-5 shadow-sm transition-all hover:shadow-md">
+      <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-xl p-5 shadow-sm transition-all hover:shadow-md">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
@@ -42,14 +42,14 @@ export default function MetricCards({ applications }: MetricCardsProps) {
               {total}
             </h4>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
             <Users className="w-6 h-6" />
           </div>
         </div>
       </div>
 
       {/* Card 2: Pending Reviews */}
-      <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-2xl p-5 shadow-sm transition-all hover:shadow-md">
+      <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-xl p-5 shadow-sm transition-all hover:shadow-md">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
@@ -59,14 +59,14 @@ export default function MetricCards({ applications }: MetricCardsProps) {
               {pending}
             </h4>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center justify-center">
             <Clock className="w-6 h-6" />
           </div>
         </div>
       </div>
 
       {/* Card 3: Approved Applicants */}
-      <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-2xl p-5 shadow-sm transition-all hover:shadow-md">
+      <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-xl p-5 shadow-sm transition-all hover:shadow-md">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
@@ -76,14 +76,14 @@ export default function MetricCards({ applications }: MetricCardsProps) {
               {approved}
             </h4>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
             <CheckCircle2 className="w-6 h-6" />
           </div>
         </div>
       </div>
 
       {/* Card 4: Top Preferred Committee */}
-      <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-2xl p-5 shadow-sm transition-all hover:shadow-md">
+      <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-xl p-5 shadow-sm transition-all hover:shadow-md">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
@@ -93,7 +93,7 @@ export default function MetricCards({ applications }: MetricCardsProps) {
               {topCommittee}
             </h4>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 border border-fuchsia-500/20 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 border border-fuchsia-500/20 flex items-center justify-center">
             <Award className="w-6 h-6" />
           </div>
         </div>

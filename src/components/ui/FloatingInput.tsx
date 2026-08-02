@@ -40,7 +40,7 @@ export default function FloatingInput({
           onBlur={() => setIsFocused(false)}
           required={required}
           placeholder=""
-          className={`peer w-full rounded-xl bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm pt-5 pb-2.5 shadow-sm ${
+          className={`peer w-full rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm pt-5 pb-2.5 shadow-sm ${
             icon ? 'pl-10 pr-4' : 'px-4'
           } focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all ${className}`}
         />

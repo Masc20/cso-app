@@ -73,7 +73,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
   };
 
   return (
-    <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-3xl p-6 shadow-xl transition-colors">
+    <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-xl p-6 shadow-xl transition-colors">
       
       {/* Controls Header: Search, Filters & Export */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
@@ -86,7 +86,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
             placeholder="Search student name, ID..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/50"
           />
         </div>
 
@@ -97,7 +97,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
           <select
             value={selectedCommittee}
             onChange={e => setSelectedCommittee(e.target.value)}
-            className="px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+            className="px-3.5 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
           >
             <option value="All">All Committees</option>
             <option value="G.A.D">G.A.D</option>
@@ -110,7 +110,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
           <select
             value={selectedStatus}
             onChange={e => setSelectedStatus(e.target.value)}
-            className="px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+            className="px-3.5 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
           >
             <option value="All">All Statuses</option>
             <option value="Pending">Pending</option>
@@ -124,7 +124,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
           <button
             onClick={handleExportCsv}
             disabled={filteredApps.length === 0}
-            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md disabled:opacity-50 ml-auto md:ml-0"
+            className="px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md disabled:opacity-50 ml-auto md:ml-0"
           >
             <Download className="w-4 h-4" /> Export CSV
           </button>
@@ -133,7 +133,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
       </div>
 
       {/* Applications Data Table */}
-      <div className="overflow-x-auto rounded-2xl border border-neutral-200 dark:border-[#27272a]">
+      <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-[#27272a]">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="bg-[#f4f4f2] dark:bg-[#121215] border-b border-neutral-200 dark:border-[#27272a] text-neutral-500 dark:text-neutral-400 font-extrabold uppercase tracking-wider">
@@ -168,7 +168,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
                     {app.primary_committee.replace(' Committee', '')}
                   </td>
                   <td className="py-3.5 px-4">
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border ${getStatusBadge(app.application_status || 'Pending')}`}>
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold border ${getStatusBadge(app.application_status || 'Pending')}`}>
                       {app.application_status || 'Pending'}
                     </span>
                   </td>
@@ -176,7 +176,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
                     {/* View Details */}
                     <button
                       onClick={() => onSelectApplication(app)}
-                      className="p-1.5 rounded-lg bg-neutral-200 dark:bg-[#27272a] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-[#3f3f46] transition-colors"
+                      className="p-1.5 rounded-md bg-neutral-200 dark:bg-[#27272a] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-[#3f3f46] transition-colors"
                       title="View Details"
                     >
                       <Eye className="w-4 h-4" />
@@ -187,7 +187,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
                       href={app.facebook_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-1.5 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 transition-colors inline-block"
+                      className="p-1.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 transition-colors inline-block"
                       title="Open Facebook Profile"
                     >
                       <ExternalLink className="w-4 h-4" />

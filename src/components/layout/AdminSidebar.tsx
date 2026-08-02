@@ -17,7 +17,7 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: Admi
       <div>
         {/* Brand Header */}
         <div className="flex items-center space-x-3 mb-8">
-          <div className="w-10 h-10 rounded-full bg-[#ebebe8] dark:bg-[#18181b] flex items-center justify-center p-1 border border-neutral-300 dark:border-[#27272a]">
+          <div className="w-10 h-10 rounded-lg bg-[#ebebe8] dark:bg-[#18181b] flex items-center justify-center p-1 border border-neutral-300 dark:border-[#27272a]">
             <img src="/imgs/CSOLOGO.png" alt="CSO Logo" className="w-full h-full object-contain" />
           </div>
           <div>
@@ -34,7 +34,7 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: Admi
         <nav className="space-y-2">
           <button
             onClick={() => setActiveTab('applications')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-colors text-left ${
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold transition-colors text-left ${
               activeTab === 'applications'
                 ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-md'
                 : 'text-neutral-700 dark:text-neutral-300 hover:bg-[#ebebe8] dark:hover:bg-[#18181b]'
@@ -51,7 +51,7 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: Admi
         {/* Back to Public Web Site */}
         <Link
           href="/"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-neutral-600 dark:text-neutral-400 hover:bg-[#ebebe8] dark:hover:bg-[#18181b] transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-neutral-600 dark:text-neutral-400 hover:bg-[#ebebe8] dark:hover:bg-[#18181b] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Main Website
         </Link>
@@ -59,7 +59,7 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: Admi
         {/* Logout Button */}
         <button
           onClick={onLogout}
-          className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 transition-colors"
+          className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 transition-colors"
         >
           <LogOut className="w-4 h-4" /> Admin Logout
         </button>

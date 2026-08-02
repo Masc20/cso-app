@@ -50,7 +50,7 @@ export default function AdminLoginPage() {
       <div className="absolute top-6 inset-x-6 sm:inset-x-12 flex items-center justify-between z-10">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#fafaf8] dark:bg-[#18181b] hover:bg-[#ebebe8] dark:hover:bg-[#27272a] text-xs font-extrabold text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-[#27272a] transition-colors shadow-sm"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#fafaf8] dark:bg-[#18181b] hover:bg-[#ebebe8] dark:hover:bg-[#27272a] text-xs font-extrabold text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-[#27272a] transition-colors shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" /> Main Website
         </Link>
@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
         <button
           onClick={() => setDarkMode(prev => !prev)}
           aria-label="Toggle Light & Dark Mode"
-          className="p-2.5 rounded-full bg-[#fafaf8] dark:bg-[#18181b] hover:bg-[#ebebe8] dark:hover:bg-[#27272a] text-neutral-800 dark:text-neutral-200 transition-colors border border-neutral-300 dark:border-[#27272a] shadow-sm"
+          className="p-2.5 rounded-lg bg-[#fafaf8] dark:bg-[#18181b] hover:bg-[#ebebe8] dark:hover:bg-[#27272a] text-neutral-800 dark:text-neutral-200 transition-colors border border-neutral-300 dark:border-[#27272a] shadow-sm"
           title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
           {darkMode ? (
@@ -70,7 +70,7 @@ export default function AdminLoginPage() {
       </div>
 
       {/* Login Card */}
-      <div className="bg-[#fafaf8] dark:bg-[#121215] border-2 border-[#e0e0da] dark:border-[#27272a] w-full max-w-md rounded-3xl p-8 shadow-2xl relative overflow-hidden my-auto">
+      <div className="bg-[#fafaf8] dark:bg-[#121215] border-2 border-[#e0e0da] dark:border-[#27272a] w-full max-w-md rounded-xl p-8 shadow-2xl relative overflow-hidden my-auto">
         
         {/* Top Decorative Line */}
         <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-amber-500 via-emerald-500 to-fuchsia-500" />
@@ -81,7 +81,7 @@ export default function AdminLoginPage() {
             <img src="/imgs/CSOLOGO.png" alt="CSO Logo" className="w-full h-full object-contain" />
           </div>
 
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
             <ShieldCheck className="w-3.5 h-3.5" /> CSO Officer Portal
           </span>
 
@@ -95,7 +95,7 @@ export default function AdminLoginPage() {
 
         {/* Error Alert */}
         {errorMsg && (
-          <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs flex items-center gap-2 font-bold">
+          <div className="mb-6 p-4 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs flex items-center gap-2 font-bold">
             <AlertCircle className="w-4 h-4 shrink-0" />
             {errorMsg}
           </div>
@@ -126,7 +126,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 px-6 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-neutral-100 dark:text-neutral-900 font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 mt-2"
+            className="w-full py-3.5 px-6 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-neutral-100 dark:text-neutral-900 font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 mt-2"
           >
             {loading ? (
               <span>Authenticating...</span>

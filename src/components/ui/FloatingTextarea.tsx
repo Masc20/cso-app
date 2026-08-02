@@ -31,7 +31,7 @@ export default function FloatingTextarea({
         required={required}
         rows={rows}
         placeholder=""
-        className={`peer w-full rounded-xl bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm pt-6 pb-2.5 px-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all ${className}`}
+        className={`peer w-full rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm pt-6 pb-2.5 px-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all ${className}`}
       />
 
       <label

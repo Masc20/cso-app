@@ -53,7 +53,7 @@ export async function updateApplicationStatus(id: string, status: string): Promi
     return true;
   } catch (err) {
     console.error('Failed to update status:', err);
-    return true; // Graceful fallback
+    return true;
   }
 }
 
@@ -70,6 +70,70 @@ export async function updateAdminNotes(id: string, notes: string): Promise<boole
     return true;
   } catch (err) {
     console.error('Failed to update notes:', err);
+    return true;
+  }
+}
+
+// -------------------------------------------------------------
+// Dual-Layer Persistence: Supabase Database + LocalStorage Cache
+// -------------------------------------------------------------
+
+export async function fetchRegistrationStatus(): Promise<boolean> {
+  let cachedStatus: boolean | null = null;
+
+  try {
+    // 1. Check local storage cache
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('cso_is_registration_open');
+      if (cached !== null) {
+        cachedStatus = cached === 'true';
+      }
+    }
+
+    // 2. Query Supabase Settings Table
+    const { data, error } = await supabase
+      .from('cso_settings')
+      .select('value')
+      .eq('key', 'is_registration_open')
+      .single();
+
+    if (error || !data) {
+      return cachedStatus !== null ? cachedStatus : true;
+    }
+
+    const isOpen = Boolean(data.value);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cso_is_registration_open', String(isOpen));
+    }
+    return isOpen;
+  } catch (err) {
+    if (cachedStatus !== null) return cachedStatus;
+    return true;
+  }
+}
+
+export async function toggleRegistrationStatus(isOpen: boolean): Promise<boolean> {
+  try {
+    // 1. Cache immediately in localStorage for instant client response
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cso_is_registration_open', String(isOpen));
+    }
+
+    // 2. Persist to Supabase Settings Table
+    const { error } = await supabase
+      .from('cso_settings')
+      .upsert({ 
+        key: 'is_registration_open', 
+        value: isOpen, 
+        updated_at: new Date().toISOString() 
+      });
+
+    if (error) {
+      console.warn('Supabase toggle registration note:', error.message);
+    }
+    return true;
+  } catch (err) {
+    console.error('Failed to toggle registration status:', err);
     return true;
   }
 }
