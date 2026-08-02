@@ -5,8 +5,7 @@ export const NAV_LINKS = [
 ] as const;
 
 export const OFFICIAL_SOCIAL_LINKS = {
-  facebook: 'https://www.facebook.com/profile.php?id=100094218363222',
-  aclcMandaue: 'https://www.facebook.com/aclc.mandaue',
+  facebook: 'https://www.facebook.com/profile.php?id=100094218363222', 
 } as const;
 
 export const CAMPUS_INFO = {

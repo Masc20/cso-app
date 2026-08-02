@@ -7,6 +7,7 @@ import FloatingInput from '@/components/ui/FloatingInput';
 import FloatingTextarea from '@/components/ui/FloatingTextarea';
 import { fetchRegistrationStatus } from '@/features/admin/services/adminApi';
 import { sanitizeString, isValidFacebookUrl, isValidHttpUrl } from '@/lib/utils/validation';
+import { COURSE_OPTIONS, YEAR_LEVEL_OPTIONS } from '@/data/options';
 
 interface RegistrationPortalProps {
   selectedCommittee: string;
@@ -355,12 +356,9 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                   className="w-full px-4 py-3 rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 >
                   <option value="" disabled>-- Select Program / Course --</option>
-                  <option value="BSIT">BSIT (Information Technology)</option>
-                  <option value="BSCS">BSCS (Computer Science)</option>
-                  <option value="BSA">BSA (Accounting)</option>
-                  <option value="BSBA">BSBA (Business Administration)</option>
-                  <option value="BSHM">BSHM (Hotel Management)</option>
-                  <option value="Other Senior High / Tech Track">Other Senior High / Tech Track</option>
+                  {COURSE_OPTIONS.map(([code, label]) => (
+                    <option key={code} value={code}>{label}</option>
+                  ))}
                 </select>
               </div>
 
@@ -376,10 +374,9 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                   className="w-full px-4 py-3 rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 >
                   <option value="" disabled>-- Select Year Level --</option>
-                  <option value="1st Year">1st Year</option>
-                  <option value="2nd Year">2nd Year</option>
-                  <option value="3rd Year">3rd Year</option>
-                  <option value="4th Year">4th Year</option>
+                  {YEAR_LEVEL_OPTIONS.map((yr) => (
+                    <option key={yr} value={yr}>{yr}</option>
+                  ))}
                 </select>
               </div>
             </div>

@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase';
 import type { ApplicationRecord } from '@/types';
-import { MOCK_TEST_APPLICANTS } from '@/data/mockApplicants';
 
 export type { ApplicationRecord };
 
@@ -25,7 +24,7 @@ export async function fetchApplications(): Promise<ApplicationRecord[]> {
     console.warn('Supabase applications fetch exception:', err);
   }
 
-  return MOCK_TEST_APPLICANTS;
+  return [];
 }
 
 export async function updateApplicationStatus(id: string, status: string): Promise<boolean> {

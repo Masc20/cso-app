@@ -3,6 +3,7 @@
 import React from 'react';
 import { Mail, MapPin } from 'lucide-react';
 import { COMMITTEES } from '@/data/committees';
+import { OFFICIAL_SOCIAL_LINKS, CAMPUS_INFO } from '@/data/navigation';
 
 export default function Footer() {
   return (
@@ -21,7 +22,7 @@ export default function Footer() {
                 <h4 className="font-extrabold text-base tracking-wide text-neutral-900 dark:text-neutral-100">
                   CSO - Computer Studies Organization
                 </h4>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">ACLC College of Mandaue</p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">{CAMPUS_INFO.institution}</p>
               </div>
             </div>
             <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-md">
@@ -29,7 +30,7 @@ export default function Footer() {
             </p>
             <div className="pt-1">
               <a
-                href="https://www.facebook.com/profile.php?id=100094218363222"
+                href={OFFICIAL_SOCIAL_LINKS.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#3b5998]/10 text-[#3b5998] dark:bg-sky-500/10 dark:text-sky-400 border border-[#3b5998]/20 dark:border-sky-500/30 text-xs font-bold hover:opacity-80"
@@ -71,7 +72,7 @@ export default function Footer() {
             <ul className="space-y-2.5 text-xs text-neutral-700 dark:text-neutral-300 font-medium">
               <li className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                ACLC College of Mandaue, Mandaue City, Cebu, Philippines
+                {CAMPUS_INFO.institution}, {CAMPUS_INFO.location}
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
@@ -82,12 +83,12 @@ export default function Footer() {
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                 </svg>
                 <a 
-                  href="https://www.facebook.com/profile.php?id=100094218363222" 
+                  href={OFFICIAL_SOCIAL_LINKS.facebook} 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="hover:underline font-semibold text-neutral-900 dark:text-neutral-100"
                 >
-                  ACLC College of Mandaue - Computer Studies Organization
+                  {CAMPUS_INFO.institution} - {CAMPUS_INFO.organizationName}
                 </a>
               </li>
             </ul>
@@ -97,7 +98,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500 dark:text-neutral-400 font-medium">
-          <p>&copy; {new Date().getFullYear()} Computer Studies Organization (CSO). All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {CAMPUS_INFO.organizationName}. All rights reserved.</p>
           <p className="flex items-center gap-1">
             Developed by Melecio Andre Cabahug - CSO (2025 - 2026) Internal Vice Chairman
           </p>

@@ -11,8 +11,9 @@ import {
   ChevronsLeft, 
   ChevronsRight 
 } from 'lucide-react';
-import { ApplicationRecord } from '../services/adminApi';
+import type { ApplicationRecord } from '@/types';
 import { getStatusBadgeClass } from '@/lib/utils/formatting';
+import { STATUS_FILTER_OPTIONS, ROWS_PER_PAGE_OPTIONS, COMMITTEE_OPTIONS } from '@/data';
 
 interface ApplicationsTableProps {
   applications: ApplicationRecord[];
@@ -111,10 +112,9 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
             className="px-3.5 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
           >
             <option value="All">All Committees</option>
-            <option value="G.A.D">G.A.D</option>
-            <option value="Gaming Committee">Gaming</option>
-            <option value="Networking Committee">Networking</option>
-            <option value="Programming Committee">Programming</option>
+            {COMMITTEE_OPTIONS.map(({ id, label }) => (
+              <option key={id} value={id}>{id}</option>
+            ))}
           </select>
 
           {/* Status Filter */}
@@ -124,11 +124,9 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
             className="px-3.5 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
           >
             <option value="All">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="Under Review">Under Review</option>
-            <option value="Contacted">Contacted</option>
-            <option value="Approved">Approved</option>
-            <option value="Rejected">Rejected</option>
+            {STATUS_FILTER_OPTIONS.filter(s => s !== 'All').map((st) => (
+              <option key={st} value={st}>{st}</option>
+            ))}
           </select>
 
           {/* Export CSV Button */}
@@ -235,10 +233,9 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
                 onChange={e => setRowsPerPage(Number(e.target.value))}
                 className="px-2 py-1 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
               >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
+                {ROWS_PER_PAGE_OPTIONS.map((num) => (
+                  <option key={num} value={num}>{num}</option>
+                ))}
               </select>
               <span>per page</span>
             </div>

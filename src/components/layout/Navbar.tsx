@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Sun, Moon, Sparkles, Menu, X, Users } from 'lucide-react';
+import { NAV_LINKS, OFFICIAL_SOCIAL_LINKS } from '@/data/navigation';
 
 interface NavbarProps {
   darkMode: boolean;
@@ -21,8 +22,9 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToSection = (id: string) => {
+  const scrollToSection = (href: string) => {
     setMobileMenuOpen(false);
+    const id = href.replace('#', '');
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -66,31 +68,36 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
           
           {/* Nav Buttons */}
           <nav className="hidden md:flex items-center space-x-5 font-medium text-sm">
-            <button 
-              onClick={() => scrollToSection('committees')} 
-              className="hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1.5 py-1 text-neutral-800 dark:text-neutral-200 font-bold"
-            >
-              <Users className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              Committees
-            </button>
-            <button 
-              onClick={() => scrollToSection('gallery')} 
-              className="hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1.5 py-1 text-neutral-800 dark:text-neutral-200 font-bold"
-            >
-              <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              Media Gallery
-            </button>
-            <button 
-              onClick={() => scrollToSection('register')} 
-              className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-4 py-2 rounded-md transition-all transform hover:scale-105 shadow-md text-xs uppercase tracking-wider"
-            >
-              Register Now
-            </button>
+            {NAV_LINKS.map((link) => {
+              if (link.href === '#register') {
+                return (
+                  <button 
+                    key={link.name}
+                    onClick={() => scrollToSection(link.href)} 
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-4 py-2 rounded-md transition-all transform hover:scale-105 shadow-md text-xs uppercase tracking-wider"
+                  >
+                    {link.name}
+                  </button>
+                );
+              }
+
+              return (
+                <button 
+                  key={link.name}
+                  onClick={() => scrollToSection(link.href)} 
+                  className="hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-1.5 py-1 text-neutral-800 dark:text-neutral-200 font-bold"
+                >
+                  {link.href === '#committees' && <Users className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+                  {link.href === '#gallery' && <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+                  {link.name}
+                </button>
+              );
+            })}
           </nav>
 
           {/* Official CSO Facebook Button */}
           <a
-            href="https://www.facebook.com/profile.php?id=100094218363222"
+            href={OFFICIAL_SOCIAL_LINKS.facebook}
             target="_blank"
             rel="noopener noreferrer"
             className="p-2.5 rounded-lg bg-[#1877f2]/10 hover:bg-[#1877f2]/20 text-[#1877f2] dark:bg-sky-500/10 dark:text-sky-400 dark:hover:bg-sky-500/20 border border-[#1877f2]/20 dark:border-sky-500/30 focus:outline-none shadow-sm flex items-center justify-center"
@@ -129,24 +136,19 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-[#fafaf8] dark:bg-[#121215] border-t border-[#e0e0da] dark:border-[#27272a] px-6 pt-3 pb-6 space-y-3">
-          <button 
-            onClick={() => scrollToSection('committees')} 
-            className="block w-full text-left py-2 px-3 rounded-md hover:bg-[#ebebe8] dark:hover:bg-[#18181b] text-neutral-800 dark:text-neutral-200 font-semibold"
-          >
-            Committees
-          </button>
-          <button 
-            onClick={() => scrollToSection('gallery')} 
-            className="block w-full text-left py-2 px-3 rounded-md hover:bg-[#ebebe8] dark:hover:bg-[#18181b] text-neutral-800 dark:text-neutral-200 font-semibold"
-          >
-            Media Gallery
-          </button>
-          <button 
-            onClick={() => scrollToSection('register')} 
-            className="block w-full text-center py-2.5 px-4 bg-emerald-600 text-white font-extrabold rounded-md uppercase text-xs"
-          >
-            Register Now
-          </button>
+          {NAV_LINKS.map((link) => (
+            <button 
+              key={link.name}
+              onClick={() => scrollToSection(link.href)} 
+              className={`block w-full text-left py-2 px-3 rounded-md font-semibold ${
+                link.href === '#register'
+                  ? 'bg-emerald-600 text-white text-center font-extrabold uppercase text-xs'
+                  : 'hover:bg-[#ebebe8] dark:hover:bg-[#18181b] text-neutral-800 dark:text-neutral-200'
+              }`}
+            >
+              {link.name}
+            </button>
+          ))}
         </div>
       )}
     </header>

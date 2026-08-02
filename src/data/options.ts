@@ -8,7 +8,9 @@ export const YEAR_LEVEL_OPTIONS = [
 export const COURSE_OPTIONS = [
   ['BSIT', 'BSIT (Information Technology)'],
   ['BSCS', 'BSCS (Computer Science)'],
-  ['Associate in Computer Tech', 'Associate in Computer Tech'],
+  ['BSA', 'BSA (Accounting)'],
+  ['BSBA', 'BSBA (Business Administration)'],
+  ['BSHM', 'BSHM (Hotel Management)'],
   ['Other Senior High / Tech Track', 'Other Senior High / Tech Track'],
 ] as const;
 
