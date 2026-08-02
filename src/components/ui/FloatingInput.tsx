@@ -50,7 +50,7 @@ export default function FloatingInput({
             icon ? 'left-10' : 'left-4'
           } ${
             isFloating
-              ? 'top-1.5 text-[10px] font-extrabold tracking-wide uppercase text-amber-600 dark:text-amber-400'
+              ? 'top-1.5 text-[10px] font-extrabold tracking-wide text-amber-600 dark:text-amber-400'
               : 'top-3.5 text-sm font-semibold text-neutral-500 dark:text-neutral-400'
           }`}
         >

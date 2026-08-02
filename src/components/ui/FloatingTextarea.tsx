@@ -37,7 +37,7 @@ export default function FloatingTextarea({
       <label
         className={`absolute left-4 pointer-events-none transition-all duration-200 ease-out origin-top-left ${
           isFloating
-            ? 'top-1.5 text-[10px] font-extrabold tracking-wide uppercase text-amber-600 dark:text-amber-400'
+            ? 'top-1.5 text-[10px] font-extrabold tracking-wide text-amber-600 dark:text-amber-400'
             : 'top-3.5 text-sm font-semibold text-neutral-500 dark:text-neutral-400'
         }`}
       >
