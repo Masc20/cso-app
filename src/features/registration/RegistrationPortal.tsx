@@ -48,7 +48,6 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     }
   }, [selectedCommittee]);
 
-  // Cooldown countdown timer ticker
   useEffect(() => {
     if (cooldownSeconds <= 0) return;
     const timer = setInterval(() => {
