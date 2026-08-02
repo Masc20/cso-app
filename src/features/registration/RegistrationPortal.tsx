@@ -20,9 +20,9 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     middleName: '',
     lastName: '',
     facebookLink: '',
-    yearLevel: '1st Year',
-    courseProgram: 'BSIT',
-    primaryCommittee: selectedCommittee || 'Programming Committee',
+    yearLevel: '',
+    courseProgram: '',
+    primaryCommittee: selectedCommittee || '',
     secondaryCommittee: 'None',
     portfolioUrl: '',
     motivationStatement: ''
@@ -48,6 +48,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     }
   }, [selectedCommittee]);
 
+  // Cooldown countdown timer ticker
   useEffect(() => {
     if (cooldownSeconds <= 0) return;
     const timer = setInterval(() => {
@@ -79,6 +80,24 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
 
     if (!cleanStudentId) {
       setErrorMsg('Please enter a valid Student ID Number.');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.courseProgram) {
+      setErrorMsg('Please select your Program / Course.');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.yearLevel) {
+      setErrorMsg('Please select your Year Level.');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.primaryCommittee) {
+      setErrorMsg('Please select your Primary Committee Preference.');
       setLoading(false);
       return;
     }
@@ -223,8 +242,8 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                   middleName: '',
                   lastName: '',
                   facebookLink: '',
-                  yearLevel: '1st Year',
-                  courseProgram: 'BSIT',
+                  yearLevel: '',
+                  courseProgram: '',
                   primaryCommittee: 'Programming Committee',
                   secondaryCommittee: 'None',
                   portfolioUrl: '',
@@ -318,13 +337,17 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 </label>
                 <select
                   value={formData.courseProgram}
+                  required
                   disabled={cooldownSeconds > 0 || loading}
                   onChange={e => setFormData({ ...formData, courseProgram: e.target.value })}
                   className="w-full px-4 py-3 rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 >
+                  <option value="" disabled>-- Select Program / Course --</option>
                   <option value="BSIT">BSIT (Information Technology)</option>
                   <option value="BSCS">BSCS (Computer Science)</option>
-                  <option value="Associate in Computer Tech">Associate in Computer Tech</option>
+                  <option value="BSA">BSA (Accounting)</option>
+                  <option value="BSBA">BSBA (Business Administration)</option>
+                  <option value="BSHM">BSHM (Hotel Management)</option>
                   <option value="Other Senior High / Tech Track">Other Senior High / Tech Track</option>
                 </select>
               </div>
@@ -335,10 +358,12 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 </label>
                 <select
                   value={formData.yearLevel}
+                  required
                   disabled={cooldownSeconds > 0 || loading}
                   onChange={e => setFormData({ ...formData, yearLevel: e.target.value })}
                   className="w-full px-4 py-3 rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 >
+                  <option value="" disabled>-- Select Year Level --</option>
                   <option value="1st Year">1st Year</option>
                   <option value="2nd Year">2nd Year</option>
                   <option value="3rd Year">3rd Year</option>
@@ -355,10 +380,12 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 </label>
                 <select
                   value={formData.primaryCommittee}
+                  required
                   disabled={cooldownSeconds > 0 || loading}
                   onChange={e => setFormData({ ...formData, primaryCommittee: e.target.value })}
                   className="w-full px-4 py-3 rounded-lg bg-white dark:bg-[#18181b] border-2 border-amber-500/50 text-neutral-900 dark:text-neutral-100 text-sm font-bold shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 >
+                  <option value="" disabled>-- Select Primary Committee --</option>
                   <option value="G.A.D">G.A.D (Graphics and Design)</option>
                   <option value="Gaming Committee">Gaming Committee</option>
                   <option value="Networking Committee">Networking Committee</option>

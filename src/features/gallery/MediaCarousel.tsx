@@ -38,7 +38,7 @@ const MEDIA_ITEMS: MediaItem[] = [
   // Officers
   {
     id: 'officers-1',
-    title: 'CSO Executive Officers & Committee Heads',
+    title: 'CSO Executive Officers, Committee Heads, & Mayors (2025-2026)',
     category: 'Officers',
     src: '/imgs/CSO Officers.jpg',
     subtitle: 'Leading the Computer Studies Organization towards tech excellence.'
@@ -47,38 +47,38 @@ const MEDIA_ITEMS: MediaItem[] = [
   // All Documented Activities
   {
     id: 'act-dosthub-1',
-    title: 'DOST Hub Innovation Showcase - Photo 1',
+    title: 'DOST Hub Innovation Showcase',
     category: 'Activities',
     src: '/imgs/Activities/DOSTHUB/DOSTHUB1.jpg',
     subtitle: 'CSO Delegation presenting technical projects at DOST Hub.'
   },
   {
     id: 'act-dosthub-2',
-    title: 'DOST Hub Tech Expo - Photo 2',
+    title: 'DOST Hub Tech Expo',
     category: 'Activities',
     src: '/imgs/Activities/DOSTHUB/DOSTHUB2.jpg',
     subtitle: 'Demonstrating student prototypes and research at the DOST Hub Expo.'
   },
   {
     id: 'act-ethph-1',
-    title: 'ETHPH Web3 & Blockchain Summit',
+    title: 'ETHPH Web3 & Blockchain',
     category: 'Activities',
     src: '/imgs/Activities/ETHPH/ETHPH.jpg',
     subtitle: 'CSO members attending ETHPH Web3 developer conference.'
   },
   {
     id: 'act-jscebu-1',
-    title: 'JS Cebu Tech Meetup - Workshop 1',
+    title: 'JS Cebu Tech Meetup - Workshop',
     category: 'Activities',
     src: '/imgs/Activities/JSCEBU/JSCEBU1.jpg',
     subtitle: 'JavaScript community learning & mentorship session.'
   },
   {
     id: 'act-jscebu-2',
-    title: 'JS Cebu Developer Summit - Group Photo',
+    title: 'JS Cebu Developer - Group Photo',
     category: 'Activities',
     src: '/imgs/Activities/JSCEBU/JSCEBU2.jpg',
-    subtitle: 'CSO student developers networking at JS Cebu Summit.'
+    subtitle: 'CSO student developers networking at JS Cebu.'
   },
   {
     id: 'act-jscebu-3',
@@ -96,17 +96,17 @@ const MEDIA_ITEMS: MediaItem[] = [
   },
   {
     id: 'act-networking-1',
-    title: 'Networking Infrastructure & Server Workshop',
+    title: 'Networking with foreign Senior Developers',
     category: 'Activities',
     src: '/imgs/Activities/Networking1.jpg',
-    subtitle: 'Hands-on server configuration and LAN network setup.'
+    subtitle: 'Discussing WEB3 implementation and mentorship with foriegn WEB3 Developers'
   },
   {
     id: 'act-school-1',
-    title: 'CSO Campus Community Event',
+    title: 'Networking Committee Bootcamp - Sir Ryan Prudenciado',
     category: 'Activities',
     src: '/imgs/Activities/School/CSO damn_2.jpg',
-    subtitle: 'Student tech organization campus gathering.'
+    subtitle: 'Networking Committee hosted a Bootcamp focused on IT'
   },
   {
     id: 'act-school-2',
@@ -117,10 +117,10 @@ const MEDIA_ITEMS: MediaItem[] = [
   },
   {
     id: 'act-sports-1',
-    title: 'CSO Intramurals Badminton Championship',
+    title: 'Badminton with Mentors and Senior Developers',
     category: 'Activities',
     src: '/imgs/Activities/Sports/Badminton1.jpg',
-    subtitle: 'CSO members representing the department in campus sports.'
+    subtitle: 'Playing Badminton after a long session on AI and programming'
   },
 
   // Certificates
@@ -164,7 +164,7 @@ const MEDIA_ITEMS: MediaItem[] = [
     title: 'Hacktoberfest 2025 Certificate - Manuel',
     category: 'Certificates',
     src: '/imgs/Certificates/HACKTOBERFEST2025-MANUEL.png',
-    subtitle: 'Hackathon Participantr'
+    subtitle: 'Hackathon Participant'
   },
   {
     id: 'cert-7',
