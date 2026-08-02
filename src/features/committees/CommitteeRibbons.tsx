@@ -48,9 +48,9 @@ const COMMITTEES: CommitteeInfo[] = [
     description: 'Managing event network infrastructure, server management, cybersecurity, IoT setups, and hardware.',
     logo: '/imgs/Committees/Networking/Logo.png',
     accentColor: 'from-[#0ea5e9] to-[#0284c7]',
-    borderGlow: 'hover:shadow-emerald-500/40 border-emerald-500/60 dark:border-emerald-400/50',
-    badgeBg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
-    icon: <Network className="w-5 h-5 text-emerald-500" />,
+    borderGlow: 'hover:shadow-sky-500/40 border-sky-500/60 dark:border-sky-400/50',
+    badgeBg: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30',
+    icon: <Network className="w-5 h-5 text-sky-500" />,
     tags: ['SysAdmin', 'LAN & Wi-Fi Setup', 'Cybersecurity']
   },
   {
