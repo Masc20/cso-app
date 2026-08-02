@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
     const realIp = req.headers.get('x-real-ip');
     const clientIp = forwarded ? forwarded.split(',')[0].trim() : realIp || '127.0.0.1';
 
+    // 1. Check Rate Limit in Server RAM (< 1ms execution, 0 DB queries)
     const limitCheck = checkServerRateLimit(clientIp);
 
     if (!limitCheck.success) {
@@ -39,6 +40,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // 2. Attempt Supabase Auth Authentication
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -68,6 +70,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // 3. Authentication Successful - Reset Server Rate Limit for this IP
     resetServerRateLimit(clientIp);
 
     return NextResponse.json({

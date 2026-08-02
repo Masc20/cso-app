@@ -1,9 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Send, CheckCircle2, AlertCircle, User, Link as LinkIcon, GraduationCap, Code, ShieldCheck, Lock, ExternalLink } from 'lucide-react';
+import { Send, CheckCircle2, AlertCircle, User, Link as LinkIcon, GraduationCap, Code, ShieldCheck, Lock, ExternalLink, Clock } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { supabase } from '@/lib/supabase';
 import FloatingInput from '@/components/ui/FloatingInput';
 import FloatingTextarea from '@/components/ui/FloatingTextarea';
 import { fetchRegistrationStatus } from '@/features/admin/services/adminApi';
@@ -32,8 +31,9 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
 
-  // Check live registration status from Supabase / admin toggle
+  // Live registration status check
   useEffect(() => {
     const checkStatus = async () => {
       const open = await fetchRegistrationStatus();
@@ -48,13 +48,23 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     }
   }, [selectedCommittee]);
 
+  // Cooldown countdown timer ticker
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return;
+    const timer = setInterval(() => {
+      setCooldownSeconds(prev => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldownSeconds]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isRegistrationOpen) return;
+    if (!isRegistrationOpen || cooldownSeconds > 0) return;
 
     setLoading(true);
     setErrorMsg('');
 
+    // 1. Sanitize input fields
     const cleanStudentId = sanitizeString(formData.studentId);
     const cleanFirstName = sanitizeString(formData.firstName);
     const cleanMiddleName = sanitizeString(formData.middleName);
@@ -63,6 +73,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     const cleanPortfolioUrl = sanitizeString(formData.portfolioUrl);
     const cleanMotivation = sanitizeString(formData.motivationStatement);
 
+    // 2. Perform Validation Checks
     if (!cleanFirstName || !cleanLastName) {
       setErrorMsg('Please enter your full first name and last name.');
       setLoading(false);
@@ -94,26 +105,36 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     }
 
     try {
-      const { error } = await supabase
-        .from('committee_applications')
-        .insert([
-          {
-            student_id: cleanStudentId,
-            first_name: cleanFirstName,
-            middle_name: cleanMiddleName || null,
-            last_name: cleanLastName,
-            facebook_link: cleanFbLink,
-            year_level: formData.yearLevel,
-            course_program: formData.courseProgram,
-            primary_committee: formData.primaryCommittee,
-            secondary_committee: formData.secondaryCommittee !== 'None' ? formData.secondaryCommittee : null,
-            portfolio_url: cleanPortfolioUrl || null,
-            motivation_statement: cleanMotivation
-          }
-        ]);
+      // 3. Post to Server API Route with In-Memory Rate Limiter
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentId: cleanStudentId,
+          firstName: cleanFirstName,
+          middleName: cleanMiddleName,
+          lastName: cleanLastName,
+          facebookLink: cleanFbLink,
+          yearLevel: formData.yearLevel,
+          courseProgram: formData.courseProgram,
+          primaryCommittee: formData.primaryCommittee,
+          secondaryCommittee: formData.secondaryCommittee,
+          portfolioUrl: cleanPortfolioUrl,
+          motivationStatement: cleanMotivation
+        })
+      });
 
-      if (error) {
-        console.warn('Supabase insertion note:', error.message);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setLoading(false);
+        if (res.status === 429 || data.isLocked) {
+          setCooldownSeconds(data.retryAfterSeconds || 30);
+          setErrorMsg(data.error || 'Submission limit reached. Please wait 30s.');
+        } else {
+          setErrorMsg(data.error || 'Failed to submit application. Please try again.');
+        }
+        return;
       }
 
       setLoading(false);
@@ -222,7 +243,16 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             
-            {errorMsg && (
+            {/* Cooldown Alert Banner */}
+            {cooldownSeconds > 0 && (
+              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs flex items-center gap-2 font-bold animate-pulse">
+                <Clock className="w-4 h-4 shrink-0" />
+                Submission rate limit reached (10/10 per IP). Cooldown active: <span className="font-mono text-sm underline">{cooldownSeconds}s</span>
+              </div>
+            )}
+
+            {/* Standard Error Alert */}
+            {cooldownSeconds <= 0 && errorMsg && (
               <div className="p-4 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs flex items-center gap-2 font-bold">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 {errorMsg}
@@ -234,6 +264,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               <FloatingInput
                 label="First Name"
                 required
+                disabled={cooldownSeconds > 0 || loading}
                 maxLength={50}
                 icon={<User className="w-4 h-4" />}
                 value={formData.firstName}
@@ -242,6 +273,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
 
               <FloatingInput
                 label="Middle Name"
+                disabled={cooldownSeconds > 0 || loading}
                 maxLength={50}
                 icon={<User className="w-4 h-4" />}
                 value={formData.middleName}
@@ -251,6 +283,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               <FloatingInput
                 label="Last Name"
                 required
+                disabled={cooldownSeconds > 0 || loading}
                 maxLength={50}
                 icon={<User className="w-4 h-4" />}
                 value={formData.lastName}
@@ -263,6 +296,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               <FloatingInput
                 label="Student ID Number"
                 required
+                disabled={cooldownSeconds > 0 || loading}
                 maxLength={25}
                 icon={<Code className="w-4 h-4" />}
                 value={formData.studentId}
@@ -272,6 +306,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               <FloatingInput
                 label="Facebook Profile Link"
                 required
+                disabled={cooldownSeconds > 0 || loading}
                 type="url"
                 icon={<LinkIcon className="w-4 h-4" />}
                 value={formData.facebookLink}
@@ -287,15 +322,14 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 </label>
                 <select
                   value={formData.courseProgram}
+                  disabled={cooldownSeconds > 0 || loading}
                   onChange={e => setFormData({ ...formData, courseProgram: e.target.value })}
                   className="w-full px-4 py-3 rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 >
                   <option value="BSIT">BSIT (Information Technology)</option>
                   <option value="BSCS">BSCS (Computer Science)</option>
-                  <option value="BSA">BSBA (Accounting)</option>
-                  <option value="BSBA">BSBA (Business Administration)</option>
-                  <option value="BSHM">BSBA (Hotel Management)</option>
-                  <option value="Other Senxcior High / Tech Track">Other Senior High / Tech Track</option>
+                  <option value="Associate in Computer Tech">Associate in Computer Tech</option>
+                  <option value="Other Senior High / Tech Track">Other Senior High / Tech Track</option>
                 </select>
               </div>
 
@@ -305,6 +339,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 </label>
                 <select
                   value={formData.yearLevel}
+                  disabled={cooldownSeconds > 0 || loading}
                   onChange={e => setFormData({ ...formData, yearLevel: e.target.value })}
                   className="w-full px-4 py-3 rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 >
@@ -324,6 +359,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 </label>
                 <select
                   value={formData.primaryCommittee}
+                  disabled={cooldownSeconds > 0 || loading}
                   onChange={e => setFormData({ ...formData, primaryCommittee: e.target.value })}
                   className="w-full px-4 py-3 rounded-lg bg-white dark:bg-[#18181b] border-2 border-amber-500/50 text-neutral-900 dark:text-neutral-100 text-sm font-bold shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 >
@@ -340,6 +376,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 </label>
                 <select
                   value={formData.secondaryCommittee}
+                  disabled={cooldownSeconds > 0 || loading}
                   onChange={e => setFormData({ ...formData, secondaryCommittee: e.target.value })}
                   className="w-full px-4 py-3 rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 >
@@ -354,8 +391,9 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
 
             {/* Portfolio Link */}
             <FloatingInput
-              label="Portfolio / GitHub / LinkedIn Link (Optional)"
+              label="Portfolio / GitHub / Behance Link (Optional)"
               type="url"
+              disabled={cooldownSeconds > 0 || loading}
               maxLength={150}
               value={formData.portfolioUrl}
               onChange={e => setFormData({ ...formData, portfolioUrl: e.target.value })}
@@ -365,6 +403,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
             <FloatingTextarea
               label="Why do you want to join CSO and your selected committee?"
               required
+              disabled={cooldownSeconds > 0 || loading}
               rows={3}
               maxLength={1000}
               value={formData.motivationStatement}
@@ -374,11 +413,13 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={cooldownSeconds > 0 || loading}
               className="w-full py-3.5 px-6 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-[#27272a] dark:hover:bg-[#3f3f46] dark:text-neutral-100 font-extrabold text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 border border-transparent dark:border-[#3f3f46]"
             >
               {loading ? (
                 <span>Validating & Submitting...</span>
+              ) : cooldownSeconds > 0 ? (
+                <span>Cooldown ({cooldownSeconds}s)</span>
               ) : (
                 <>
                   <Send className="w-4 h-4" /> Submit Application
