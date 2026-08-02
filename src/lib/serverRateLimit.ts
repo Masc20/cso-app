@@ -4,11 +4,9 @@
  * without executing database queries or touching Supabase servers.
  */
 
-interface RateLimitRecord {
-  count: number;
-  resetTime: number;
-  lockedUntil: number;
-}
+import type { RateLimitRecord } from '@/types';
+
+export type { RateLimitRecord };
 
 // -------------------------------------------------------------
 // Generic Core Rate-Limiting Engine

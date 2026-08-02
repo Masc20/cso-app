@@ -2,14 +2,14 @@
 
 import React, { useEffect, useRef } from 'react';
 
-interface ModalProps {
+interface ExtendedModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
   className?: string;
 }
 
-export default function Modal({ isOpen, onClose, children, className = '' }: ModalProps) {
+export default function Modal({ isOpen, onClose, children, className = '' }: ExtendedModalProps) {
   const backdropRef = useRef<HTMLDivElement>(null);
 
   // 1. Close on 'Esc' key press

@@ -1,23 +1,8 @@
 import { supabase } from '@/lib/supabase';
+import type { ApplicationRecord } from '@/types';
+import { MOCK_TEST_APPLICANTS } from '@/data/mockApplicants';
 
-export interface ApplicationRecord {
-  id: string;
-  created_at: string;
-  student_id: string;
-  first_name: string;
-  middle_name: string | null;
-  last_name: string;
-  facebook_link: string;
-  year_level: string;
-  course_program: string;
-  primary_committee: string;
-  secondary_committee: string | null;
-  portfolioUrl?: string | null;
-  portfolio_url: string | null;
-  motivation_statement: string;
-  application_status?: string;
-  admin_notes?: string | null;
-}
+export type { ApplicationRecord };
 
 export async function fetchApplications(): Promise<ApplicationRecord[]> {
   try {
@@ -40,7 +25,7 @@ export async function fetchApplications(): Promise<ApplicationRecord[]> {
     console.warn('Supabase applications fetch exception:', err);
   }
 
-  return [];
+  return MOCK_TEST_APPLICANTS;
 }
 
 export async function updateApplicationStatus(id: string, status: string): Promise<boolean> {
@@ -86,14 +71,14 @@ export async function fetchRegistrationStatus(): Promise<boolean> {
       .single();
 
     if (error || !data) {
-      return true;
+      return false;
     }
 
     if (typeof data.value === 'boolean') return data.value;
     if (typeof data.value === 'string') return data.value === 'true';
     return Boolean(data.value);
   } catch (err) {
-    return true;
+    return false;
   }
 }
 

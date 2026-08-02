@@ -2,12 +2,7 @@
 
 import React from 'react';
 import { CheckCircle2, Lock, X } from 'lucide-react';
-
-interface ToastProps {
-  message: string | null;
-  type?: 'success' | 'info' | 'error';
-  onClose: () => void;
-}
+import type { ToastProps } from '@/types';
 
 export default function Toast({ message, type = 'success', onClose }: ToastProps) {
   if (!message) return null;

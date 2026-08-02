@@ -1,19 +1,7 @@
-import type { LucideIcon } from 'lucide-react';
 import { Code2, Gamepad2, Network, Palette } from 'lucide-react';
+import type { Committee } from '@/types';
 
-export interface Committee {
-  id: string;
-  name: string;
-  shortName: string;
-  description: string;
-  logo: string;
-  accentColor: string;
-  borderGlow: string;
-  badgeBg: string;
-  Icon: LucideIcon;
-  iconClassName: string;
-  tags: string[];
-}
+export type { Committee };
 
 export const COMMITTEES: Committee[] = [
   {
@@ -36,9 +24,9 @@ export const COMMITTEES: Committee[] = [
     id: 'Networking Committee', name: 'Networking Committee', shortName: 'Networking',
     description: 'Managing event network infrastructure, server management, cybersecurity, IoT setups, and hardware.',
     logo: '/imgs/Committees/Networking/Logo.png', accentColor: 'from-[#0ea5e9] to-[#0284c7]',
-    borderGlow: 'hover:shadow-emerald-500/40 border-emerald-500/60 dark:border-emerald-400/50',
-    badgeBg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
-    Icon: Network, iconClassName: 'text-emerald-500', tags: ['SysAdmin', 'LAN & Wi-Fi Setup', 'Cybersecurity'],
+    borderGlow: 'hover:shadow-sky-500/40 border-sky-500/60 dark:border-sky-400/50',
+    badgeBg: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30',
+    Icon: Network, iconClassName: 'text-sky-500', tags: ['SysAdmin', 'LAN & Wi-Fi Setup', 'Cybersecurity'],
   },
   {
     id: 'Programming Committee', name: 'Programming Committee', shortName: 'Programming',
