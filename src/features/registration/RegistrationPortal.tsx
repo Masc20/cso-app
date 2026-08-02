@@ -64,7 +64,6 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     setLoading(true);
     setErrorMsg('');
 
-    // 1. Sanitize input fields
     const cleanStudentId = sanitizeString(formData.studentId);
     const cleanFirstName = sanitizeString(formData.firstName);
     const cleanMiddleName = sanitizeString(formData.middleName);
@@ -73,7 +72,6 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     const cleanPortfolioUrl = sanitizeString(formData.portfolioUrl);
     const cleanMotivation = sanitizeString(formData.motivationStatement);
 
-    // 2. Perform Validation Checks
     if (!cleanFirstName || !cleanLastName) {
       setErrorMsg('Please enter your full first name and last name.');
       setLoading(false);
@@ -105,7 +103,6 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     }
 
     try {
-      // 3. Post to Server API Route with In-Memory Rate Limiter
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
