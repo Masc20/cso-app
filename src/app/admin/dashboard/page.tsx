@@ -8,7 +8,7 @@ import MetricCards from '@/features/admin/components/MetricCards';
 import ApplicationsTable from '@/features/admin/components/ApplicationsTable';
 import ApplicationDetailModal from '@/features/admin/components/ApplicationDetailModal';
 import { fetchApplications, fetchRegistrationStatus, toggleRegistrationStatus, ApplicationRecord } from '@/features/admin/services/adminApi';
-import { RefreshCw, Sparkles, Sun, Moon, Lock, Unlock, CheckCircle2 } from 'lucide-react';
+import { RefreshCw, Sparkles, Sun, Moon, Lock, Unlock, CheckCircle2, X } from 'lucide-react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 
 export default function AdminDashboardPage() {
@@ -20,7 +20,8 @@ export default function AdminDashboardPage() {
   const [applications, setApplications] = useState<ApplicationRecord[]>([]);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
   const [toggling, setToggling] = useState(false);
-  const [toggleNotice, setToggleNotice] = useState('');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<'success' | 'info'>('success');
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState<ApplicationRecord | null>(null);
 
@@ -46,10 +47,12 @@ export default function AdminDashboardPage() {
     setIsRegistrationOpen(nextState);
     setToggling(false);
 
-    setToggleNotice(nextState ? 'Registration Portal Opened!' : 'Registration Portal Closed!');
+    setToastType(nextState ? 'success' : 'info');
+    setToastMessage(nextState ? 'Registration Portal Opened! Students can now submit applications.' : 'Registration Portal Closed! Form locked on public site.');
+    
     setTimeout(() => {
-      setToggleNotice('');
-    }, 3000);
+      setToastMessage(null);
+    }, 4000);
   };
 
   const handleLogout = async () => {
@@ -68,7 +71,7 @@ export default function AdminDashboardPage() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 p-6 sm:p-10 overflow-y-auto">
+      <main className="flex-1 p-6 sm:p-10 overflow-y-auto relative">
         
         {/* Top Action Header & Manual Registration Toggle */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
@@ -124,13 +127,6 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Toggle Feedback Notice */}
-        {toggleNotice && (
-          <div className="mb-6 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-extrabold flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4" /> {toggleNotice}
-          </div>
-        )}
-
         {/* Analytics Summary Metric Cards */}
         <MetricCards applications={applications} />
 
@@ -147,6 +143,22 @@ export default function AdminDashboardPage() {
             onClose={() => setSelectedApp(null)}
             onUpdate={loadData}
           />
+        )}
+
+        {/* Toast Notification */}
+        {toastMessage && (
+          <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-2xl border border-neutral-700 dark:border-neutral-300 text-xs font-bold transition-all duration-300 animate-bounce-short">
+            <div className={`p-1 rounded-full ${toastType === 'success' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
+              {toastType === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+            </div>
+            <span>{toastMessage}</span>
+            <button
+              onClick={() => setToastMessage(null)}
+              className="ml-2 p-1 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors opacity-80 hover:opacity-100"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
         )}
 
       </main>
