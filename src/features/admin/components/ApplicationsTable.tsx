@@ -1,7 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Search, Filter, Download, ExternalLink, Eye, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  Search, 
+  Download, 
+  ExternalLink, 
+  Eye, 
+  ChevronLeft, 
+  ChevronRight, 
+  ChevronsLeft, 
+  ChevronsRight 
+} from 'lucide-react';
 import { ApplicationRecord } from '../services/adminApi';
 import { getStatusBadgeClass } from '@/lib/utils/formatting';
 
@@ -14,6 +23,10 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCommittee, setSelectedCommittee] = useState('All');
   const [selectedStatus, setSelectedStatus] = useState('All');
+
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   // Filter applications based on search & drop-downs
   const filteredApps = applications.filter(app => {
@@ -28,6 +41,18 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
 
     return matchesSearch && matchesCommittee && matchesStatus;
   });
+
+  // Reset to page 1 whenever filters or rowsPerPage change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCommittee, selectedStatus, rowsPerPage]);
+
+  // Calculate Pagination Slices
+  const totalPages = Math.max(1, Math.ceil(filteredApps.length / rowsPerPage));
+  const validCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (validCurrentPage - 1) * rowsPerPage;
+  const endIndex = Math.min(startIndex + rowsPerPage, filteredApps.length);
+  const paginatedApps = filteredApps.slice(startIndex, endIndex);
 
   // Export to CSV helper
   const handleExportCsv = () => {
@@ -59,7 +84,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
   };
 
   return (
-    <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-xl p-6 shadow-xl transition-colors">
+    <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-xl p-6 shadow-xl">
       
       {/* Controls Header: Search, Filters & Export */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
@@ -110,7 +135,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
           <button
             onClick={handleExportCsv}
             disabled={filteredApps.length === 0}
-            className="px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md disabled:opacity-50 ml-auto md:ml-0"
+            className="px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md disabled:opacity-50 ml-auto md:ml-0"
           >
             <Download className="w-4 h-4" /> Export CSV
           </button>
@@ -132,15 +157,15 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-200 dark:divide-[#27272a] font-medium text-neutral-800 dark:text-neutral-200">
-            {filteredApps.length === 0 ? (
+            {paginatedApps.length === 0 ? (
               <tr>
                 <td colSpan={6} className="py-8 text-center text-neutral-500 dark:text-neutral-400 font-bold">
                   No applicant records found matching your filters.
                 </td>
               </tr>
             ) : (
-              filteredApps.map((app) => (
-                <tr key={app.id} className="hover:bg-[#f0f0eb] dark:hover:bg-[#1f1f23] transition-colors">
+              paginatedApps.map((app) => (
+                <tr key={app.id} className="hover:bg-[#f0f0eb] dark:hover:bg-[#1f1f23]">
                   <td className="py-3.5 px-4 font-mono font-bold text-neutral-900 dark:text-neutral-100">
                     {app.student_id}
                   </td>
@@ -162,7 +187,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
                     {/* View Details */}
                     <button
                       onClick={() => onSelectApplication(app)}
-                      className="p-1.5 rounded-md bg-neutral-200 dark:bg-[#27272a] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-[#3f3f46] transition-colors"
+                      className="p-1.5 rounded-md bg-neutral-200 dark:bg-[#27272a] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-[#3f3f46]"
                       title="View Details"
                     >
                       <Eye className="w-4 h-4" />
@@ -173,7 +198,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
                       href={app.facebook_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-1.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 transition-colors inline-block"
+                      className="p-1.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 inline-block"
                       title="Open Facebook Profile"
                     >
                       <ExternalLink className="w-4 h-4" />
@@ -185,6 +210,93 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
           </tbody>
         </table>
       </div>
+
+      {/* ------------------------------------------------------------- */}
+      {/* PAGINATION FOOTER BAR                                         */}
+      {/* ------------------------------------------------------------- */}
+      {filteredApps.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 mt-4 border-t border-neutral-200 dark:border-[#27272a] text-xs font-semibold text-neutral-600 dark:text-neutral-400">
+          
+          {/* Record Counter Info */}
+          <div>
+            Showing <span className="font-extrabold text-neutral-900 dark:text-neutral-100">{filteredApps.length === 0 ? 0 : startIndex + 1}</span> to{' '}
+            <span className="font-extrabold text-neutral-900 dark:text-neutral-100">{endIndex}</span> of{' '}
+            <span className="font-extrabold text-neutral-900 dark:text-neutral-100">{filteredApps.length}</span> applicants
+          </div>
+
+          {/* Right Controls: Rows per Page Selector & Navigation Buttons */}
+          <div className="flex items-center gap-4">
+            
+            {/* Rows Per Page Dropdown */}
+            <div className="flex items-center gap-2">
+              <span>Show</span>
+              <select
+                value={rowsPerPage}
+                onChange={e => setRowsPerPage(Number(e.target.value))}
+                className="px-2 py-1 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+              </select>
+              <span>per page</span>
+            </div>
+
+            {/* Navigation Controls */}
+            <div className="flex items-center gap-1">
+              
+              {/* First Page */}
+              <button
+                onClick={() => setCurrentPage(1)}
+                disabled={validCurrentPage === 1}
+                className="p-1.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a]"
+                title="First Page"
+              >
+                <ChevronsLeft className="w-4 h-4" />
+              </button>
+
+              {/* Previous Page */}
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={validCurrentPage === 1}
+                className="p-1.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a]"
+                title="Previous Page"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {/* Page Indicator */}
+              <span className="px-3 py-1 font-bold text-neutral-900 dark:text-neutral-100">
+                Page {validCurrentPage} of {totalPages}
+              </span>
+
+              {/* Next Page */}
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={validCurrentPage === totalPages}
+                className="p-1.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a]"
+                title="Next Page"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+
+              {/* Last Page */}
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={validCurrentPage === totalPages}
+                className="p-1.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a]"
+                title="Last Page"
+              >
+                <ChevronsRight className="w-4 h-4" />
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
 
     </div>
   );

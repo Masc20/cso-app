@@ -20,9 +20,9 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     middleName: '',
     lastName: '',
     facebookLink: '',
-    yearLevel: '',           // Default empty for -- Select Year Level --
-    courseProgram: '',       // Default empty for -- Select Program / Course --
-    primaryCommittee: selectedCommittee || '', // Default empty unless committee card clicked
+    yearLevel: '',
+    courseProgram: '',
+    primaryCommittee: selectedCommittee || '',
     secondaryCommittee: 'None',
     portfolioUrl: '',
     motivationStatement: ''
@@ -33,7 +33,6 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
   const [errorMsg, setErrorMsg] = useState('');
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
 
-  // Live registration status check
   useEffect(() => {
     const checkStatus = async () => {
       const open = await fetchRegistrationStatus();
@@ -123,7 +122,6 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     }
 
     try {
-      // Post to Server API Route with In-Memory Rate Limiter & Single Insertion Point
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

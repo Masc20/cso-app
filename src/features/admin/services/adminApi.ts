@@ -19,27 +19,6 @@ export interface ApplicationRecord {
   admin_notes?: string | null;
 }
 
-/**
- * Helper to update an application record in local storage cache
- */
-function updateLocalApplicationRecord(id: string, updates: Partial<ApplicationRecord>): void {
-  if (typeof window === 'undefined') return;
-  try {
-    const stored = localStorage.getItem('cso_local_applications');
-    if (stored) {
-      const existing: ApplicationRecord[] = JSON.parse(stored);
-      const updated = existing.map(a => a.id === id ? { ...a, ...updates } : a);
-      localStorage.setItem('cso_local_applications', JSON.stringify(updated));
-    }
-  } catch (e) {
-    console.warn('Error updating local application cache:', e);
-  }
-}
-
-/**
- * Fetches applications with Supabase as the Single Source of Truth.
- * If a record is deleted from Supabase backend, it is immediately removed from the FE table.
- */
 export async function fetchApplications(): Promise<ApplicationRecord[]> {
   try {
     const { data, error } = await supabase
@@ -47,11 +26,7 @@ export async function fetchApplications(): Promise<ApplicationRecord[]> {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (!error && data) {
-      // Sync local cache with true DB state
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('cso_local_applications', JSON.stringify(data));
-      }
+    if (!error && data && data.length > 0) {
       return data.map(item => ({
         ...item,
         application_status: item.application_status || 'Pending'
@@ -65,23 +40,10 @@ export async function fetchApplications(): Promise<ApplicationRecord[]> {
     console.warn('Supabase applications fetch exception:', err);
   }
 
-  if (typeof window !== 'undefined') {
-    try {
-      const stored = localStorage.getItem('cso_local_applications');
-      if (stored) {
-        return JSON.parse(stored);
-      }
-    } catch (e) {
-      console.warn('Error reading local applications cache:', e);
-    }
-  }
-
   return [];
 }
 
 export async function updateApplicationStatus(id: string, status: string): Promise<boolean> {
-  updateLocalApplicationRecord(id, { application_status: status });
-
   try {
     const { error } = await supabase
       .from('committee_applications')
@@ -99,8 +61,6 @@ export async function updateApplicationStatus(id: string, status: string): Promi
 }
 
 export async function updateAdminNotes(id: string, notes: string): Promise<boolean> {
-  updateLocalApplicationRecord(id, { admin_notes: notes });
-
   try {
     const { error } = await supabase
       .from('committee_applications')
@@ -117,21 +77,8 @@ export async function updateAdminNotes(id: string, notes: string): Promise<boole
   return true;
 }
 
-// -------------------------------------------------------------
-// Dual-Layer Persistence: Supabase Database + LocalStorage Cache for Settings
-// -------------------------------------------------------------
-
 export async function fetchRegistrationStatus(): Promise<boolean> {
-  let cachedStatus: boolean | null = null;
-
   try {
-    if (typeof window !== 'undefined') {
-      const cached = localStorage.getItem('cso_is_registration_open');
-      if (cached !== null) {
-        cachedStatus = cached === 'true';
-      }
-    }
-
     const { data, error } = await supabase
       .from('cso_settings')
       .select('value')
@@ -139,40 +86,37 @@ export async function fetchRegistrationStatus(): Promise<boolean> {
       .single();
 
     if (error || !data) {
-      return cachedStatus !== null ? cachedStatus : true;
+      return true;
     }
 
-    const isOpen = Boolean(data.value);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('cso_is_registration_open', String(isOpen));
-    }
-    return isOpen;
+    if (typeof data.value === 'boolean') return data.value;
+    if (typeof data.value === 'string') return data.value === 'true';
+    return Boolean(data.value);
   } catch (err) {
-    if (cachedStatus !== null) return cachedStatus;
     return true;
   }
 }
 
 export async function toggleRegistrationStatus(isOpen: boolean): Promise<boolean> {
   try {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('cso_is_registration_open', String(isOpen));
-    }
-
     const { error } = await supabase
       .from('cso_settings')
-      .upsert({ 
-        key: 'is_registration_open', 
-        value: isOpen, 
-        updated_at: new Date().toISOString() 
-      });
+      .upsert(
+        { 
+          key: 'is_registration_open', 
+          value: isOpen, 
+          updated_at: new Date().toISOString() 
+        },
+        { onConflict: 'key' }
+      );
 
     if (error) {
-      console.warn('Supabase toggle registration note:', error.message);
+      console.warn('Supabase toggle registration error:', error.message);
+      return false;
     }
     return true;
   } catch (err) {
-    console.warn('Failed to toggle registration status:', err);
-    return true;
+    console.warn('Failed to toggle registration status in Supabase:', err);
+    return false;
   }
 }

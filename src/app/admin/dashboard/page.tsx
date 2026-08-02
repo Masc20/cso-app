@@ -44,16 +44,26 @@ export default function AdminDashboardPage() {
   const handleToggleRegistration = async () => {
     setToggling(true);
     const nextState = !isRegistrationOpen;
-    await toggleRegistrationStatus(nextState);
-    setIsRegistrationOpen(nextState);
+    const success = await toggleRegistrationStatus(nextState);
+
+    if (success) {
+      setIsRegistrationOpen(nextState);
+      setToastType(nextState ? 'success' : 'error');
+      setToastMessage(
+        nextState 
+          ? 'Registration Portal OPENED in Supabase! Students can now register.' 
+          : 'Registration Portal CLOSED in Supabase! Form locked.'
+      );
+    } else {
+      setToastType('error');
+      setToastMessage('Failed to update Supabase cso_settings table. Please check Supabase credentials & SQL RLS policy.');
+    }
+
     setToggling(false);
 
-    setToastType(nextState ? 'success' : 'error');
-    setToastMessage(nextState ? 'Registration Portal Opened! Students can now submit applications.' : 'Registration Portal Closed! Form locked on public site.');
-    
     setTimeout(() => {
       setToastMessage(null);
-    }, 4000);
+    }, 5000);
   };
 
   const handleLogout = async () => {
@@ -92,7 +102,7 @@ export default function AdminDashboardPage() {
             <button
               onClick={handleToggleRegistration}
               disabled={toggling}
-              className={`px-4 py-2 rounded-lg text-xs font-extrabold transition-all flex items-center gap-2 shadow-md border ${
+              className={`px-4 py-2 rounded-lg text-xs font-extrabold flex items-center gap-2 shadow-md border ${
                 isRegistrationOpen
                   ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500/50'
                   : 'bg-rose-600 hover:bg-rose-500 text-white border-rose-500/50'
@@ -101,7 +111,7 @@ export default function AdminDashboardPage() {
             >
               {isRegistrationOpen ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
               {toggling
-                ? 'Updating...'
+                ? 'Updating DB...'
                 : isRegistrationOpen
                 ? 'Registration: OPEN'
                 : 'Registration: CLOSED'}
