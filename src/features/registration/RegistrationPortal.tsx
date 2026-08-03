@@ -43,9 +43,8 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     formData.primaryCommittee &&
     formData.facebookLink.trim().length >= 5 &&
     isValidFacebookUrl(formData.facebookLink.trim()) &&
-    formData.motivationStatement.trim().length >= 10 &&
-    (!formData.portfolioUrl.trim() || isValidHttpUrl(formData.portfolioUrl.trim()))
-  );
+    formData.motivationStatement.trim().length >= 1
+);
 
   useEffect(() => {
     const checkStatus = async () => {
