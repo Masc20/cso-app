@@ -43,8 +43,9 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     formData.primaryCommittee &&
     formData.facebookLink.trim().length >= 5 &&
     isValidFacebookUrl(formData.facebookLink.trim()) &&
-    formData.motivationStatement.trim().length >= 1
-);
+    formData.motivationStatement.trim().length >= 10 &&
+    (!formData.portfolioUrl.trim() || isValidHttpUrl(formData.portfolioUrl.trim()))
+  );
 
   useEffect(() => {
     const checkStatus = async () => {
@@ -318,11 +319,12 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               />
             </div>
 
-            {/* Student ID & Facebook Profile Link */}
+            {/* Student ID & Facebook Profile Link with Info Tooltips */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FloatingInput
                 label="Student ID Number"
                 required
+                infoTooltip="Format: e.g. LRN or your C00-00-0000-MAN121."
                 disabled={cooldownSeconds > 0 || loading}
                 maxLength={25}
                 icon={<Code className="w-4 h-4" />}
@@ -333,6 +335,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               <FloatingInput
                 label="Facebook Profile Link"
                 required
+                infoTooltip="Must be a valid Facebook link starting with https://facebook.com/ or https://www.facebook.com/"
                 disabled={cooldownSeconds > 0 || loading}
                 type="url"
                 icon={<LinkIcon className="w-4 h-4" />}
@@ -420,20 +423,22 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               </div>
             </div>
 
-            {/* Portfolio Link */}
+            {/* Portfolio Link with Info Tooltip */}
             <FloatingInput
               label="Portfolio / GitHub / LinkedIn Link (Optional)"
               type="url"
+              infoTooltip="Optional: Enter a full web link (starting with http:// or https://) to your GitHub, LinkedIn, or personal portfolio site."
               disabled={cooldownSeconds > 0 || loading}
               maxLength={150}
               value={formData.portfolioUrl}
               onChange={e => setFormData({ ...formData, portfolioUrl: e.target.value })}
             />
 
-            {/* Motivation Statement */}
+            {/* Motivation Statement with Info Tooltip */}
             <FloatingTextarea
               label="Why do you want to join CSO and your selected committee?"
               required
+              infoTooltip="Write at least 10 characters explaining your interest, technical skills, or goals with CSO."
               disabled={cooldownSeconds > 0 || loading}
               rows={3}
               maxLength={1000}
