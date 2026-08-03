@@ -190,7 +190,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
                     {/* View Details */}
                     <button
                       onClick={() => onSelectApplication(app)}
-                      className="p-1.5 rounded-md bg-neutral-200 dark:bg-[#27272a] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-[#3f3f46]"
+                      className="p-2 sm:p-2.5 rounded-md bg-neutral-200 dark:bg-[#27272a] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-[#3f3f46] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
                       title="View Details"
                     >
                       <Eye className="w-4 h-4" />
@@ -201,7 +201,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
                       href={app.facebook_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-1.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 inline-block"
+                      className="p-2 sm:p-2.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
                       title="Open Facebook Profile"
                     >
                       <ExternalLink className="w-4 h-4" />
@@ -233,7 +233,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
               <select
                 value={rowsPerPage}
                 onChange={e => setRowsPerPage(Number(e.target.value))}
-                className="px-2 py-1 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                className="px-2.5 py-1.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
               >
                 {ROWS_PER_PAGE_OPTIONS.map((num) => (
                   <option key={num} value={num}>{num}</option>
@@ -249,7 +249,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
               <button
                 onClick={() => setCurrentPage(1)}
                 disabled={validCurrentPage === 1}
-                className="p-1.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a]"
+                className="p-2 sm:p-2.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
                 title="First Page"
               >
                 <ChevronsLeft className="w-4 h-4" />
@@ -259,7 +259,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={validCurrentPage === 1}
-                className="p-1.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a]"
+                className="p-2 sm:p-2.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
                 title="Previous Page"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -274,7 +274,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={validCurrentPage === totalPages}
-                className="p-1.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a]"
+                className="p-2 sm:p-2.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
                 title="Next Page"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -284,7 +284,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
               <button
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={validCurrentPage === totalPages}
-                className="p-1.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a]"
+                className="p-2 sm:p-2.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
                 title="Last Page"
               >
                 <ChevronsRight className="w-4 h-4" />

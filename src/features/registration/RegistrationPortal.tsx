@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Send, CheckCircle2, AlertCircle, User, Link as LinkIcon, GraduationCap, Code, ShieldCheck, Lock, ExternalLink, Clock, Loader2 } from 'lucide-react';
+import { Send, CheckCircle2, AlertCircle, User, Link as LinkIcon, GraduationCap, Code, ShieldCheck, Lock, ExternalLink, Clock, Loader2, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import FloatingInput from '@/components/ui/FloatingInput';
 import FloatingTextarea from '@/components/ui/FloatingTextarea';
+import FloatingSelect from '@/components/ui/FloatingSelect';
 import { fetchRegistrationStatus } from '@/features/admin/services/adminApi';
 import { sanitizeString, isValidFacebookUrl, isValidHttpUrl } from '@/lib/utils/validation';
 import { COURSE_OPTIONS, YEAR_LEVEL_OPTIONS } from '@/data/options';
+import { COMMITTEE_OPTIONS } from '@/data/committees';
 
 interface RegistrationPortalProps {
   selectedCommittee: string;
@@ -185,9 +187,12 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     }
   };
 
+  const committeeSelectOptions = COMMITTEE_OPTIONS.map(c => ({ value: c.id, label: c.label }));
+  const secondaryCommitteeOptions = [{ value: 'None', label: 'None' }, ...committeeSelectOptions];
+
   return (
     <section id="register" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="bg-[#fafaf8] dark:bg-[#121215] border-2 border-[#e0e0da] dark:border-[#27272a] rounded-xl p-6 sm:p-10 shadow-xl relative overflow-hidden">
+      <div className="bg-cso-card border-2 border-cso rounded-xl p-6 sm:p-10 shadow-xl relative overflow-hidden">
         
         {/* Top Decorative Color Line */}
         <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-amber-500 via-emerald-500 to-fuchsia-500" />
@@ -319,12 +324,12 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               />
             </div>
 
-            {/* Student ID & Facebook Profile Link with Info Tooltips */}
+            {/* Student ID & Facebook Profile Link */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FloatingInput
                 label="Student ID Number"
                 required
-                infoTooltip="Format: e.g. LRN or your C00-00-0000-MAN121."
+                infoTooltip="Format: e.g. 2025-00101 or your official ACLC Student ID number."
                 disabled={cooldownSeconds > 0 || loading}
                 maxLength={25}
                 icon={<Code className="w-4 h-4" />}
@@ -344,97 +349,65 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               />
             </div>
 
-            {/* Program & Year Level Selects */}
+            {/* Program & Year Level Floating Selects */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1 flex items-center gap-1">
-                  <GraduationCap className="w-3.5 h-3.5 text-neutral-500" /> Program / Course *
-                </label>
-                <select
-                  value={formData.courseProgram}
-                  required
-                  disabled={cooldownSeconds > 0 || loading}
-                  onChange={e => setFormData({ ...formData, courseProgram: e.target.value })}
-                  className="w-full px-4 py-3 rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                >
-                  <option value="" disabled>-- Select Program / Course --</option>
-                  {COURSE_OPTIONS.map(([code, label]) => (
-                    <option key={code} value={code}>{label}</option>
-                  ))}
-                </select>
-              </div>
+              <FloatingSelect
+                label="Program / Course"
+                required
+                placeholderOption="-- Select Program / Course --"
+                icon={<GraduationCap className="w-4 h-4" />}
+                options={COURSE_OPTIONS.map(([code, label]) => ({ value: code, label }))}
+                value={formData.courseProgram}
+                disabled={cooldownSeconds > 0 || loading}
+                onChange={e => setFormData({ ...formData, courseProgram: e.target.value })}
+              />
 
-              <div>
-                <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
-                  Year Level *
-                </label>
-                <select
-                  value={formData.yearLevel}
-                  required
-                  disabled={cooldownSeconds > 0 || loading}
-                  onChange={e => setFormData({ ...formData, yearLevel: e.target.value })}
-                  className="w-full px-4 py-3 rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                >
-                  <option value="" disabled>-- Select Year Level --</option>
-                  {YEAR_LEVEL_OPTIONS.map((yr) => (
-                    <option key={yr} value={yr}>{yr}</option>
-                  ))}
-                </select>
-              </div>
+              <FloatingSelect
+                label="Year Level"
+                required
+                placeholderOption="-- Select Year Level --"
+                options={YEAR_LEVEL_OPTIONS.map(yr => ({ value: yr, label: yr }))}
+                value={formData.yearLevel}
+                disabled={cooldownSeconds > 0 || loading}
+                onChange={e => setFormData({ ...formData, yearLevel: e.target.value })}
+              />
             </div>
 
-            {/* Committee Preferences */}
+            {/* Committee Preference Floating Selects */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-amber-600 dark:text-amber-400 mb-1">
-                  Primary Committee Preference *
-                </label>
-                <select
-                  value={formData.primaryCommittee}
-                  required
-                  disabled={cooldownSeconds > 0 || loading}
-                  onChange={e => setFormData({ ...formData, primaryCommittee: e.target.value })}
-                  className="w-full px-4 py-3 rounded-lg bg-white dark:bg-[#18181b] border-2 border-amber-500/50 text-neutral-900 dark:text-neutral-100 text-sm font-bold shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                >
-                  <option value="" disabled>-- Select Primary Committee --</option>
-                  <option value="G.A.D">G.A.D (Graphics and Design)</option>
-                  <option value="Gaming Committee">Gaming Committee</option>
-                  <option value="Networking Committee">Networking Committee</option>
-                  <option value="Programming Committee">Programming Committee</option>
-                </select>
-              </div>
+              <FloatingSelect
+                label="Primary Committee Preference"
+                required
+                placeholderOption="-- Select Primary Committee --"
+                icon={<Sparkles className="w-4 h-4 text-amber-500" />}
+                options={committeeSelectOptions}
+                value={formData.primaryCommittee}
+                disabled={cooldownSeconds > 0 || loading}
+                onChange={e => setFormData({ ...formData, primaryCommittee: e.target.value })}
+              />
 
-              <div>
-                <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
-                  Secondary Committee Preference (Optional)
-                </label>
-                <select
-                  value={formData.secondaryCommittee}
-                  disabled={cooldownSeconds > 0 || loading}
-                  onChange={e => setFormData({ ...formData, secondaryCommittee: e.target.value })}
-                  className="w-full px-4 py-3 rounded-lg bg-white dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                >
-                  <option value="None">None</option>
-                  <option value="G.A.D">G.A.D (Graphics and Design)</option>
-                  <option value="Gaming Committee">Gaming Committee</option>
-                  <option value="Networking Committee">Networking Committee</option>
-                  <option value="Programming Committee">Programming Committee</option>
-                </select>
-              </div>
+              <FloatingSelect
+                label="Secondary Preference (Optional)"
+                placeholderOption="-- Select Secondary (Optional) --"
+                options={secondaryCommitteeOptions}
+                value={formData.secondaryCommittee}
+                disabled={cooldownSeconds > 0 || loading}
+                onChange={e => setFormData({ ...formData, secondaryCommittee: e.target.value })}
+              />
             </div>
 
-            {/* Portfolio Link with Info Tooltip */}
+            {/* Portfolio Link */}
             <FloatingInput
               label="Portfolio / GitHub / LinkedIn Link (Optional)"
               type="url"
-              infoTooltip="Optional: Enter a full web link (starting with http:// or https://) to your GitHub, LinkedIn, or personal portfolio site."
+              infoTooltip="Optional: Enter a full web link (starting with http:// or https://) to your GitHub, Behance, LinkedIn, or personal portfolio site."
               disabled={cooldownSeconds > 0 || loading}
               maxLength={150}
               value={formData.portfolioUrl}
               onChange={e => setFormData({ ...formData, portfolioUrl: e.target.value })}
             />
 
-            {/* Motivation Statement with Info Tooltip */}
+            {/* Motivation Statement */}
             <FloatingTextarea
               label="Why do you want to join CSO and your selected committee?"
               required

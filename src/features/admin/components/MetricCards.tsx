@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Users, Clock, CheckCircle2, Award } from 'lucide-react';
-import { ApplicationRecord } from '../services/adminApi';
+import type { ApplicationRecord } from '@/types';
 
 interface MetricCardsProps {
   applications: ApplicationRecord[];
@@ -32,7 +32,7 @@ export default function MetricCards({ applications }: MetricCardsProps) {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
       
       {/* Card 1: Total Applications */}
-      <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-xl p-5 shadow-sm transition-all hover:shadow-md">
+      <div className="bg-cso-card border border-cso rounded-xl p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl gpu-accelerated">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
@@ -49,7 +49,7 @@ export default function MetricCards({ applications }: MetricCardsProps) {
       </div>
 
       {/* Card 2: Pending Reviews */}
-      <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-xl p-5 shadow-sm transition-all hover:shadow-md">
+      <div className="bg-cso-card border border-cso rounded-xl p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl gpu-accelerated">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
@@ -66,7 +66,7 @@ export default function MetricCards({ applications }: MetricCardsProps) {
       </div>
 
       {/* Card 3: Approved Applicants */}
-      <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-xl p-5 shadow-sm transition-all hover:shadow-md">
+      <div className="bg-cso-card border border-cso rounded-xl p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl gpu-accelerated">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
@@ -83,7 +83,7 @@ export default function MetricCards({ applications }: MetricCardsProps) {
       </div>
 
       {/* Card 4: Top Preferred Committee */}
-      <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-xl p-5 shadow-sm transition-all hover:shadow-md">
+      <div className="bg-cso-card border border-cso rounded-xl p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl gpu-accelerated">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
