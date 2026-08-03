@@ -40,14 +40,22 @@ export function useDarkMode() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    // Temporarily disable CSS transitions so colors swap instantly across all elements
+    document.documentElement.classList.add('disable-transitions');
     document.documentElement.classList.toggle('dark', darkMode);
     document.body.classList.toggle('dark', darkMode);
+
+    const timer = setTimeout(() => {
+      document.documentElement.classList.remove('disable-transitions');
+    }, 15);
 
     // Save user choice when toggled manually
     const currentSaved = localStorage.getItem(STORAGE_KEY);
     if (currentSaved !== null || darkMode !== window.matchMedia('(prefers-color-scheme: dark)').matches) {
       localStorage.setItem(STORAGE_KEY, darkMode ? 'dark' : 'light');
     }
+
+    return () => clearTimeout(timer);
   }, [darkMode]);
 
   return { darkMode, setDarkMode };

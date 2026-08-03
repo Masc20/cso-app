@@ -12,14 +12,25 @@
 }
 
 .dark {
-  --bg-page: #09090b;
-  --bg-card: #121215;
-  --bg-input: #1a1a1e;
+  --bg-page: #09090b;   /* Tier 0: Base Canvas */
+  --bg-card: #121215;   /* Tier 1: Elevated Containers & Cards */
+  --bg-input: #1a1a1e;  /* Tier 2: Interactive Inputs, Dropdowns & Modals */
   --text-main: #f5f5f5;
   --text-muted: #a3a3a3;
   --card-border: #27272a;
 }
 
+/* Prevent staggered delays when toggling theme */
+.disable-transitions,
+.disable-transitions * {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  -ms-transition: none !important;
+  transition: none !important;
+}
+
+/* Semantic Theme Color Helper Utilities */
 .bg-cso-page {
   background-color: var(--bg-page);
 }
