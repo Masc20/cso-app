@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import AdminSidebar from '@/components/layout/AdminSidebar';
@@ -14,7 +14,7 @@ import { useDarkMode } from '@/hooks/useDarkMode';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const { loading: authLoading, isAuthenticated, logout } = useAdminAuth();
+  const { loading: authLoading, isAuthenticated, profile, logout } = useAdminAuth();
   const { darkMode, setDarkMode } = useDarkMode();
 
   const [activeTab, setActiveTab] = useState('applications');
@@ -33,24 +33,33 @@ export default function AdminDashboardPage() {
     }
   }, [isAuthenticated, authLoading, router]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
+    const assignedScope = profile?.assigned_committee || 'All';
     const [appsData, regStatus] = await Promise.all([
-      fetchApplications(),
+      fetchApplications(assignedScope),
       fetchRegistrationStatus()
     ]);
     setApplications(appsData);
     setIsRegistrationOpen(regStatus);
     setLoading(false);
-  };
+  }, [profile?.assigned_committee]);
 
   useEffect(() => {
     if (isAuthenticated) {
       loadData();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, loadData]);
 
   const handleToggleRegistration = async () => {
+    // Only Super Admin can toggle global registration gate
+    if (profile?.role === 'officer') {
+      setToastType('error');
+      setToastMessage('Permission Denied: Only Super Admin officers can open or close registration.');
+      setTimeout(() => setToastMessage(null), 4000);
+      return;
+    }
+
     setToggling(true);
     const nextState = !isRegistrationOpen;
     const success = await toggleRegistrationStatus(nextState);
@@ -82,20 +91,23 @@ export default function AdminDashboardPage() {
 
   if (authLoading || (!isAuthenticated && !authLoading)) {
     return (
-      <div className={`min-h-screen w-full bg-[#f2f2ef] dark:bg-[#09090b] flex items-center justify-center ${darkMode ? 'dark' : ''}`}>
+      <div className={`min-h-screen w-full bg-cso-page flex items-center justify-center ${darkMode ? 'dark' : ''}`}>
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
-          <span className="text-xs font-bold text-neutral-600 dark:text-neutral-400">Verifying session...</span>
+          <span className="text-xs font-bold text-neutral-600 dark:text-neutral-400">Verifying officer session...</span>
         </div>
       </div>
     );
   }
 
+  const isSuperAdmin = !profile || profile.role === 'super_admin';
+
   return (
-    <div className={`min-h-screen w-full flex flex-col md:flex-row bg-[#f2f2ef] text-neutral-900 dark:bg-[#09090b] dark:text-neutral-100 ${darkMode ? 'dark' : ''}`}>
+    <div className={`min-h-screen w-full flex flex-col md:flex-row bg-cso-page text-neutral-900 dark:text-neutral-100 ${darkMode ? 'dark' : ''}`}>
       
-      {/* Sidebar Navigation */}
+      {/* Sidebar Navigation with Officer Profile Scope */}
       <AdminSidebar
+        profile={profile}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onLogout={handleLogout}
@@ -108,7 +120,7 @@ export default function AdminDashboardPage() {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 sm:mb-8">
           <div>
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
-              <Sparkles className="w-3.5 h-3.5" /> CSO Officer Command Center
+              <Sparkles className="w-3.5 h-3.5" /> {profile?.full_name || 'CSO Officer'} • {isSuperAdmin ? 'Super Admin' : profile?.assigned_committee}
             </span>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 mt-1">
               Applicant Records & Recruitment
@@ -118,30 +130,32 @@ export default function AdminDashboardPage() {
           {/* Right Header Controls: Registration Open/Close Toggle, Refresh, & Theme Switcher */}
           <div className="flex items-center gap-2.5 w-full md:w-auto">
             
-            {/* MANUAL REGISTRATION OPEN/CLOSE TOGGLE BUTTON */}
-            <button
-              onClick={handleToggleRegistration}
-              disabled={toggling}
-              className={`flex-1 md:flex-none px-4 py-2.5 rounded-lg text-xs font-extrabold flex items-center justify-center gap-2 shadow-md border ${
-                isRegistrationOpen
-                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500/50'
-                  : 'bg-rose-600 hover:bg-rose-500 text-white border-rose-500/50'
-              }`}
-              title="Click to manually open or close registration portal"
-            >
-              {isRegistrationOpen ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-              {toggling
-                ? 'Updating DB...'
-                : isRegistrationOpen
-                ? 'Registration: OPEN'
-                : 'Registration: CLOSED'}
-            </button>
+            {/* MANUAL REGISTRATION OPEN/CLOSE TOGGLE BUTTON (Super Admin Only) */}
+            {isSuperAdmin && (
+              <button
+                onClick={handleToggleRegistration}
+                disabled={toggling}
+                className={`flex-1 md:flex-none px-4 py-2.5 rounded-lg text-xs font-extrabold flex items-center justify-center gap-2 shadow-md border ${
+                  isRegistrationOpen
+                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500/50'
+                    : 'bg-rose-600 hover:bg-rose-500 text-white border-rose-500/50'
+                }`}
+                title="Click to manually open or close registration portal"
+              >
+                {isRegistrationOpen ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                {toggling
+                  ? 'Updating DB...'
+                  : isRegistrationOpen
+                  ? 'Registration: OPEN'
+                  : 'Registration: CLOSED'}
+              </button>
+            )}
 
             {/* Refresh Data */}
             <button
               onClick={loadData}
               disabled={loading}
-              className="p-2.5 rounded-lg bg-[#fafaf8] dark:bg-[#18181b] hover:bg-[#ebebe8] dark:hover:bg-[#27272a] border border-neutral-300 dark:border-[#27272a] text-neutral-800 dark:text-neutral-200 shadow-sm"
+              className="p-2.5 rounded-lg bg-cso-card border border-cso text-neutral-800 dark:text-neutral-200 shadow-sm"
               title="Refresh Data"
             >
               <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
@@ -150,7 +164,7 @@ export default function AdminDashboardPage() {
             {/* Theme Toggle */}
             <button
               onClick={() => setDarkMode(prev => !prev)}
-              className="p-2.5 rounded-lg bg-[#fafaf8] dark:bg-[#18181b] hover:bg-[#ebebe8] dark:hover:bg-[#27272a] border border-neutral-300 dark:border-[#27272a] text-neutral-800 dark:text-neutral-200 shadow-sm"
+              className="p-2.5 rounded-lg bg-cso-card border border-cso text-neutral-800 dark:text-neutral-200 shadow-sm"
               title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
               {darkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-neutral-800" />}
@@ -161,9 +175,10 @@ export default function AdminDashboardPage() {
         {/* Analytics Summary Metric Cards */}
         <MetricCards applications={applications} />
 
-        {/* Main Applicants Table */}
+        {/* Main Applicants Table with Hard Committee Lock Filter */}
         <ApplicationsTable
           applications={applications}
+          userAssignedCommittee={profile?.assigned_committee}
           onSelectApplication={(app) => setSelectedApp(app)}
         />
 

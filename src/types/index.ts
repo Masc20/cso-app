@@ -1,6 +1,18 @@
 import type { LucideIcon } from 'lucide-react';
 
 /**
+ * CSO Admin Officer Profile & Role Permissions
+ */
+export interface OfficerProfile {
+  id: string;
+  email: string;
+  full_name: string;
+  role: 'super_admin' | 'officer';
+  assigned_committee: 'All' | 'G.A.D Committee' | 'Gaming Committee' | 'Networking Committee' | 'Programming Committee';
+  created_at?: string;
+}
+
+/**
  * Committee Application Record from Supabase PostgreSQL database
  */
 export interface ApplicationRecord {

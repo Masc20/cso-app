@@ -1,16 +1,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, ShieldCheck, LogOut, ArrowLeft, ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
+import { Users, ShieldCheck, LogOut, ArrowLeft, ChevronLeft, ChevronRight, Menu, X, UserCheck, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import type { OfficerProfile } from '@/types';
 
 interface AdminSidebarProps {
   onLogout: () => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  profile?: OfficerProfile | null;
 }
 
-export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: AdminSidebarProps) {
+export default function AdminSidebar({ onLogout, activeTab, setActiveTab, profile }: AdminSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -33,9 +35,14 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: Admi
     });
   };
 
+  const isSuperAdmin = !profile || profile.role === 'super_admin';
+  const roleLabel = isSuperAdmin ? 'Super Admin' : `${profile?.assigned_committee?.replace(' Committee', '')} Officer`;
+  const committeeScopeLabel = isSuperAdmin ? 'All Committees' : profile?.assigned_committee;
+
   return (
     <>
-      <div className="md:hidden w-full bg-[#fafaf8] dark:bg-[#121215] border-b border-[#e0e0da] dark:border-[#27272a] px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-sm">
+      {/* Mobile Top Header */}
+      <div className="md:hidden w-full bg-cso-card border-b border-cso px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-sm">
         
         {/* Brand Logo & Name */}
         <div className="flex items-center space-x-2.5">
@@ -44,10 +51,10 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: Admi
           </div>
           <div>
             <h4 className="font-extrabold text-xs tracking-wide text-neutral-900 dark:text-neutral-100 leading-none">
-              CSO Admin
+              {profile?.full_name || 'CSO Admin'}
             </h4>
-            <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5 mt-0.5">
-              <ShieldCheck className="w-2.5 h-2.5" /> Officer Portal
+            <p className="text-[9px] text-amber-600 dark:text-amber-400 font-bold flex items-center gap-0.5 mt-0.5">
+              <ShieldCheck className="w-2.5 h-2.5" /> {roleLabel}
             </p>
           </div>
         </div>
@@ -61,6 +68,7 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: Admi
         </button>
       </div>
 
+      {/* Mobile Drawer */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-50 flex flex-col">
           {/* Dark Backdrop */}
@@ -70,11 +78,16 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: Admi
           />
 
           {/* Slide Down Menu Drawer */}
-          <div className="relative z-10 w-full bg-[#fafaf8] dark:bg-[#121215] border-b border-[#e0e0da] dark:border-[#27272a] p-5 space-y-3 shadow-2xl animate-slide-down">
+          <div className="relative z-10 w-full bg-cso-card border-b border-cso p-5 space-y-3 shadow-2xl animate-slide-down">
             <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-[#27272a]">
-              <span className="text-xs font-black uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-                Admin Navigation
-              </span>
+              <div>
+                <span className="text-xs font-black uppercase tracking-wider text-neutral-500 dark:text-neutral-400 block">
+                  {profile?.full_name || 'CSO Officer'}
+                </span>
+                <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                  {roleLabel} • {committeeScopeLabel}
+                </span>
+              </div>
               <button
                 onClick={() => setMobileOpen(false)}
                 className="p-1 rounded-md text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
@@ -95,7 +108,7 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: Admi
               }`}
             >
               <Users className="w-4 h-4 text-amber-500" />
-              Committee Applications
+              Committee Applications ({committeeScopeLabel})
             </button>
 
             <Link
@@ -119,8 +132,9 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: Admi
         </div>
       )}
 
+      {/* Desktop Sidebar */}
       <aside
-        className={`hidden md:flex flex-col justify-between shrink-0 bg-[#fafaf8] dark:bg-[#121215] border-r border-[#e0e0da] dark:border-[#27272a] p-4 relative transition-[width] duration-300 ${
+        className={`hidden md:flex flex-col justify-between shrink-0 bg-cso-card border-r border-cso p-4 relative transition-[width] duration-300 ${
           collapsed ? 'w-20' : 'w-64'
         }`}
       >
@@ -137,7 +151,7 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: Admi
 
         {/* Top Header Section */}
         <div>
-          <div className="flex items-center mb-8 pt-2">
+          <div className="flex items-center mb-6 pt-2">
             
             {/* CSO Logo Image*/}
             <div className="w-10 h-10 rounded-lg bg-[#ebebe8] dark:bg-[#18181b] flex items-center justify-center p-1 border border-neutral-300 dark:border-[#27272a] shrink-0 mx-auto md:mx-0">
@@ -147,21 +161,32 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: Admi
             {/* Text details */}
             {!collapsed && (
               <div className="ml-3 whitespace-nowrap overflow-hidden">
-                <h4 className="font-extrabold text-sm tracking-wide text-neutral-900 dark:text-neutral-100">
-                  CSO Admin
+                <h4 className="font-extrabold text-sm tracking-wide text-neutral-900 dark:text-neutral-100 truncate">
+                  {profile?.full_name || 'CSO Admin'}
                 </h4>
-                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3" /> Officer Portal
+                <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3" /> {roleLabel}
                 </p>
               </div>
             )}
           </div>
 
+          {/* Committee Scope Badge */}
+          {!collapsed && (
+            <div className="mb-6 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[11px] font-bold flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 shrink-0" />
+              <div className="truncate">
+                <span className="block text-[9px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-black">Assigned Access:</span>
+                <span className="truncate">{committeeScopeLabel}</span>
+              </div>
+            </div>
+          )}
+
           {/* Sidebar Nav Links */}
           <nav className="space-y-2">
             <button
               onClick={() => setActiveTab('applications')}
-              title="Committee Applications"
+              title={`Committee Applications (${committeeScopeLabel})`}
               className={`w-full flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-3 rounded-lg text-xs font-bold text-left ${
                 activeTab === 'applications'
                   ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-md'

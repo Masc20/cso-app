@@ -3,12 +3,18 @@ import type { ApplicationRecord } from '@/types';
 
 export type { ApplicationRecord };
 
-export async function fetchApplications(): Promise<ApplicationRecord[]> {
+export async function fetchApplications(assignedCommittee: string = 'All'): Promise<ApplicationRecord[]> {
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('committee_applications')
       .select('*')
       .order('created_at', { ascending: false });
+
+    if (assignedCommittee && assignedCommittee !== 'All') {
+      query = query.eq('primary_committee', assignedCommittee);
+    }
+
+    const { data, error } = await query;
 
     if (!error && data && data.length > 0) {
       return data.map(item => ({

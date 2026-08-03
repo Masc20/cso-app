@@ -3,17 +3,92 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
+import type { OfficerProfile } from '@/types';
 
 export function useAdminAuth() {
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<OfficerProfile | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Fetch officer profile details from user_metadata, officer_profiles table, or email rules
+  const fetchProfile = async (authUser: User) => {
+    const email = (authUser.email || '').toLowerCase();
+    const meta = authUser.user_metadata || {};
+
+    // 1. Priority 1: Supabase Auth User Metadata (e.g. metadata set in Supabase Dashboard -> Auth -> Users)
+    if (meta.role || meta.assigned_committee) {
+      setProfile({
+        id: authUser.id,
+        email: authUser.email || '',
+        full_name: meta.full_name || authUser.email?.split('@')[0] || 'CSO Officer',
+        role: meta.role === 'officer' ? 'officer' : 'super_admin',
+        assigned_committee: (meta.assigned_committee as OfficerProfile['assigned_committee']) || 'All'
+      });
+      return;
+    }
+
+    // 2. Priority 2: Supabase officer_profiles PostgreSQL Table
+    try {
+      const { data, error } = await supabase
+        .from('officer_profiles')
+        .select('*')
+        .eq('id', authUser.id)
+        .single();
+
+      if (!error && data) {
+        setProfile(data as OfficerProfile);
+        return;
+      }
+    } catch (err) {
+      console.warn('Officer profile DB query note:', err);
+    }
+
+    // 3. Priority 3: Smart Email Name Auto-Detection Fallback
+    let role: 'super_admin' | 'officer' = 'officer';
+    let assigned_committee: OfficerProfile['assigned_committee'] = 'All';
+
+    if (email.includes('super') || email.includes('admin@') || email.includes('cso_admin') || email.includes('head')) {
+      role = 'super_admin';
+      assigned_committee = 'All';
+    } else if (email.includes('gad') || email.includes('graphics') || email.includes('design')) {
+      role = 'officer';
+      assigned_committee = 'G.A.D Committee';
+    } else if (email.includes('gaming') || email.includes('esports') || email.includes('game')) {
+      role = 'officer';
+      assigned_committee = 'Gaming Committee';
+    } else if (email.includes('network') || email.includes('cisco') || email.includes('net')) {
+      role = 'officer';
+      assigned_committee = 'Networking Committee';
+    } else if (email.includes('program') || email.includes('dev') || email.includes('code')) {
+      role = 'officer';
+      assigned_committee = 'Programming Committee';
+    } else {
+      // Default legacy accounts
+      role = 'super_admin';
+      assigned_committee = 'All';
+    }
+
+    setProfile({
+      id: authUser.id,
+      email: authUser.email || '',
+      full_name: meta.full_name || authUser.email?.split('@')[0] || 'CSO Officer',
+      role,
+      assigned_committee
+    });
+  };
 
   useEffect(() => {
     // 1. Get initial session
     const getInitialSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        setUser(session?.user || null);
+        if (session?.user) {
+          setUser(session.user);
+          await fetchProfile(session.user);
+        } else {
+          setUser(null);
+          setProfile(null);
+        }
       } catch (err) {
         console.warn('Auth session check note:', err);
       } finally {
@@ -23,9 +98,15 @@ export function useAdminAuth() {
 
     getInitialSession();
 
-    // 2. Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
+    // 2. Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        await fetchProfile(session.user);
+      } else {
+        setUser(null);
+        setProfile(null);
+      }
       setLoading(false);
     });
 
@@ -41,10 +122,12 @@ export function useAdminAuth() {
       console.warn('Sign out note:', err);
     }
     setUser(null);
+    setProfile(null);
   };
 
   return {
     user,
+    profile,
     loading,
     logout,
     isAuthenticated: !!user

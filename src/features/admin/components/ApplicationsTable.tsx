@@ -9,7 +9,8 @@ import {
   ChevronLeft, 
   ChevronRight, 
   ChevronsLeft, 
-  ChevronsRight 
+  ChevronsRight,
+  Lock
 } from 'lucide-react';
 import type { ApplicationRecord } from '@/types';
 import { getStatusBadgeClass } from '@/lib/utils/formatting';
@@ -18,18 +19,28 @@ import { STATUS_FILTER_OPTIONS, ROWS_PER_PAGE_OPTIONS, COMMITTEE_OPTIONS } from 
 interface ApplicationsTableProps {
   applications: ApplicationRecord[];
   onSelectApplication: (app: ApplicationRecord) => void;
+  userAssignedCommittee?: string;
 }
 
-export default function ApplicationsTable({ applications, onSelectApplication }: ApplicationsTableProps) {
+export default function ApplicationsTable({ applications, onSelectApplication, userAssignedCommittee = 'All' }: ApplicationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCommittee, setSelectedCommittee] = useState('All');
+  const [selectedCommittee, setSelectedCommittee] = useState(userAssignedCommittee || 'All');
   const [selectedStatus, setSelectedStatus] = useState('All');
 
   // Pagination States
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // Filter applications based on search & drop-downs
+  const isCommitteeLocked = Boolean(userAssignedCommittee && userAssignedCommittee !== 'All');
+
+  // Hard sync locked committee when userAssignedCommittee changes
+  useEffect(() => {
+    if (isCommitteeLocked && userAssignedCommittee) {
+      setSelectedCommittee(userAssignedCommittee);
+    }
+  }, [userAssignedCommittee, isCommitteeLocked]);
+
+  // Filter applications based on search & drop-downs (Hard Scope Filter)
   const filteredApps = applications.filter(app => {
     const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.toLowerCase();
     const matchesSearch = 
@@ -37,7 +48,8 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
       app.student_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.course_program.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesCommittee = selectedCommittee === 'All' || app.primary_committee === selectedCommittee;
+    const activeCommitteeScope = isCommitteeLocked ? userAssignedCommittee : selectedCommittee;
+    const matchesCommittee = activeCommitteeScope === 'All' || app.primary_committee === activeCommitteeScope;
     const matchesStatus = selectedStatus === 'All' || (app.application_status || 'Pending') === selectedStatus;
 
     return matchesSearch && matchesCommittee && matchesStatus;
@@ -85,7 +97,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
   };
 
   return (
-    <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-xl p-4 sm:p-6 shadow-xl">
+    <div className="bg-cso-card border border-cso rounded-xl p-4 sm:p-6 shadow-xl">
       
       {/* Controls Header: Search, Filters & Export */}
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mb-6">
@@ -98,30 +110,38 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
             placeholder="Search student name, ID..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/50"
           />
         </div>
 
         {/* Dropdown Filters & CSV Export */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full lg:w-auto">
           
-          {/* Committee Filter */}
-          <select
-            value={selectedCommittee}
-            onChange={e => setSelectedCommittee(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-          >
-            <option value="All">All Committees</option>
-            {COMMITTEE_OPTIONS.map(({ id }) => (
-              <option key={id} value={id}>{id}</option>
-            ))}
-          </select>
+          {/* Committee Filter (Hard Locked if scoped to specific committee) */}
+          <div className="relative w-full">
+            <select
+              value={isCommitteeLocked ? userAssignedCommittee : selectedCommittee}
+              disabled={isCommitteeLocked}
+              onChange={e => setSelectedCommittee(e.target.value)}
+              className={`w-full px-3.5 py-2.5 rounded-lg bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+                isCommitteeLocked ? 'opacity-80 cursor-not-allowed bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400' : ''
+              }`}
+            >
+              {!isCommitteeLocked && <option value="All">All Committees</option>}
+              {COMMITTEE_OPTIONS.map(({ id }) => (
+                <option key={id} value={id}>{id}</option>
+              ))}
+            </select>
+            {isCommitteeLocked && (
+              <Lock className="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 text-amber-500 pointer-events-none" />
+            )}
+          </div>
 
           {/* Status Filter */}
           <select
             value={selectedStatus}
             onChange={e => setSelectedStatus(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+            className="w-full px-3.5 py-2.5 rounded-lg bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
           >
             <option value="All">All Statuses</option>
             {STATUS_FILTER_OPTIONS.filter(s => s !== 'All').map((st) => (
@@ -147,23 +167,25 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
       </div>
 
       {/* Applications Data Table Container with Sticky Top Header & Scroll Container */}
-      <div className="overflow-x-auto overflow-y-auto max-h-[65vh] rounded-lg border border-neutral-200 dark:border-[#27272a] -mx-1 sm:mx-0 relative">
+      <div className="overflow-x-auto overflow-y-auto max-h-[65vh] rounded-lg border border-cso -mx-1 sm:mx-0 relative">
         <table className="w-full min-w-[650px] text-left border-collapse text-xs">
           <thead className="sticky top-0 z-20 shadow-sm">
-            <tr className="bg-[#f4f4f2] dark:bg-[#121215] border-b border-neutral-200 dark:border-[#27272a] text-neutral-500 dark:text-neutral-400 font-extrabold uppercase tracking-wider">
-              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-neutral-200 dark:border-[#27272a]">Student ID</th>
-              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-neutral-200 dark:border-[#27272a]">Student Name</th>
-              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-neutral-200 dark:border-[#27272a]">Program & Year</th>
-              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-neutral-200 dark:border-[#27272a]">Primary Choice</th>
-              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-neutral-200 dark:border-[#27272a]">Status</th>
-              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 text-right border-b border-neutral-200 dark:border-[#27272a]">Actions</th>
+            <tr className="bg-[#f4f4f2] dark:bg-[#121215] border-b border-cso text-neutral-500 dark:text-neutral-400 font-extrabold uppercase tracking-wider">
+              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-cso">Student ID</th>
+              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-cso">Student Name</th>
+              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-cso">Program & Year</th>
+              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-cso">Primary Choice</th>
+              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-cso">Status</th>
+              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 text-right border-b border-cso">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-200 dark:divide-[#27272a] font-medium text-neutral-800 dark:text-neutral-200">
             {paginatedApps.length === 0 ? (
               <tr>
                 <td colSpan={6} className="py-8 text-center text-neutral-500 dark:text-neutral-400 font-bold">
-                  No applicant records found matching your filters.
+                  {isCommitteeLocked
+                    ? `No applicant records found for ${userAssignedCommittee}.`
+                    : 'No applicant records found matching your filters.'}
                 </td>
               </tr>
             ) : (
@@ -215,7 +237,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
       </div>
 
       {filteredApps.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 mt-4 border-t border-neutral-200 dark:border-[#27272a] text-xs font-semibold text-neutral-600 dark:text-neutral-400">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 mt-4 border-t border-cso text-xs font-semibold text-neutral-600 dark:text-neutral-400">
           
           {/* Record Counter Info */}
           <div className="text-center sm:text-left">
@@ -233,7 +255,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
               <select
                 value={rowsPerPage}
                 onChange={e => setRowsPerPage(Number(e.target.value))}
-                className="px-2.5 py-1.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                className="px-2.5 py-1.5 rounded-md bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
               >
                 {ROWS_PER_PAGE_OPTIONS.map((num) => (
                   <option key={num} value={num}>{num}</option>
@@ -249,7 +271,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
               <button
                 onClick={() => setCurrentPage(1)}
                 disabled={validCurrentPage === 1}
-                className="p-2 sm:p-2.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
+                className="p-2 sm:p-2.5 rounded-md bg-cso-input border border-cso disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
                 title="First Page"
               >
                 <ChevronsLeft className="w-4 h-4" />
@@ -259,7 +281,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={validCurrentPage === 1}
-                className="p-2 sm:p-2.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
+                className="p-2 sm:p-2.5 rounded-md bg-cso-input border border-cso disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
                 title="Previous Page"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -274,7 +296,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={validCurrentPage === totalPages}
-                className="p-2 sm:p-2.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
+                className="p-2 sm:p-2.5 rounded-md bg-cso-input border border-cso disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
                 title="Next Page"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -284,7 +306,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
               <button
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={validCurrentPage === totalPages}
-                className="p-2 sm:p-2.5 rounded-md bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
+                className="p-2 sm:p-2.5 rounded-md bg-cso-input border border-cso disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 dark:hover:bg-[#27272a] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
                 title="Last Page"
               >
                 <ChevronsRight className="w-4 h-4" />
