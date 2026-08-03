@@ -1,22 +1,31 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lock, Mail, ShieldCheck, ArrowRight, AlertCircle, Sun, Moon, ArrowLeft, Clock, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import FloatingInput from '@/components/ui/FloatingInput';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { useRateLimiter } from '@/hooks/useRateLimiter';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const { darkMode, setDarkMode } = useDarkMode();
   const { isLocked, remainingSeconds, recordFailedAttempt, resetLimiter } = useRateLimiter();
+  const { isAuthenticated, loading: authLoading } = useAdminAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  // If already logged in, automatically redirect to admin dashboard (prevents login screen on browser Back button)
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.replace('/admin/dashboard');
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   const isFormValid = email.trim().length >= 4 && email.includes('@') && password.length >= 1;
 
@@ -52,9 +61,9 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // Successful login
+      // Successful login - Replace route so pressing Back button doesn't return to Login
       resetLimiter();
-      router.push('/admin/dashboard');
+      router.replace('/admin/dashboard');
 
     } catch (err: any) {
       const { locked, attemptsLeft } = recordFailedAttempt();
@@ -67,6 +76,17 @@ export default function AdminLoginPage() {
       }
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className={`min-h-screen w-full bg-[#f2f2ef] dark:bg-[#09090b] flex items-center justify-center ${darkMode ? 'dark' : ''}`}>
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+          <span className="text-xs font-bold text-neutral-600 dark:text-neutral-400">Verifying session...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen w-full bg-[#f2f2ef] text-neutral-900 dark:bg-[#09090b] dark:text-neutral-100 flex flex-col items-center justify-center p-4 relative ${darkMode ? 'dark' : ''}`}>

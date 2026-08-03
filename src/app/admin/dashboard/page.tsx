@@ -9,12 +9,12 @@ import ApplicationsTable from '@/features/admin/components/ApplicationsTable';
 import ApplicationDetailModal from '@/features/admin/modals/ApplicationDetailModal';
 import Toast from '@/components/ui/Toast';
 import { fetchApplications, fetchRegistrationStatus, toggleRegistrationStatus, ApplicationRecord } from '@/features/admin/services/adminApi';
-import { RefreshCw, Sparkles, Sun, Moon, Lock, Unlock } from 'lucide-react';
+import { RefreshCw, Sparkles, Sun, Moon, Lock, Unlock, Loader2 } from 'lucide-react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const { user, logout } = useAdminAuth();
+  const { user, loading: authLoading, isAuthenticated, logout } = useAdminAuth();
   const { darkMode, setDarkMode } = useDarkMode();
 
   const [activeTab, setActiveTab] = useState('applications');
@@ -25,6 +25,13 @@ export default function AdminDashboardPage() {
   const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('success');
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState<ApplicationRecord | null>(null);
+
+  // Protect Admin Route: Redirect to /admin/login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/admin/login');
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   const loadData = async () => {
     setLoading(true);
@@ -38,8 +45,10 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (isAuthenticated) {
+      loadData();
+    }
+  }, [isAuthenticated]);
 
   const handleToggleRegistration = async () => {
     setToggling(true);
@@ -68,8 +77,19 @@ export default function AdminDashboardPage() {
 
   const handleLogout = async () => {
     await logout();
-    router.push('/admin/login');
+    router.replace('/admin/login');
   };
+
+  if (authLoading || (!isAuthenticated && !authLoading)) {
+    return (
+      <div className={`min-h-screen w-full bg-[#f2f2ef] dark:bg-[#09090b] flex items-center justify-center ${darkMode ? 'dark' : ''}`}>
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+          <span className="text-xs font-bold text-neutral-600 dark:text-neutral-400">Verifying session...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen w-full flex flex-col md:flex-row bg-[#f2f2ef] text-neutral-900 dark:bg-[#09090b] dark:text-neutral-100 ${darkMode ? 'dark' : ''}`}>

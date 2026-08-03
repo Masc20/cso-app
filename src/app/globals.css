@@ -18,36 +18,63 @@
   --card-border: #27272a;
 }
 
+/* Safari & WebKit Compatibility Fixes */
+html, body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+
 body {
   background-color: var(--bg-page);
   color: var(--text-main);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   overflow-x: hidden;
-  transition: none !important;
 }
 
-*, *::before, *::after {
-  transition-property: transform, opacity;
+/* WebKit hardware acceleration & smooth rendering for transforms */
+.gpu-accelerated {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
-/* Custom Downward Ribbon Shape matching Landing page layout.jpg */
+/* Custom Downward Ribbon Shape with WebKit fallbacks for Safari */
 .ribbon-banner {
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% calc(100% - 36px), 50% 100%, 0 calc(100% - 36px));
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - 36px), 50% 100%, 0 calc(100% - 36px));
+  -webkit-filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.12));
   filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.12));
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
 }
 
 .dark .ribbon-banner {
+  -webkit-filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.95)) drop-shadow(0 1px 3px rgba(255, 255, 255, 0.15));
   filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.95)) drop-shadow(0 1px 3px rgba(255, 255, 255, 0.15));
 }
 
 .ribbon-banner:hover {
+  -webkit-transform: translateY(-10px) scale(1.02);
   transform: translateY(-10px) scale(1.02);
+  -webkit-filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.22));
   filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.22));
 }
 
 .dark .ribbon-banner:hover {
+  -webkit-filter: drop-shadow(0 20px 32px rgba(0, 0, 0, 1)) drop-shadow(0 2px 8px rgba(255, 255, 255, 0.3));
   filter: drop-shadow(0 20px 32px rgba(0, 0, 0, 1)) drop-shadow(0 2px 8px rgba(255, 255, 255, 0.3));
+}
+
+/* Safari backdrop-filter fallback helper */
+.backdrop-blur-safari {
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
 }
 
 /* Custom Scrollbar */
