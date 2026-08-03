@@ -5,7 +5,7 @@ export type { Committee };
 
 export const COMMITTEES: Committee[] = [
   {
-    id: 'G.A.D', name: 'G.A.D (Graphics and Design)', shortName: 'G.A.D',
+    id: 'G.A.D Committee', name: 'G.A.D Committee (Graphics and Design)', shortName: 'G.A.D',
     description: 'Spearheading visual identity, UI/UX prototyping, event posters, motion graphics, and media branding.',
     logo: '/imgs/Committees/GAD/Logo.png', accentColor: 'from-[#f59e0b] via-[#ec4899] to-[#10b981]',
     borderGlow: 'hover:shadow-amber-500/40 border-amber-500/60 dark:border-amber-400/50',

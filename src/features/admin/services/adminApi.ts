@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
-import type { ApplicationRecord } from '@/types';
+import type { ApplicationRecord, OfficerProfile } from '@/types';
 
-export type { ApplicationRecord };
+export type { ApplicationRecord, OfficerProfile };
 
 export async function fetchApplications(assignedCommittee: string = 'All'): Promise<ApplicationRecord[]> {
   try {
@@ -11,7 +11,11 @@ export async function fetchApplications(assignedCommittee: string = 'All'): Prom
       .order('created_at', { ascending: false });
 
     if (assignedCommittee && assignedCommittee !== 'All') {
-      query = query.eq('primary_committee', assignedCommittee);
+      if (assignedCommittee.includes('G.A.D')) {
+        query = query.in('primary_committee', ['G.A.D Committee']);
+      } else {
+        query = query.eq('primary_committee', assignedCommittee);
+      }
     }
 
     const { data, error } = await query;
@@ -107,6 +111,48 @@ export async function toggleRegistrationStatus(isOpen: boolean): Promise<boolean
     return true;
   } catch (err) {
     console.warn('Failed to toggle registration status in Supabase:', err);
+    return false;
+  }
+}
+
+export async function fetchOfficerProfiles(): Promise<OfficerProfile[]> {
+  try {
+    const { data, error } = await supabase
+      .from('officer_profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      return data as OfficerProfile[];
+    }
+    if (error) {
+      console.warn('Officer profiles fetch query note:', error.message);
+    }
+  } catch (err) {
+    console.warn('Supabase officer profiles fetch exception:', err);
+  }
+  return [];
+}
+
+export async function updateOfficerProfile(
+  id: string,
+  role: 'super_admin' | 'officer',
+  assigned_committee: OfficerProfile['assigned_committee']
+): Promise<boolean> {
+  try {
+    const { data, error } = await supabase
+      .from('officer_profiles')
+      .update({ role, assigned_committee })
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.warn('Supabase update officer profile error:', error.message);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('Supabase officer profile update exception:', err);
     return false;
   }
 }

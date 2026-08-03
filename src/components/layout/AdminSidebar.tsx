@@ -1,7 +1,19 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, ShieldCheck, LogOut, ArrowLeft, ChevronLeft, ChevronRight, Menu, X, UserCheck, Sparkles } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Users, 
+  ShieldCheck, 
+  LogOut, 
+  ArrowLeft, 
+  ChevronLeft, 
+  ChevronRight, 
+  Menu, 
+  X, 
+  Sparkles,
+  UserCheck
+} from 'lucide-react';
 import Link from 'next/link';
 import type { OfficerProfile } from '@/types';
 
@@ -43,8 +55,6 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab, profil
     <>
       {/* Mobile Top Header */}
       <div className="md:hidden w-full bg-cso-card border-b border-cso px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-sm">
-        
-        {/* Brand Logo & Name */}
         <div className="flex items-center space-x-2.5">
           <div className="w-9 h-9 rounded-lg bg-[#ebebe8] dark:bg-[#18181b] flex items-center justify-center p-1 border border-neutral-300 dark:border-[#27272a] shrink-0">
             <img src="/imgs/CSOLOGO.png" alt="CSO Logo" className="w-full h-full object-contain" />
@@ -68,16 +78,14 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab, profil
         </button>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Menu Drawer */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-50 flex flex-col">
-          {/* Dark Backdrop */}
           <div 
             onClick={() => setMobileOpen(false)}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
           />
 
-          {/* Slide Down Menu Drawer */}
           <div className="relative z-10 w-full bg-cso-card border-b border-cso p-5 space-y-3 shadow-2xl animate-slide-down">
             <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-[#27272a]">
               <div>
@@ -96,6 +104,23 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab, profil
               </button>
             </div>
 
+            {/* Dashboard Overview */}
+            <button
+              onClick={() => {
+                setActiveTab('dashboard');
+                setMobileOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold ${
+                activeTab === 'dashboard'
+                  ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-md'
+                  : 'text-neutral-700 dark:text-neutral-300 bg-[#ebebe8] dark:bg-[#18181b]'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4 text-amber-500" />
+              Overview & Analytics
+            </button>
+
+            {/* Committee Applications */}
             <button
               onClick={() => {
                 setActiveTab('applications');
@@ -108,8 +133,26 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab, profil
               }`}
             >
               <Users className="w-4 h-4 text-amber-500" />
-              Committee Applications ({committeeScopeLabel})
+              Applicant Records ({committeeScopeLabel})
             </button>
+
+            {/* Officer User Management (Super Admin Only) */}
+            {isSuperAdmin && (
+              <button
+                onClick={() => {
+                  setActiveTab('officers');
+                  setMobileOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold ${
+                  activeTab === 'officers'
+                    ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-md'
+                    : 'text-neutral-700 dark:text-neutral-300 bg-[#ebebe8] dark:bg-[#18181b]'
+                }`}
+              >
+                <UserCheck className="w-4 h-4 text-amber-500" />
+                Officer Management
+              </button>
+            )}
 
             <Link
               href="/"
@@ -138,8 +181,6 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab, profil
           collapsed ? 'w-20' : 'w-64'
         }`}
       >
-        
-        {/* Floating Border Toggle Button */}
         <button
           onClick={toggleCollapse}
           aria-label={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
@@ -149,16 +190,12 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab, profil
           {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
         </button>
 
-        {/* Top Header Section */}
         <div>
           <div className="flex items-center mb-6 pt-2">
-            
-            {/* CSO Logo Image*/}
             <div className="w-10 h-10 rounded-lg bg-[#ebebe8] dark:bg-[#18181b] flex items-center justify-center p-1 border border-neutral-300 dark:border-[#27272a] shrink-0 mx-auto md:mx-0">
               <img src="/imgs/CSOLOGO.png" alt="CSO Logo" className="w-full h-full object-contain" />
             </div>
             
-            {/* Text details */}
             {!collapsed && (
               <div className="ml-3 whitespace-nowrap overflow-hidden">
                 <h4 className="font-extrabold text-sm tracking-wide text-neutral-900 dark:text-neutral-100 truncate">
@@ -171,12 +208,11 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab, profil
             )}
           </div>
 
-          {/* Committee Scope Badge */}
           {!collapsed && (
             <div className="mb-6 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[11px] font-bold flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5 shrink-0" />
               <div className="truncate">
-                <span className="block text-[9px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-black">Assigned Access:</span>
+                <span className="block text-[9px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-black">Scope:</span>
                 <span className="truncate">{committeeScopeLabel}</span>
               </div>
             </div>
@@ -184,9 +220,25 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab, profil
 
           {/* Sidebar Nav Links */}
           <nav className="space-y-2">
+            
+            {/* Overview / Dashboard */}
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              title="Overview & Analytics"
+              className={`w-full flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-3 rounded-lg text-xs font-bold text-left ${
+                activeTab === 'dashboard'
+                  ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-md'
+                  : 'text-neutral-700 dark:text-neutral-300 hover:bg-[#ebebe8] dark:hover:bg-[#18181b]'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4 shrink-0" />
+              {!collapsed && <span className="ml-3 truncate">Overview & Analytics</span>}
+            </button>
+
+            {/* Committee Applications */}
             <button
               onClick={() => setActiveTab('applications')}
-              title={`Committee Applications (${committeeScopeLabel})`}
+              title={`Applicant Records (${committeeScopeLabel})`}
               className={`w-full flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-3 rounded-lg text-xs font-bold text-left ${
                 activeTab === 'applications'
                   ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-md'
@@ -194,15 +246,30 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab, profil
               }`}
             >
               <Users className="w-4 h-4 shrink-0" />
-              {!collapsed && <span className="ml-3 truncate">Committee Applications</span>}
+              {!collapsed && <span className="ml-3 truncate">Applicant Records</span>}
             </button>
+
+            {/* Officer Management (Super Admin Only) */}
+            {isSuperAdmin && (
+              <button
+                onClick={() => setActiveTab('officers')}
+                title="Officer Management"
+                className={`w-full flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-3 rounded-lg text-xs font-bold text-left ${
+                  activeTab === 'officers'
+                    ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-md'
+                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-[#ebebe8] dark:hover:bg-[#18181b]'
+                }`}
+              >
+                <UserCheck className="w-4 h-4 shrink-0" />
+                {!collapsed && <span className="ml-3 truncate">Officer Management</span>}
+              </button>
+            )}
+
           </nav>
         </div>
 
         {/* Footer Controls */}
         <div className="pt-6 border-t border-neutral-200 dark:border-[#27272a] space-y-3">
-          
-          {/* Back to Public Web Site */}
           <Link
             href="/"
             title="Back to Main Website"
@@ -212,7 +279,6 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab, profil
             {!collapsed && <span className="ml-2.5 truncate">Back to Main Website</span>}
           </Link>
 
-          {/* Logout Button */}
           <button
             onClick={onLogout}
             title="Admin Logout"

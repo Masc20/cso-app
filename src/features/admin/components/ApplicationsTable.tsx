@@ -40,7 +40,7 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
     }
   }, [userAssignedCommittee, isCommitteeLocked]);
 
-  // Filter applications based on search & drop-downs (Hard Scope Filter)
+  // Filter applications based on search & drop-downs (Hard Scope Filter + G.A.D alias support)
   const filteredApps = applications.filter(app => {
     const fullName = `${app.first_name} ${app.middle_name || ''} ${app.last_name}`.toLowerCase();
     const matchesSearch = 
@@ -49,7 +49,12 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
       app.course_program.toLowerCase().includes(searchTerm.toLowerCase());
 
     const activeCommitteeScope = isCommitteeLocked ? userAssignedCommittee : selectedCommittee;
-    const matchesCommittee = activeCommitteeScope === 'All' || app.primary_committee === activeCommitteeScope;
+    
+    const matchesCommittee = 
+      activeCommitteeScope === 'All' || 
+      app.primary_committee === activeCommitteeScope ||
+      (activeCommitteeScope.includes('G.A.D') && app.primary_committee.includes('G.A.D'));
+
     const matchesStatus = selectedStatus === 'All' || (app.application_status || 'Pending') === selectedStatus;
 
     return matchesSearch && matchesCommittee && matchesStatus;
@@ -128,8 +133,8 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
               }`}
             >
               {!isCommitteeLocked && <option value="All">All Committees</option>}
-              {COMMITTEE_OPTIONS.map(({ id }) => (
-                <option key={id} value={id}>{id}</option>
+              {COMMITTEE_OPTIONS.map(({ id, label }) => (
+                <option key={id} value={id}>{label}</option>
               ))}
             </select>
             {isCommitteeLocked && (

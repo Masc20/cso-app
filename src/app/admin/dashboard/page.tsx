@@ -4,12 +4,21 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import AdminSidebar from '@/components/layout/AdminSidebar';
-import MetricCards from '@/features/admin/components/MetricCards';
+import AdminDashboardOverview from '@/features/admin/components/AdminDashboardOverview';
 import ApplicationsTable from '@/features/admin/components/ApplicationsTable';
+import OfficerManagementTable from '@/features/admin/components/OfficerManagementTable';
 import ApplicationDetailModal from '@/features/admin/modals/ApplicationDetailModal';
 import Toast from '@/components/ui/Toast';
-import { fetchApplications, fetchRegistrationStatus, toggleRegistrationStatus, ApplicationRecord } from '@/features/admin/services/adminApi';
-import { RefreshCw, Sparkles, Sun, Moon, Lock, Unlock, Loader2 } from 'lucide-react';
+import { 
+  fetchApplications, 
+  fetchRegistrationStatus, 
+  toggleRegistrationStatus, 
+  fetchOfficerProfiles,
+  updateOfficerProfile,
+  ApplicationRecord, 
+  OfficerProfile 
+} from '@/features/admin/services/adminApi';
+import { RefreshCw, Sparkles, Sun, Moon, Loader2 } from 'lucide-react';
 import { useDarkMode } from '@/hooks/useDarkMode';
 
 export default function AdminDashboardPage() {
@@ -17,8 +26,13 @@ export default function AdminDashboardPage() {
   const { loading: authLoading, isAuthenticated, profile, logout } = useAdminAuth();
   const { darkMode, setDarkMode } = useDarkMode();
 
-  const [activeTab, setActiveTab] = useState('applications');
-  const [applications, setApplications] = useState<ApplicationRecord[]>([]);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  
+  // Dual-stream datasets: global for overview metrics, scoped for applicant table
+  const [globalApplications, setGlobalApplications] = useState<ApplicationRecord[]>([]);
+  const [scopedApplications, setScopedApplications] = useState<ApplicationRecord[]>([]);
+  const [officerProfiles, setOfficerProfiles] = useState<OfficerProfile[]>([]);
+  
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
   const [toggling, setToggling] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -36,14 +50,28 @@ export default function AdminDashboardPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     const assignedScope = profile?.assigned_committee || 'All';
-    const [appsData, regStatus] = await Promise.all([
+    
+    // Fetch global applications for overview metrics, scoped applications for table, & officer profiles for management
+    const [globalData, scopedData, regStatus, officersData] = await Promise.all([
+      fetchApplications('All'),
       fetchApplications(assignedScope),
-      fetchRegistrationStatus()
+      fetchRegistrationStatus(),
+      fetchOfficerProfiles()
     ]);
-    setApplications(appsData);
+
+    setGlobalApplications(globalData);
+    setScopedApplications(scopedData);
     setIsRegistrationOpen(regStatus);
+
+    // Fallback: If DB table officer_profiles has no rows yet, include current logged-in officer profile
+    if (officersData.length === 0 && profile) {
+      setOfficerProfiles([profile]);
+    } else {
+      setOfficerProfiles(officersData);
+    }
+
     setLoading(false);
-  }, [profile?.assigned_committee]);
+  }, [profile]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -52,7 +80,6 @@ export default function AdminDashboardPage() {
   }, [isAuthenticated, loadData]);
 
   const handleToggleRegistration = async () => {
-    // Only Super Admin can toggle global registration gate
     if (profile?.role === 'officer') {
       setToastType('error');
       setToastMessage('Permission Denied: Only Super Admin officers can open or close registration.');
@@ -84,6 +111,26 @@ export default function AdminDashboardPage() {
     }, 5000);
   };
 
+  const handleUpdateOfficerProfile = async (
+    id: string, 
+    role: 'super_admin' | 'officer', 
+    committee: OfficerProfile['assigned_committee']
+  ) => {
+    const success = await updateOfficerProfile(id, role, committee);
+    if (success) {
+      setToastType('success');
+      setToastMessage('Officer permissions updated successfully!');
+      loadData();
+    } else {
+      // Local state fallback if DB table update note
+      setOfficerProfiles(prev => prev.map(p => p.id === id ? { ...p, role, assigned_committee: committee } : p));
+      setToastType('info');
+      setToastMessage('Updated local officer permissions.');
+    }
+    setTimeout(() => setToastMessage(null), 4000);
+    return true;
+  };
+
   const handleLogout = async () => {
     await logout();
     router.replace('/admin/login');
@@ -105,7 +152,7 @@ export default function AdminDashboardPage() {
   return (
     <div className={`min-h-screen w-full flex flex-col md:flex-row bg-cso-page text-neutral-900 dark:text-neutral-100 ${darkMode ? 'dark' : ''}`}>
       
-      {/* Sidebar Navigation with Officer Profile Scope */}
+      {/* Sidebar Navigation with Officer Profile Scope & 3 Navigation Tabs */}
       <AdminSidebar
         profile={profile}
         activeTab={activeTab}
@@ -116,42 +163,21 @@ export default function AdminDashboardPage() {
       {/* Main Content Area */}
       <main className="flex-1 p-4 sm:p-8 lg:p-10 overflow-y-auto relative">
         
-        {/* Top Action Header & Manual Registration Toggle */}
+        {/* Top Action Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 sm:mb-8">
           <div>
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
               <Sparkles className="w-3.5 h-3.5" /> {profile?.full_name || 'CSO Officer'} • {isSuperAdmin ? 'Super Admin' : profile?.assigned_committee}
             </span>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 mt-1">
-              Applicant Records & Recruitment
+              {activeTab === 'dashboard' && 'CSO Executive Dashboard'}
+              {activeTab === 'applications' && 'Committee Applicant Records'}
+              {activeTab === 'officers' && 'Officer Account Management'}
             </h1>
           </div>
 
-          {/* Right Header Controls: Registration Open/Close Toggle, Refresh, & Theme Switcher */}
+          {/* Right Header Controls: Refresh & Theme */}
           <div className="flex items-center gap-2.5 w-full md:w-auto">
-            
-            {/* MANUAL REGISTRATION OPEN/CLOSE TOGGLE BUTTON (Super Admin Only) */}
-            {isSuperAdmin && (
-              <button
-                onClick={handleToggleRegistration}
-                disabled={toggling}
-                className={`flex-1 md:flex-none px-4 py-2.5 rounded-lg text-xs font-extrabold flex items-center justify-center gap-2 shadow-md border ${
-                  isRegistrationOpen
-                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500/50'
-                    : 'bg-rose-600 hover:bg-rose-500 text-white border-rose-500/50'
-                }`}
-                title="Click to manually open or close registration portal"
-              >
-                {isRegistrationOpen ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-                {toggling
-                  ? 'Updating DB...'
-                  : isRegistrationOpen
-                  ? 'Registration: OPEN'
-                  : 'Registration: CLOSED'}
-              </button>
-            )}
-
-            {/* Refresh Data */}
             <button
               onClick={loadData}
               disabled={loading}
@@ -161,7 +187,6 @@ export default function AdminDashboardPage() {
               <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
             </button>
 
-            {/* Theme Toggle */}
             <button
               onClick={() => setDarkMode(prev => !prev)}
               className="p-2.5 rounded-lg bg-cso-card border border-cso text-neutral-800 dark:text-neutral-200 shadow-sm"
@@ -172,24 +197,44 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Analytics Summary Metric Cards */}
-        <MetricCards applications={applications} />
+        {/* Tab View 1: Executive Dashboard & Analytics */}
+        {activeTab === 'dashboard' && (
+          <AdminDashboardOverview
+            applications={globalApplications}
+            isRegistrationOpen={isRegistrationOpen}
+            onToggleRegistration={handleToggleRegistration}
+            toggling={toggling}
+            profile={profile}
+            onNavigateToApplications={() => setActiveTab('applications')}
+          />
+        )}
 
-        {/* Main Applicants Table with Hard Committee Lock Filter */}
-        <ApplicationsTable
-          applications={applications}
-          userAssignedCommittee={profile?.assigned_committee}
-          onSelectApplication={(app) => setSelectedApp(app)}
-        />
+        {/* Tab View 2: Committee Applicant Records Table */}
+        {activeTab === 'applications' && (
+          <ApplicationsTable
+            applications={scopedApplications}
+            userAssignedCommittee={profile?.assigned_committee}
+            onSelectApplication={(app) => setSelectedApp(app)}
+          />
+        )}
 
-        {/* Application Detail & Status Modal */}
+        {/* Tab View 3: Officer User Management (Super Admin Only) */}
+        {activeTab === 'officers' && (
+          <OfficerManagementTable
+            officers={officerProfiles}
+            onUpdateOfficer={handleUpdateOfficerProfile}
+            onRefresh={loadData}
+          />
+        )}
+
+        {/* Application Detail Modal */}
         <ApplicationDetailModal
           application={selectedApp}
           onClose={() => setSelectedApp(null)}
           onUpdate={loadData}
         />
 
-        {/* Reusable UI Toast Component */}
+        {/* Toast Notification System */}
         <Toast
           message={toastMessage}
           type={toastType}
