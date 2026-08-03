@@ -12,7 +12,7 @@ interface ExtendedModalProps {
 export default function Modal({ isOpen, onClose, children, className = '' }: ExtendedModalProps) {
   const backdropRef = useRef<HTMLDivElement>(null);
 
-  // 1. Close on 'Esc' key press
+  // 1. Close on 'Esc' key press & lock background scrolling
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -22,7 +22,7 @@ export default function Modal({ isOpen, onClose, children, className = '' }: Ext
 
     if (isOpen) {
       window.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden'; // Lock background scrolling
+      document.body.style.overflow = 'hidden';
     }
 
     return () => {
@@ -44,11 +44,11 @@ export default function Modal({ isOpen, onClose, children, className = '' }: Ext
     <div
       ref={backdropRef}
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fade-in select-none"
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in"
     >
       <div
         onClick={(e) => e.stopPropagation()} // Prevent click inside modal from closing
-        className={`bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] w-full rounded-xl shadow-2xl relative my-8 animate-scale-up ${className}`}
+        className={`bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] w-full rounded-xl shadow-2xl relative my-auto animate-scale-up ${className}`}
       >
         {children}
       </div>
