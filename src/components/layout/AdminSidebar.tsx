@@ -35,7 +35,7 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: Admi
 
   return (
     <>
-      <div className="md:hidden w-full bg-[#fafaf8] dark:bg-[#121215] border-b border-[#e0e0da] dark:border-[#27272a] px-4 py-3 flex items-center justify-between sticky top-0 z-40">
+      <div className="md:hidden w-full bg-[#fafaf8] dark:bg-[#121215] border-b border-[#e0e0da] dark:border-[#27272a] px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-sm">
         
         {/* Brand Logo & Name */}
         <div className="flex items-center space-x-2.5">
@@ -52,50 +52,70 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab }: Admi
           </div>
         </div>
 
-        {/* Mobile Hamburger Toggle Button */}
         <button
           onClick={() => setMobileOpen(prev => !prev)}
-          className="p-2 rounded-lg bg-[#ebebe8] dark:bg-[#18181b] text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-[#27272a]"
+          className="p-2.5 rounded-lg bg-[#ebebe8] dark:bg-[#18181b] text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-[#27272a]"
           title="Toggle Admin Menu"
         >
-          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {mobileOpen ? <X className="w-5 h-5 text-rose-500" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden w-full bg-[#fafaf8] dark:bg-[#121215] border-b border-[#e0e0da] dark:border-[#27272a] p-4 space-y-3 z-30 shadow-lg">
-          <button
-            onClick={() => {
-              setActiveTab('applications');
-              setMobileOpen(false);
-            }}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold ${
-              activeTab === 'applications'
-                ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
-                : 'text-neutral-700 dark:text-neutral-300 bg-[#ebebe8] dark:bg-[#18181b]'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            Committee Applications
-          </button>
-
-          <Link
-            href="/"
+        <div className="md:hidden fixed inset-0 z-50 flex flex-col">
+          {/* Dark Backdrop */}
+          <div 
             onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-xs font-bold text-neutral-700 dark:text-neutral-300 bg-[#ebebe8] dark:bg-[#18181b]"
-          >
-            <ArrowLeft className="w-4 h-4" /> Back to Main Website
-          </Link>
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+          />
 
-          <button
-            onClick={() => {
-              setMobileOpen(false);
-              onLogout();
-            }}
-            className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10"
-          >
-            <LogOut className="w-4 h-4" /> Admin Logout
-          </button>
+          {/* Slide Down Menu Drawer */}
+          <div className="relative z-10 w-full bg-[#fafaf8] dark:bg-[#121215] border-b border-[#e0e0da] dark:border-[#27272a] p-5 space-y-3 shadow-2xl animate-slide-down">
+            <div className="flex items-center justify-between pb-3 border-b border-neutral-200 dark:border-[#27272a]">
+              <span className="text-xs font-black uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                Admin Navigation
+              </span>
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="p-1 rounded-md text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <button
+              onClick={() => {
+                setActiveTab('applications');
+                setMobileOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold ${
+                activeTab === 'applications'
+                  ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-md'
+                  : 'text-neutral-700 dark:text-neutral-300 bg-[#ebebe8] dark:bg-[#18181b]'
+              }`}
+            >
+              <Users className="w-4 h-4 text-amber-500" />
+              Committee Applications
+            </button>
+
+            <Link
+              href="/"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-3 rounded-lg text-xs font-bold text-neutral-700 dark:text-neutral-300 bg-[#ebebe8] dark:bg-[#18181b]"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to Main Website
+            </Link>
+
+            <button
+              onClick={() => {
+                setMobileOpen(false);
+                onLogout();
+              }}
+              className="w-full flex items-center gap-2.5 px-4 py-3 rounded-lg text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20"
+            >
+              <LogOut className="w-4 h-4" /> Admin Logout
+            </button>
+          </div>
         </div>
       )}
 

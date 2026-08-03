@@ -85,13 +85,13 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
   };
 
   return (
-    <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-xl p-6 shadow-xl">
+    <div className="bg-[#fafaf8] dark:bg-[#18181b] border border-[#e0e0da] dark:border-[#27272a] rounded-xl p-4 sm:p-6 shadow-xl">
       
       {/* Controls Header: Search, Filters & Export */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mb-6">
         
         {/* Search Bar */}
-        <div className="relative w-full md:w-80">
+        <div className="relative w-full lg:w-80">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
           <input
             type="text"
@@ -103,16 +103,16 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
         </div>
 
         {/* Dropdown Filters & CSV Export */}
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full lg:w-auto">
           
           {/* Committee Filter */}
           <select
             value={selectedCommittee}
             onChange={e => setSelectedCommittee(e.target.value)}
-            className="px-3.5 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+            className="w-full px-3.5 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
           >
             <option value="All">All Committees</option>
-            {COMMITTEE_OPTIONS.map(({ id, label }) => (
+            {COMMITTEE_OPTIONS.map(({ id }) => (
               <option key={id} value={id}>{id}</option>
             ))}
           </select>
@@ -121,7 +121,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
           <select
             value={selectedStatus}
             onChange={e => setSelectedStatus(e.target.value)}
-            className="px-3.5 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+            className="w-full px-3.5 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
           >
             <option value="All">All Statuses</option>
             {STATUS_FILTER_OPTIONS.filter(s => s !== 'All').map((st) => (
@@ -133,7 +133,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
           <button
             onClick={handleExportCsv}
             disabled={filteredApps.length === 0}
-            className="px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md disabled:opacity-50 ml-auto md:ml-0"
+            className="w-full px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md disabled:opacity-50"
           >
             <Download className="w-4 h-4" /> Export CSV
           </button>
@@ -141,17 +141,22 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
 
       </div>
 
-      {/* Applications Data Table */}
-      <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-[#27272a]">
-        <table className="w-full text-left border-collapse text-xs">
-          <thead>
+      {/* Touch-Scroll Hint Banner for Mobile Screen Users */}
+      <div className="block sm:hidden text-[10px] text-neutral-500 dark:text-neutral-400 font-bold mb-2 flex items-center gap-1">
+        <span>↔ Swipe table horizontally to view full details & actions</span>
+      </div>
+
+      {/* Applications Data Table Container with Sticky Top Header & Scroll Container */}
+      <div className="overflow-x-auto overflow-y-auto max-h-[65vh] rounded-lg border border-neutral-200 dark:border-[#27272a] -mx-1 sm:mx-0 relative">
+        <table className="w-full min-w-[650px] text-left border-collapse text-xs">
+          <thead className="sticky top-0 z-20 shadow-sm">
             <tr className="bg-[#f4f4f2] dark:bg-[#121215] border-b border-neutral-200 dark:border-[#27272a] text-neutral-500 dark:text-neutral-400 font-extrabold uppercase tracking-wider">
-              <th className="py-3.5 px-4">Student ID</th>
-              <th className="py-3.5 px-4">Student Name</th>
-              <th className="py-3.5 px-4">Program & Year</th>
-              <th className="py-3.5 px-4">Primary Choice</th>
-              <th className="py-3.5 px-4">Status</th>
-              <th className="py-3.5 px-4 text-right">Actions</th>
+              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-neutral-200 dark:border-[#27272a]">Student ID</th>
+              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-neutral-200 dark:border-[#27272a]">Student Name</th>
+              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-neutral-200 dark:border-[#27272a]">Program & Year</th>
+              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-neutral-200 dark:border-[#27272a]">Primary Choice</th>
+              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 border-b border-neutral-200 dark:border-[#27272a]">Status</th>
+              <th className="sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215] py-3.5 px-4 text-right border-b border-neutral-200 dark:border-[#27272a]">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-200 dark:divide-[#27272a] font-medium text-neutral-800 dark:text-neutral-200">
@@ -209,21 +214,18 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
         </table>
       </div>
 
-      {/* ------------------------------------------------------------- */}
-      {/* PAGINATION FOOTER BAR                                         */}
-      {/* ------------------------------------------------------------- */}
       {filteredApps.length > 0 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 mt-4 border-t border-neutral-200 dark:border-[#27272a] text-xs font-semibold text-neutral-600 dark:text-neutral-400">
           
           {/* Record Counter Info */}
-          <div>
+          <div className="text-center sm:text-left">
             Showing <span className="font-extrabold text-neutral-900 dark:text-neutral-100">{filteredApps.length === 0 ? 0 : startIndex + 1}</span> to{' '}
             <span className="font-extrabold text-neutral-900 dark:text-neutral-100">{endIndex}</span> of{' '}
             <span className="font-extrabold text-neutral-900 dark:text-neutral-100">{filteredApps.length}</span> applicants
           </div>
 
           {/* Right Controls: Rows per Page Selector & Navigation Buttons */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 w-full sm:w-auto">
             
             {/* Rows Per Page Dropdown */}
             <div className="flex items-center gap-2">
@@ -264,7 +266,7 @@ export default function ApplicationsTable({ applications, onSelectApplication }:
               </button>
 
               {/* Page Indicator */}
-              <span className="px-3 py-1 font-bold text-neutral-900 dark:text-neutral-100">
+              <span className="px-2.5 py-1 font-bold text-neutral-900 dark:text-neutral-100 text-center min-w-[80px]">
                 Page {validCurrentPage} of {totalPages}
               </span>
 

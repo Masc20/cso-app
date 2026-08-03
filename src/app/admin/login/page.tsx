@@ -8,6 +8,7 @@ import FloatingInput from '@/components/ui/FloatingInput';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { useRateLimiter } from '@/hooks/useRateLimiter';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { supabase } from '@/lib/supabase';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -40,7 +41,7 @@ export default function AdminLoginPage() {
     setErrorMsg('');
 
     try {
-      // Send Request to Next.js Server API Route with Server RAM Rate Limiter
+      // 1. Send Request to Server API Route for Server RAM Rate Limiting & Auth Check
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -61,7 +62,19 @@ export default function AdminLoginPage() {
         return;
       }
 
-      // Successful login - Replace route so pressing Back button doesn't return to Login
+      // 2. Set Auth Session on Client Supabase Instance so useAdminAuth & browser session persist
+      if (data.session) {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+
+        if (sessionError) {
+          console.error('Failed to set client session:', sessionError);
+        }
+      }
+
+      // 3. Successful login - Replace route so pressing Back button doesn't return to Login
       resetLimiter();
       router.replace('/admin/dashboard');
 
