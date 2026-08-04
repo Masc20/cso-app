@@ -1,13 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import Navbar from '@/components/layout/Navbar';
-import HeroCSO from '@/components/layout/HeroCSO';
-import Footer from '@/components/layout/Footer';
-import CommitteeRibbons from '@/features/committees/CommitteeRibbons';
-import MediaCarousel from '@/features/gallery/MediaCarousel';
-import RegistrationPortal from '@/features/registration/RegistrationPortal';
-import { useDarkMode } from '@/hooks/useDarkMode';
+import { Navbar, HeroCSO, Footer } from '@/components/layout';
+import { CommitteeRibbons, MediaCarousel, RegistrationPortal } from '@/features';
+import { useDarkMode } from '@/hooks';
 
 export default function Home() {
   const { darkMode, setDarkMode } = useDarkMode();
@@ -22,7 +18,7 @@ export default function Home() {
   };
 
   return (
-    <div className={`min-h-screen w-full flex flex-col selection:bg-amber-500 selection:text-white bg-[#f4f4f2] text-neutral-900 dark:bg-[#09090b] dark:text-neutral-100 ${darkMode ? 'dark' : ''}`}>
+    <div className={`min-h-screen w-full flex flex-col selection:bg-amber-500 selection:text-white bg-cso-page text-neutral-900 dark:text-neutral-100 ${darkMode ? 'dark' : ''}`}>
       
       {/* Top Navbar */}
       <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
@@ -30,7 +26,7 @@ export default function Home() {
       {/* Main Content Sections */}
       <main className="flex-1 w-full">
         
-        {/* CSO Title */}
+        {/* CSO Title Banner */}
         <HeroCSO />
 
         {/* 4 Committee Banner Ribbons */}

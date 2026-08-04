@@ -3,17 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { Send, CheckCircle2, AlertCircle, User, Link as LinkIcon, GraduationCap, Code, ShieldCheck, Lock, ExternalLink, Clock, Loader2, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import FloatingInput from '@/components/ui/FloatingInput';
-import FloatingTextarea from '@/components/ui/FloatingTextarea';
-import FloatingSelect from '@/components/ui/FloatingSelect';
-import { fetchRegistrationStatus } from '@/features/admin/services/adminApi';
-import { sanitizeString, isValidFacebookUrl, isValidHttpUrl } from '@/lib/utils/validation';
-import { COURSE_OPTIONS, YEAR_LEVEL_OPTIONS } from '@/data/options';
-import { COMMITTEE_OPTIONS } from '@/data/committees';
-
-interface RegistrationPortalProps {
-  selectedCommittee: string;
-}
+import { FloatingInput, FloatingTextarea, FloatingSelect } from '@/components/ui';
+import { fetchRegistrationStatus } from '@/features/admin';
+import { sanitizeString, isValidFacebookUrl, isValidHttpUrl } from '@/lib/utils';
+import { COURSE_OPTIONS, YEAR_LEVEL_OPTIONS, COMMITTEE_OPTIONS } from '@/data';
+import type { RegistrationPortalProps } from './types';
 
 export default function RegistrationPortal({ selectedCommittee }: RegistrationPortalProps) {
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
@@ -219,7 +213,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
 
         {/* CLOSED REGISTRATION BANNER NOTICE */}
         {!isRegistrationOpen ? (
-          <div className="py-10 px-6 text-center bg-[#f4f4f2] dark:bg-[#18181b] border border-neutral-300 dark:border-[#27272a] rounded-xl space-y-4 my-4">
+          <div className="py-10 px-6 text-center bg-[#f4f4f2] dark:bg-[#18181b] border border-cso rounded-xl space-y-4 my-4">
             <div className="w-16 h-16 bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-full flex items-center justify-center mx-auto border border-rose-500/30">
               <Lock className="w-8 h-8" />
             </div>
@@ -268,7 +262,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                   motivationStatement: ''
                 });
               }}
-              className="mt-4 px-6 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 text-white font-bold text-xs uppercase tracking-wider"
+              className="mt-4 px-6 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 text-white font-bold text-xs uppercase tracking-wider min-h-[36px]"
             >
               Submit Another Application
             </button>
@@ -423,7 +417,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
             <button
               type="submit"
               disabled={cooldownSeconds > 0 || loading || !isFormValid}
-              className="w-full py-3.5 px-6 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-[#27272a] dark:hover:bg-[#3f3f46] dark:text-neutral-100 font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed border border-transparent dark:border-[#3f3f46]"
+              className="w-full py-3.5 px-6 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-[#27272a] dark:hover:bg-[#3f3f46] dark:text-neutral-100 font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed border border-transparent dark:border-cso"
             >
               {loading ? (
                 <>

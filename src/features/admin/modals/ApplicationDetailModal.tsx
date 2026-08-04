@@ -3,16 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { X, ExternalLink, GraduationCap, Code, FileText, CheckCircle2, Save } from 'lucide-react';
 import type { ApplicationRecord } from '@/types';
+import type { ApplicationDetailModalProps } from '../types';
 import { updateApplicationStatus, updateAdminNotes } from '../services/adminApi';
-import Modal from '@/components/ui/Modal';
-import { sanitizeString } from '@/lib/utils/validation';
-import { getStatusBadgeClass } from '@/lib/utils/formatting';
-
-interface ApplicationDetailModalProps {
-  application: ApplicationRecord | null;
-  onClose: () => void;
-  onUpdate: () => void;
-}
+import { Modal } from '@/components/ui';
+import { sanitizeString, getStatusBadgeClass } from '@/lib/utils';
+import { APPLICATION_STATUS_MUTATION_OPTIONS } from '@/data';
 
 export default function ApplicationDetailModal({ application, onClose, onUpdate }: ApplicationDetailModalProps) {
   const [status, setStatus] = useState(application?.application_status || 'Pending');
@@ -55,7 +50,7 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
     >
       
       {/* Fixed Header Bar */}
-      <div className="shrink-0 flex items-start justify-between border-b border-neutral-200 dark:border-[#27272a] pb-3.5 mb-4">
+      <div className="shrink-0 flex items-start justify-between border-b border-cso pb-3.5 mb-4">
         <div>
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] sm:text-xs font-bold border ${getStatusBadgeClass(status)}`}>
             {status}
@@ -73,7 +68,7 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
 
         <button
           onClick={onClose}
-          className="p-2 rounded-lg bg-[#ebebe8] dark:bg-[#27272a] text-neutral-700 dark:text-neutral-200 hover:bg-[#e0e0da] dark:hover:bg-[#3f3f46] transition-colors shrink-0 ml-2"
+          className="p-2 rounded-lg bg-cso-input border border-cso text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#3f3f46] transition-colors shrink-0 ml-2"
           title="Close Modal (Esc or Click Outside)"
         >
           <X className="w-5 h-5" />
@@ -84,7 +79,7 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
       <div className="flex-1 overflow-y-auto pr-1 space-y-4 text-xs sm:text-sm">
         
         {/* Contact & Education Info */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#f4f4f2] dark:bg-[#121215] p-3.5 rounded-lg border border-neutral-300 dark:border-[#27272a]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#f4f4f2] dark:bg-[#121215] p-3.5 rounded-lg border border-cso">
           <div>
             <span className="text-[10px] font-extrabold uppercase text-neutral-500 dark:text-neutral-400 block mb-1">
               Program & Year Level
@@ -121,7 +116,7 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
             </p>
           </div>
 
-          <div className="p-3.5 rounded-lg bg-neutral-200 dark:bg-[#27272a] border border-neutral-300 dark:border-[#3f3f46]">
+          <div className="p-3.5 rounded-lg bg-cso-input border border-cso">
             <span className="text-[10px] font-extrabold uppercase text-neutral-500 dark:text-neutral-400 block mb-1">
               Secondary Committee Choice
             </span>
@@ -153,13 +148,13 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
           <span className="text-xs font-extrabold uppercase text-neutral-500 dark:text-neutral-400 block mb-1 flex items-center gap-1">
             <FileText className="w-4 h-4 text-amber-500 shrink-0" /> Motivation Statement
           </span>
-          <div className="p-3.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-800 dark:text-neutral-200 leading-relaxed font-medium">
+          <div className="p-3.5 rounded-lg bg-white dark:bg-[#121215] border border-cso text-neutral-800 dark:text-neutral-200 leading-relaxed font-medium">
             "{application.motivation_statement}"
           </div>
         </div>
 
         {/* Admin Workflow Editor */}
-        <div className="pt-3 border-t border-neutral-200 dark:border-[#27272a] space-y-3">
+        <div className="pt-3 border-t border-cso space-y-3">
           <h4 className="text-xs font-extrabold uppercase tracking-wider text-neutral-900 dark:text-neutral-100">
             Officer Status & Notes Editor
           </h4>
@@ -172,13 +167,11 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
               <select
                 value={status}
                 onChange={e => setStatus(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                className="w-full px-3.5 py-2.5 rounded-lg bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
               >
-                <option value="Pending">Pending</option>
-                <option value="Under Review">Under Review</option>
-                <option value="Contacted">Contacted via FB</option>
-                <option value="Approved">Approved Member</option>
-                <option value="Rejected">Rejected</option>
+                {APPLICATION_STATUS_MUTATION_OPTIONS.map(st => (
+                  <option key={st} value={st}>{st}</option>
+                ))}
               </select>
             </div>
 
@@ -192,7 +185,7 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 maxLength={500}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-white dark:bg-[#121215] border border-neutral-300 dark:border-[#27272a] text-neutral-900 dark:text-neutral-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                className="w-full px-3.5 py-2.5 rounded-lg bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/50"
               />
             </div>
           </div>
@@ -201,7 +194,7 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
       </div>
 
       {/* Fixed Footer Bar */}
-      <div className="shrink-0 pt-3 mt-3 border-t border-neutral-200 dark:border-[#27272a] flex items-center justify-between">
+      <div className="shrink-0 pt-3 mt-3 border-t border-cso flex items-center justify-between">
         {saveSuccess ? (
           <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
             <CheckCircle2 className="w-4 h-4" /> Updated!

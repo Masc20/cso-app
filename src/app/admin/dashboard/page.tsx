@@ -2,14 +2,14 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
-import AdminSidebar from '@/components/layout/AdminSidebar';
-import AdminDashboardOverview from '@/features/admin/components/AdminDashboardOverview';
-import ApplicationsTable from '@/features/admin/components/ApplicationsTable';
-import OfficerManagementTable from '@/features/admin/components/OfficerManagementTable';
-import ApplicationDetailModal from '@/features/admin/modals/ApplicationDetailModal';
-import Toast from '@/components/ui/Toast';
+import { useAdminAuth, useDarkMode } from '@/hooks';
+import { AdminSidebar } from '@/components/layout';
+import { Toast } from '@/components/ui';
 import { 
+  AdminDashboardOverview, 
+  ApplicationsTable, 
+  OfficerManagementTable, 
+  ApplicationDetailModal,
   fetchApplications, 
   fetchRegistrationStatus, 
   toggleRegistrationStatus, 
@@ -17,9 +17,8 @@ import {
   updateOfficerProfile,
   ApplicationRecord, 
   OfficerProfile 
-} from '@/features/admin/services/adminApi';
+} from '@/features/admin';
 import { RefreshCw, Sparkles, Sun, Moon, Loader2 } from 'lucide-react';
-import { useDarkMode } from '@/hooks/useDarkMode';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -122,7 +121,6 @@ export default function AdminDashboardPage() {
       setToastMessage('Officer permissions updated successfully!');
       loadData();
     } else {
-      // Local state fallback if DB table update note
       setOfficerProfiles(prev => prev.map(p => p.id === id ? { ...p, role, assigned_committee: committee } : p));
       setToastType('info');
       setToastMessage('Updated local officer permissions.');

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Sun, Moon, Sparkles, Menu, X, Users } from 'lucide-react';
-import { NAV_LINKS, OFFICIAL_SOCIAL_LINKS } from '@/data/navigation';
+import { NAV_LINKS, OFFICIAL_SOCIAL_LINKS } from '@/data';
 
 interface NavbarProps {
   darkMode: boolean;
@@ -33,10 +33,10 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
 
   return (
     <header 
-      className={`sticky top-0 z-50 w-full border-b ${
+      className={`sticky top-0 z-50 w-full border-b transition-all duration-200 ${
         scrolled 
-          ? 'shadow-md py-3 backdrop-blur-md bg-[#fafaf8]/95 text-neutral-900 border-[#e0e0da] dark:bg-[#09090b]/95 dark:text-neutral-100 dark:border-[#27272a]' 
-          : 'py-4 bg-[#fafaf8] text-neutral-900 border-[#e0e0da] dark:bg-[#09090b] dark:text-neutral-100 dark:border-[#27272a]'
+          ? 'shadow-md py-3 backdrop-blur-md bg-cso-card/90 text-neutral-900 dark:text-neutral-100 border-cso' 
+          : 'py-4 bg-cso-card text-neutral-900 dark:text-neutral-100 border-cso'
       }`}
     >
       <div className="w-full px-6 sm:px-10 md:px-14 flex items-center justify-between">
@@ -46,7 +46,7 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="flex items-center space-x-3 cursor-pointer group"
         >
-          <div className="relative w-10 h-10 rounded-lg bg-[#ebebe8] dark:bg-[#18181b] flex items-center justify-center p-1 border border-neutral-300 dark:border-[#27272a] group-hover:scale-105 transition-transform">
+          <div className="relative w-10 h-10 rounded-lg bg-cso-input flex items-center justify-center p-1 border border-cso group-hover:scale-105 transition-transform shrink-0">
             <img 
               src="/imgs/CSOLOGO.png" 
               alt="CSO Logo" 
@@ -74,7 +74,7 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
                   <button 
                     key={link.name}
                     onClick={() => scrollToSection(link.href)} 
-                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-4 py-2 rounded-md transition-all transform hover:scale-105 shadow-md text-xs uppercase tracking-wider"
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-4 py-2 rounded-md transition-all transform hover:scale-105 shadow-md text-xs uppercase tracking-wider min-h-[36px]"
                   >
                     {link.name}
                   </button>
@@ -100,7 +100,7 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
             href={OFFICIAL_SOCIAL_LINKS.facebook}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2.5 rounded-lg bg-[#1877f2]/10 hover:bg-[#1877f2]/20 text-[#1877f2] dark:bg-sky-500/10 dark:text-sky-400 dark:hover:bg-sky-500/20 border border-[#1877f2]/20 dark:border-sky-500/30 focus:outline-none shadow-sm flex items-center justify-center"
+            className="p-2.5 rounded-lg bg-[#1877f2]/10 hover:bg-[#1877f2]/20 text-[#1877f2] dark:bg-sky-500/10 dark:text-sky-400 dark:hover:bg-sky-500/20 border border-[#1877f2]/20 dark:border-sky-500/30 focus:outline-none shadow-sm flex items-center justify-center min-w-[36px] min-h-[36px]"
             title="Official CSO Facebook Page"
           >
             <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
@@ -112,7 +112,7 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
           <button
             onClick={() => setDarkMode(prev => !prev)}
             aria-label="Toggle Light & Dark Mode"
-            className="p-2.5 rounded-lg bg-[#ebebe8] dark:bg-[#18181b] hover:bg-[#e0e0da] dark:hover:bg-[#27272a] text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-[#27272a] focus:outline-none shadow-sm"
+            className="p-2.5 rounded-lg bg-cso-input text-neutral-800 dark:text-neutral-200 border border-cso focus:outline-none shadow-sm min-w-[36px] min-h-[36px] flex items-center justify-center"
             title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
             {darkMode ? (
@@ -125,17 +125,17 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(prev => !prev)}
-            className="md:hidden p-2 rounded-lg bg-[#ebebe8] dark:bg-[#18181b] text-neutral-800 dark:text-neutral-200 focus:outline-none"
+            className="md:hidden p-2.5 rounded-lg bg-cso-input text-neutral-800 dark:text-neutral-200 border border-cso focus:outline-none min-w-[36px] min-h-[36px] flex items-center justify-center"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
 
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#fafaf8] dark:bg-[#121215] border-t border-[#e0e0da] dark:border-[#27272a] px-6 pt-3 pb-6 space-y-3">
+        <div className="md:hidden bg-cso-card border-t border-cso px-6 pt-3 pb-6 space-y-3">
           {NAV_LINKS.map((link) => (
             <button 
               key={link.name}
@@ -143,7 +143,7 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
               className={`block w-full text-left py-2 px-3 rounded-md font-semibold ${
                 link.href === '#register'
                   ? 'bg-emerald-600 text-white text-center font-extrabold uppercase text-xs'
-                  : 'hover:bg-[#ebebe8] dark:hover:bg-[#18181b] text-neutral-800 dark:text-neutral-200'
+                  : 'hover:bg-cso-input text-neutral-800 dark:text-neutral-200'
               }`}
             >
               {link.name}

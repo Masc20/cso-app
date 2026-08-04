@@ -2,103 +2,78 @@
 
 import React from 'react';
 import { Users, Clock, CheckCircle2, Award } from 'lucide-react';
-import type { ApplicationRecord } from '@/types';
-
-interface MetricCardsProps {
-  applications: ApplicationRecord[];
-}
+import type { MetricCardsProps } from '../types';
+import { calculateCommitteeCounts, calculateTopCommittee } from '@/lib/utils';
 
 export default function MetricCards({ applications }: MetricCardsProps) {
-  const total = applications.length;
-  const pending = applications.filter(a => (a.application_status || 'Pending') === 'Pending').length;
-  const approved = applications.filter(a => a.application_status === 'Approved').length;
+  const totalApps = applications.length;
+  const pendingApps = applications.filter(a => (a.application_status || 'Pending') === 'Pending').length;
+  const approvedApps = applications.filter(a => a.application_status === 'Approved').length;
 
-  // Calculate top committee
-  const committeeCounts: Record<string, number> = {};
-  applications.forEach(a => {
-    committeeCounts[a.primary_committee] = (committeeCounts[a.primary_committee] || 0) + 1;
-  });
+  const committeeCounts = calculateCommitteeCounts(applications);
+  const topCommittee = calculateTopCommittee(committeeCounts);
 
-  let topCommittee = 'Programming';
-  let maxCount = 0;
-  Object.entries(committeeCounts).forEach(([comm, count]) => {
-    if (count > maxCount) {
-      maxCount = count;
-      topCommittee = comm.replace(' Committee', '');
+  const metrics = [
+    {
+      title: 'Total Applications',
+      value: totalApps,
+      icon: Users,
+      color: 'text-amber-500',
+      bgColor: 'bg-amber-500/10',
+      borderColor: 'border-amber-500/20'
+    },
+    {
+      title: 'Pending Review',
+      value: pendingApps,
+      icon: Clock,
+      color: 'text-amber-500',
+      bgColor: 'bg-amber-500/10',
+      borderColor: 'border-amber-500/20'
+    },
+    {
+      title: 'Approved Members',
+      value: approvedApps,
+      icon: CheckCircle2,
+      color: 'text-emerald-500',
+      bgColor: 'bg-emerald-500/10',
+      borderColor: 'border-emerald-500/20'
+    },
+    {
+      title: 'Top Choice Committee',
+      value: topCommittee,
+      icon: Award,
+      color: 'text-fuchsia-500',
+      bgColor: 'bg-fuchsia-500/10',
+      borderColor: 'border-fuchsia-500/20'
     }
-  });
+  ];
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-      
-      {/* Card 1: Total Applications */}
-      <div className="bg-cso-card border border-cso rounded-xl p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl gpu-accelerated">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-              Total Applicants
-            </p>
-            <h4 className="text-3xl font-black text-neutral-900 dark:text-neutral-100 mt-1">
-              {total}
-            </h4>
-          </div>
-          <div className="w-12 h-12 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
-            <Users className="w-6 h-6" />
-          </div>
-        </div>
-      </div>
+      {metrics.map((m, idx) => {
+        const IconComponent = m.icon;
+        return (
+          <div
+            key={idx}
+            className="bg-cso-card border border-cso rounded-xl p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl gpu-accelerated"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                  {m.title}
+                </p>
+                <h4 className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-neutral-100 mt-1 truncate max-w-[150px]">
+                  {m.value}
+                </h4>
+              </div>
 
-      {/* Card 2: Pending Reviews */}
-      <div className="bg-cso-card border border-cso rounded-xl p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl gpu-accelerated">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-              Pending Review
-            </p>
-            <h4 className="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">
-              {pending}
-            </h4>
+              <div className={`w-12 h-12 rounded-lg ${m.bgColor} ${m.color} border ${m.borderColor} flex items-center justify-center shrink-0`}>
+                <IconComponent className="w-6 h-6" />
+              </div>
+            </div>
           </div>
-          <div className="w-12 h-12 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center justify-center">
-            <Clock className="w-6 h-6" />
-          </div>
-        </div>
-      </div>
-
-      {/* Card 3: Approved Applicants */}
-      <div className="bg-cso-card border border-cso rounded-xl p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl gpu-accelerated">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-              Approved Members
-            </p>
-            <h4 className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
-              {approved}
-            </h4>
-          </div>
-          <div className="w-12 h-12 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
-            <CheckCircle2 className="w-6 h-6" />
-          </div>
-        </div>
-      </div>
-
-      {/* Card 4: Top Preferred Committee */}
-      <div className="bg-cso-card border border-cso rounded-xl p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl gpu-accelerated">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-              Top Preferred Committee
-            </p>
-            <h4 className="text-xl font-black text-neutral-900 dark:text-neutral-100 mt-1 truncate max-w-[150px]">
-              {topCommittee}
-            </h4>
-          </div>
-          <div className="w-12 h-12 rounded-lg bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 border border-fuchsia-500/20 flex items-center justify-center">
-            <Award className="w-6 h-6" />
-          </div>
-        </div>
-      </div>
-
+        );
+      })}
     </div>
   );
 }

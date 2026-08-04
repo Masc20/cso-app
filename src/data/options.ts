@@ -23,4 +23,18 @@ export const STATUS_FILTER_OPTIONS = [
   'Contacted'
 ] as const;
 
+
+export const APPLICATION_STATUS_MUTATION_OPTIONS = [
+  'All',
+  'Pending',
+  'Approved',
+  'Under Review',
+  'Contacted'
+] as const;
+
+export const OFFICER_ROLE_OPTIONS = [
+  { value: 'super_admin', label: 'Super Admin (Full Organizational Access)' },
+  { value: 'officer', label: 'Committee Officer (Scoped Access)' }
+] as const;
+
 export const ROWS_PER_PAGE_OPTIONS = [5, 10, 25, 50] as const;

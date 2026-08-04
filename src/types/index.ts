@@ -1,7 +1,13 @@
 import type { LucideIcon } from 'lucide-react';
 
 /**
- * CSO Admin Officer Profile & Role Permissions
+ * ====================================================================
+ * GLOBAL APPLICATION DOMAIN ENTITY MODELS
+ * ====================================================================
+ */
+
+/**
+ * CSO Admin Officer Profile & Role Permissions Entity
  */
 export interface OfficerProfile {
   id: string;
@@ -13,7 +19,7 @@ export interface OfficerProfile {
 }
 
 /**
- * Committee Application Record from Supabase PostgreSQL database
+ * Committee Application Record Entity from Supabase PostgreSQL
  */
 export interface ApplicationRecord {
   id: string;
@@ -35,7 +41,7 @@ export interface ApplicationRecord {
 }
 
 /**
- * CSO Committee Metadata & Visual Config
+ * CSO Committee Visual & Metadata Entity
  */
 export interface Committee {
   id: string;
@@ -52,7 +58,7 @@ export interface Committee {
 }
 
 /**
- * Media Gallery Carousel Item
+ * Media Gallery Carousel Item Entity
  */
 export interface MediaItem {
   id: string;
@@ -86,47 +92,4 @@ export interface RateLimitRecord {
   count: number;
   resetTime: number;
   lockedUntil: number;
-}
-
-/**
- * UI Toast Notification System
- */
-export type ToastType = 'success' | 'info' | 'error';
-
-export interface ToastProps {
-  message: string | null;
-  type?: ToastType;
-  onClose: () => void;
-}
-
-/**
- * Reusable Modal Container Props
- */
-export interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title?: string;
-  children: React.ReactNode;
-}
-
-/**
- * Floating Input & Textarea Props
- */
-export interface FloatingInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-  icon?: React.ReactNode;
-}
-
-export interface FloatingTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  label: string;
-}
-
-/**
- * Table Pagination Configuration
- */
-export interface PaginationConfig {
-  currentPage: number;
-  rowsPerPage: number;
-  totalRecords: number;
-  totalPages: number;
 }

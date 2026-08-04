@@ -13,17 +13,9 @@ import {
   ChevronRight,
   ShieldAlert
 } from 'lucide-react';
-import type { ApplicationRecord, OfficerProfile } from '@/types';
-import { COMMITTEE_OPTIONS } from '@/data/committees';
-
-interface AdminDashboardOverviewProps {
-  applications: ApplicationRecord[];
-  isRegistrationOpen: boolean;
-  onToggleRegistration: () => void;
-  toggling: boolean;
-  profile?: OfficerProfile | null;
-  onNavigateToApplications: () => void;
-}
+import type { AdminDashboardOverviewProps } from '../types';
+import { COMMITTEE_OPTIONS } from '@/data';
+import { calculateCommitteeCounts, calculateTopCommittee } from '@/lib/utils';
 
 export default function AdminDashboardOverview({
   applications,
@@ -35,34 +27,14 @@ export default function AdminDashboardOverview({
 }: AdminDashboardOverviewProps) {
   const isSuperAdmin = !profile || profile.role === 'super_admin';
 
-  // Calculate Global Metrics across all applications
+  // Global Metrics across all applications
   const totalApps = applications.length;
   const pendingApps = applications.filter(a => (a.application_status || 'Pending') === 'Pending').length;
   const approvedApps = applications.filter(a => a.application_status === 'Approved').length;
 
-  // Committee Demand Distribution Breakdown
-  const committeeCounts: Record<string, number> = {
-    'G.A.D Committee': 0,
-    'Gaming Committee': 0,
-    'Networking Committee': 0,
-    'Programming Committee': 0
-  };
-
-  applications.forEach(a => {
-    let key = a.primary_committee || 'Programming Committee';
-    if (key === 'G.A.D') key = 'G.A.D Committee';
-    committeeCounts[key] = (committeeCounts[key] || 0) + 1;
-  });
-
-  // Calculate Top Preferred Committee
-  let topCommittee = 'Programming';
-  let maxCount = -1;
-  Object.entries(committeeCounts).forEach(([comm, count]) => {
-    if (count > maxCount) {
-      maxCount = count;
-      topCommittee = comm.replace(' Committee', '');
-    }
-  });
+  // Centralized analytics helpers
+  const committeeCounts = calculateCommitteeCounts(applications);
+  const topCommittee = calculateTopCommittee(committeeCounts);
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -196,7 +168,7 @@ export default function AdminDashboardOverview({
             </p>
             <button
               onClick={onNavigateToApplications}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 text-xs font-extrabold uppercase tracking-wider hover:opacity-90 transition-transform active:scale-95"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 text-xs font-extrabold uppercase tracking-wider hover:opacity-90 transition-transform active:scale-95 min-h-[36px]"
             >
               View Applicant Records <ChevronRight className="w-4 h-4" />
             </button>
@@ -243,7 +215,7 @@ export default function AdminDashboardOverview({
               <button
                 onClick={onToggleRegistration}
                 disabled={toggling}
-                className={`w-full py-3 px-4 rounded-lg text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md border ${
+                className={`w-full py-3 px-4 rounded-lg text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md border min-h-[36px] ${
                   isRegistrationOpen
                     ? 'bg-rose-600 hover:bg-rose-500 text-white border-rose-500/50'
                     : 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500/50'

@@ -15,14 +15,7 @@ import {
   UserCheck
 } from 'lucide-react';
 import Link from 'next/link';
-import type { OfficerProfile } from '@/types';
-
-interface AdminSidebarProps {
-  onLogout: () => void;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-  profile?: OfficerProfile | null;
-}
+import type { AdminSidebarProps } from './types';
 
 export default function AdminSidebar({ onLogout, activeTab, setActiveTab, profile }: AdminSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
@@ -273,7 +266,7 @@ export default function AdminSidebar({ onLogout, activeTab, setActiveTab, profil
           <Link
             href="/"
             title="Back to Main Website"
-            className={`flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-2.5 rounded-lg text-xs font-bold text-neutral-600 dark:text-neutral-400 hover:bg-[#ebebe8] dark:hover:bg-[#18181b]`}
+            className={`flex items-center ${collapsed ? 'justify-center px-0' : 'px-[#ebebe8]'} py-2.5 rounded-lg text-xs font-bold text-neutral-600 dark:text-neutral-400 hover:bg-[#ebebe8] dark:hover:bg-[#18181b]`}
           >
             <ArrowLeft className="w-4 h-4 shrink-0" />
             {!collapsed && <span className="ml-2.5 truncate">Back to Main Website</span>}

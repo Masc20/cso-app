@@ -1,16 +1,9 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import type { ModalProps } from './types';
 
-interface ExtendedModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title?: string;
-  children: React.ReactNode;
-  className?: string;
-}
-
-export default function Modal({ isOpen, onClose, title, children, className = '' }: ExtendedModalProps) {
+export default function Modal({ isOpen, onClose, title, children, className = '' }: ModalProps) {
   const backdropRef = useRef<HTMLDivElement>(null);
 
   // 1. Close on 'Esc' key press & lock background scrolling

@@ -12,15 +12,9 @@ import {
   ChevronsRight,
   Lock
 } from 'lucide-react';
-import type { ApplicationRecord } from '@/types';
-import { getStatusBadgeClass } from '@/lib/utils/formatting';
+import type { ApplicationsTableProps } from '../types';
+import { getStatusBadgeClass, exportApplicationsToCsv } from '@/lib/utils';
 import { STATUS_FILTER_OPTIONS, ROWS_PER_PAGE_OPTIONS, COMMITTEE_OPTIONS } from '@/data';
-
-interface ApplicationsTableProps {
-  applications: ApplicationRecord[];
-  onSelectApplication: (app: ApplicationRecord) => void;
-  userAssignedCommittee?: string;
-}
 
 export default function ApplicationsTable({ applications, onSelectApplication, userAssignedCommittee = 'All' }: ApplicationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -50,6 +44,7 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
 
     const activeCommitteeScope = isCommitteeLocked ? userAssignedCommittee : selectedCommittee;
     
+    // G.A.D alias matching support (G.A.D vs G.A.D Committee)
     const matchesCommittee = 
       activeCommitteeScope === 'All' || 
       app.primary_committee === activeCommitteeScope ||
@@ -72,35 +67,6 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
   const endIndex = Math.min(startIndex + rowsPerPage, filteredApps.length);
   const paginatedApps = filteredApps.slice(startIndex, endIndex);
 
-  // Export to CSV helper
-  const handleExportCsv = () => {
-    if (filteredApps.length === 0) return;
-
-    const headers = ['Student ID', 'First Name', 'Middle Name', 'Last Name', 'Facebook Link', 'Program', 'Year Level', 'Primary Committee', 'Secondary Committee', 'Status', 'Date Submitted'];
-    const rows = filteredApps.map(a => [
-      `"${a.student_id}"`,
-      `"${a.first_name}"`,
-      `"${a.middle_name || ''}"`,
-      `"${a.last_name}"`,
-      `"${a.facebook_link}"`,
-      `"${a.course_program}"`,
-      `"${a.year_level}"`,
-      `"${a.primary_committee}"`,
-      `"${a.secondary_committee || 'None'}"`,
-      `"${a.application_status || 'Pending'}"`,
-      `"${new Date(a.created_at).toLocaleDateString()}"`
-    ]);
-
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `CSO_Applications_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   return (
     <div className="bg-cso-card border border-cso rounded-xl p-4 sm:p-6 shadow-xl">
       
@@ -115,7 +81,7 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
             placeholder="Search student name, ID..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/50 min-h-[36px]"
           />
         </div>
 
@@ -128,7 +94,7 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
               value={isCommitteeLocked ? userAssignedCommittee : selectedCommittee}
               disabled={isCommitteeLocked}
               onChange={e => setSelectedCommittee(e.target.value)}
-              className={`w-full px-3.5 py-2.5 rounded-lg bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+              className={`w-full px-3.5 py-2.5 rounded-lg bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50 min-h-[36px] ${
                 isCommitteeLocked ? 'opacity-80 cursor-not-allowed bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400' : ''
               }`}
             >
@@ -146,7 +112,7 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
           <select
             value={selectedStatus}
             onChange={e => setSelectedStatus(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-lg bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+            className="w-full px-3.5 py-2.5 rounded-lg bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50 min-h-[36px]"
           >
             <option value="All">All Statuses</option>
             {STATUS_FILTER_OPTIONS.filter(s => s !== 'All').map((st) => (
@@ -156,9 +122,9 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
 
           {/* Export CSV Button */}
           <button
-            onClick={handleExportCsv}
+            onClick={() => exportApplicationsToCsv(filteredApps)}
             disabled={filteredApps.length === 0}
-            className="w-full px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md disabled:opacity-50"
+            className="w-full px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md disabled:opacity-50 min-h-[36px]"
           >
             <Download className="w-4 h-4" /> Export CSV
           </button>
@@ -171,7 +137,7 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
         <span>↔ Swipe table horizontally to view full details & actions</span>
       </div>
 
-      {/* Applications Data Table Container with Sticky Top Header & Scroll Container */}
+      {/* Applications Data Table Container */}
       <div className="overflow-x-auto overflow-y-auto max-h-[65vh] rounded-lg border border-cso -mx-1 sm:mx-0 relative">
         <table className="w-full min-w-[650px] text-left border-collapse text-xs">
           <thead className="sticky top-0 z-20 shadow-sm">
@@ -214,7 +180,6 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
                     </span>
                   </td>
                   <td className="py-3.5 px-4 text-right space-x-2">
-                    {/* View Details */}
                     <button
                       onClick={() => onSelectApplication(app)}
                       className="p-2 sm:p-2.5 rounded-md bg-neutral-200 dark:bg-[#27272a] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-[#3f3f46] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
@@ -223,7 +188,6 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
                       <Eye className="w-4 h-4" />
                     </button>
 
-                    {/* Open FB Profile */}
                     <a
                       href={app.facebook_link}
                       target="_blank"
@@ -244,17 +208,13 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
       {filteredApps.length > 0 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 mt-4 border-t border-cso text-xs font-semibold text-neutral-600 dark:text-neutral-400">
           
-          {/* Record Counter Info */}
           <div className="text-center sm:text-left">
             Showing <span className="font-extrabold text-neutral-900 dark:text-neutral-100">{filteredApps.length === 0 ? 0 : startIndex + 1}</span> to{' '}
             <span className="font-extrabold text-neutral-900 dark:text-neutral-100">{endIndex}</span> of{' '}
             <span className="font-extrabold text-neutral-900 dark:text-neutral-100">{filteredApps.length}</span> applicants
           </div>
 
-          {/* Right Controls: Rows per Page Selector & Navigation Buttons */}
           <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 w-full sm:w-auto">
-            
-            {/* Rows Per Page Dropdown */}
             <div className="flex items-center gap-2">
               <span>Show</span>
               <select
@@ -269,10 +229,7 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
               <span>per page</span>
             </div>
 
-            {/* Navigation Controls */}
             <div className="flex items-center gap-1">
-              
-              {/* First Page */}
               <button
                 onClick={() => setCurrentPage(1)}
                 disabled={validCurrentPage === 1}
@@ -282,7 +239,6 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
                 <ChevronsLeft className="w-4 h-4" />
               </button>
 
-              {/* Previous Page */}
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={validCurrentPage === 1}
@@ -292,12 +248,10 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
                 <ChevronLeft className="w-4 h-4" />
               </button>
 
-              {/* Page Indicator */}
               <span className="px-2.5 py-1 font-bold text-neutral-900 dark:text-neutral-100 text-center min-w-[80px]">
                 Page {validCurrentPage} of {totalPages}
               </span>
 
-              {/* Next Page */}
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={validCurrentPage === totalPages}
@@ -307,7 +261,6 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
                 <ChevronRight className="w-4 h-4" />
               </button>
 
-              {/* Last Page */}
               <button
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={validCurrentPage === totalPages}
@@ -316,7 +269,6 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
               >
                 <ChevronsRight className="w-4 h-4" />
               </button>
-
             </div>
 
           </div>
