@@ -102,6 +102,8 @@ export interface ToastProps {
   message: string | null;
   type?: ToastType;
   onClose: () => void;
+  stackIndex?: number;
+  autoDismiss?: boolean;
 }
 
 export interface FloatingInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {

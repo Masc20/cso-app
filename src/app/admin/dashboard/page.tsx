@@ -34,7 +34,15 @@ export default function AdminDashboardPage() {
   const [selectedApplication, setSelectedApplication] = useState<ApplicationRecord | null>(null);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
   const [dataLoading, setDataLoading] = useState(true);
-  const [toastState, setToastState] = useState<{ message: string; type: ToastType } | null>(null);
+  const [toastQueue, setToastQueue] = useState<Array<{ id: number; message: string; type: ToastType }>>([]);
+
+  const enqueueToast = (message: string, type: ToastType) => {
+    setToastQueue(prev => [...prev, {
+      id: Date.now() + Math.random(),
+      message,
+      type
+    }]);
+  };
 
   const isSuperAdmin = profile?.role === 'super_admin';
   const assignedScope = isSuperAdmin ? 'All' : profile?.assigned_committee || 'All';
@@ -66,7 +74,7 @@ export default function AdminDashboardPage() {
       }
     } catch (err) {
       console.error('Error loading dashboard data:', err);
-      setToastState({ message: 'Failed to load dashboard data. Please try again.', type: 'error' });
+      enqueueToast('Failed to load dashboard data. Please try again.', 'error');
     } finally {
       setDataLoading(false);
     }
@@ -85,13 +93,10 @@ export default function AdminDashboardPage() {
     setIsRegistrationOpen(newStatus);
     const success = await toggleRegistrationStatus(newStatus);
     if (success) {
-      setToastState({
-        message: `Registration portal ${newStatus ? 'OPENED' : 'CLOSED'} successfully.`,
-        type: newStatus ? 'success' : 'closed'
-      });
+      enqueueToast(`Registration portal ${newStatus ? 'OPENED' : 'CLOSED'} successfully.`, newStatus ? 'success' : 'closed');
     } else {
       setIsRegistrationOpen(!newStatus); // Revert on failure
-      setToastState({ message: 'Failed to update registration status.', type: 'error' });
+      enqueueToast('Failed to update registration status.', 'error');
     }
   };
 
@@ -101,17 +106,17 @@ export default function AdminDashboardPage() {
     setScopedApplications(prev => prev.map(a => a.id === id ? { ...a, application_status: status, admin_notes: notes !== undefined ? notes : a.admin_notes } : a));
     
     const toastType: ToastType = status === 'Rejected' ? 'delete' : 'success';
-    setToastState({ message: `Application status updated to "${status}".`, type: toastType });
+    enqueueToast(`Application status updated to "${status}".`, toastType);
   };
 
   const handleUpdateOfficerPermissions = async (id: string, role: 'super_admin' | 'officer', committee: OfficerProfile['assigned_committee']) => {
     const success = await updateOfficerProfile(id, role, committee);
     if (success) {
-      setToastState({ message: 'Officer profile permissions updated.', type: 'success' });
+      enqueueToast('Officer profile permissions updated.', 'success');
       loadDashboardData();
       return true;
     } else {
-      setToastState({ message: 'Failed to update officer profile.', type: 'error' });
+      enqueueToast('Failed to update officer profile.', 'error');
       return false;
     }
   };
@@ -210,6 +215,7 @@ export default function AdminDashboardPage() {
       {/* Feature Application Detail Modal */}
       {selectedApplication && (
         <ApplicationDetailModal
+          isOpen={Boolean(selectedApplication)}
           application={selectedApplication}
           onClose={() => setSelectedApplication(null)}
           onUpdate={(id, status, notes) => {
@@ -220,11 +226,16 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Dynamic Visual Toast Primitive */}
-      <Toast 
-        message={toastState?.message || null} 
-        type={toastState?.type}
-        onClose={() => setToastState(null)} 
-      />
+      {toastQueue.slice(0, 3).map((toast, index) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          stackIndex={index}
+          autoDismiss
+          onClose={() => setToastQueue(prev => prev.filter(item => item.id !== toast.id))}
+        />
+      ))}
 
     </div>
   );

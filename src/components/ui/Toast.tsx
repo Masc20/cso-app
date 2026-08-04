@@ -1,20 +1,26 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { CheckCircle2, AlertTriangle, XCircle, Trash2, Lock, Info, X } from 'lucide-react';
 import type { ToastProps } from '@/types';
 
-export default function Toast({ message, type = 'success', onClose }: ToastProps) {
+export default function Toast({ message, type = 'success', onClose, stackIndex = 0, autoDismiss = true }: ToastProps) {
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   // Auto-dismiss toast after 3.5 seconds
   useEffect(() => {
-    if (!message) return;
+    if (!message || !autoDismiss) return;
 
     const timer = setTimeout(() => {
-      onClose();
+      onCloseRef.current();
     }, 3500);
 
     return () => clearTimeout(timer);
-  }, [message, onClose]);
+  }, [message, autoDismiss]);
 
   if (!message) return null;
 
@@ -81,7 +87,10 @@ export default function Toast({ message, type = 'success', onClose }: ToastProps
   const style = getAccentStyle();
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 animate-slide-up pointer-events-auto max-w-sm">
+    <div
+      className="fixed right-6 z-50 animate-slide-up pointer-events-auto max-w-sm"
+      style={{ bottom: `${24 + stackIndex * 76}px` }}
+    >
       <div className={`relative overflow-hidden rounded-xl bg-[#18181b]/95 dark:bg-[#09090b]/95 backdrop-blur-md border ${style.border} text-neutral-100 shadow-2xl p-3.5 pr-4 flex items-center gap-3 font-semibold text-xs transition-all`}>
         
         {/* Status Icon */}
@@ -105,7 +114,10 @@ export default function Toast({ message, type = 'success', onClose }: ToastProps
 
         {/* Subtle Auto-Dismiss Countdown Bar */}
         <div className="absolute bottom-0 inset-x-0 h-0.5 bg-neutral-800">
-          <div className={`h-full transition-all duration-[3500ms] ease-linear w-0 animate-progress-shrink ${style.progressBg}`} />
+          <div
+            className={`h-full ${autoDismiss ? 'w-0' : 'w-full'} ${style.progressBg}`}
+            style={{ animation: autoDismiss ? 'progressShrink 3500ms linear forwards' : 'none' }}
+          />
         </div>
 
       </div>

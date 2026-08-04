@@ -473,6 +473,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               rows={3}
               minLength={10}
               maxLength={1000}
+              className="pt-10 sm:pt-6"
               value={formData.motivationStatement}
               onChange={e => setFormData({ ...formData, motivationStatement: e.target.value })}
               onBlur={() => markTouched('motivationStatement')}
