@@ -1,9 +1,9 @@
 export const YEAR_LEVEL_OPTIONS = [
+  'Senior High',
   '1st Year',
   '2nd Year',
   '3rd Year',
   '4th Year',
-  'Senior High'
 ] as const;
 
 export const COURSE_OPTIONS = [

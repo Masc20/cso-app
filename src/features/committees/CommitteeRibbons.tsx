@@ -1,91 +1,126 @@
 'use client';
 
 import React from 'react';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { Palette, Gamepad2, Network, Code2, ArrowRight } from 'lucide-react';
 import type { CommitteeRibbonsProps } from './types';
 import { COMMITTEES } from '@/data';
 
 export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbonsProps) {
+  const getIcon = (shortName: string) => {
+    switch (shortName) {
+      case 'G.A.D':
+      case 'G.A.D Committee':
+        return <Palette className="w-5 h-5 text-amber-500" />;
+      case 'Gaming':
+        return <Gamepad2 className="w-5 h-5 text-emerald-500" />;
+      case 'Networking':
+        return <Network className="w-5 h-5 text-sky-500" />;
+      default:
+        return <Code2 className="w-5 h-5 text-fuchsia-500" />;
+    }
+  };
+
+  const getBorderBg = (id: string) => {
+    switch (id) {
+      case 'G.A.D Committee':
+      case 'G.A.D':
+        return 'bg-amber-500/60 dark:bg-amber-400/50 group-hover:bg-amber-500';
+      case 'Gaming Committee':
+        return 'bg-emerald-500/60 dark:bg-emerald-400/50 group-hover:bg-emerald-500';
+      case 'Networking Committee':
+        return 'bg-sky-500/60 dark:bg-sky-400/50 group-hover:bg-sky-500';
+      default:
+        return 'bg-fuchsia-500/60 dark:bg-fuchsia-400/50 group-hover:bg-fuchsia-500';
+    }
+  };
+
   return (
-    <section id="committees" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+    <section id="committees" className="relative w-full bg-[#e5e5df] dark:bg-[#121215] pt-20 pb-20 px-4 mt-20 transition-colors border-y border-[#d0d0c8] dark:border-[#27272a]">
       
-      {/* Section Header */}
-      <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 mb-3">
-          <Sparkles className="w-3.5 h-3.5" /> Specialized Wings & Divisions
-        </span>
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-neutral-900 dark:text-neutral-100 tracking-tight">
-          Explore Our Committees
-        </h2>
-        <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 mt-3 font-medium">
-          Select your passion. From competitive game development to cyber infrastructure and full-stack engineering, find where you belong.
+      {/* Central CSO Logo Badge Floating at the Center Header */}
+      <div className="absolute -top-16 sm:-top-20 left-1/2 -translate-x-1/2 z-20">
+        <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full p-3 sm:p-4 bg-[#e5e5df] dark:bg-[#121215] flex items-center justify-center">
+          <img 
+            src="/imgs/CSOLOGO.png" 
+            alt="CSO Logo Badge" 
+            className="w-full h-full object-contain drop-shadow-md"
+          />
+        </div>
+      </div>
+
+      {/* "Committees" Title Label centered right below the central logo badge */}
+      <div className="text-center mt-6 mb-10">
+        <h3 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 dark:text-neutral-100 tracking-tight">
+          Committees
+        </h3>
+        <p className="text-xs sm:text-sm font-bold text-neutral-500 dark:text-neutral-400 mt-1 uppercase tracking-widest">
+          Specialized Wings & Divisions
         </p>
       </div>
 
-      {/* 4 Committee Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {COMMITTEES.map((comm) => {
-          const IconComp = comm.Icon;
-          return (
-            <div
-              key={comm.id}
-              className={`bg-cso-card border border-cso rounded-xl p-6 shadow-md transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl flex flex-col justify-between group relative overflow-hidden ${comm.borderGlow}`}
-            >
+      {/* 4 Committee Banner Ribbons Grid */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 items-stretch">
+        {COMMITTEES.map((comm) => (
+          <div
+            key={comm.id}
+            onClick={() => onSelectCommittee(comm.id)}
+            className="ribbon-banner cursor-pointer group relative p-[2px] rounded-t-xl transition-all"
+          >
+            {/* Outer Clipped Border Container Layer (Ensures V-shaped bottom edge has crisp border color) */}
+            <div className={`ribbon-clip w-full h-full p-[2px] rounded-t-xl transition-colors ${getBorderBg(comm.id)}`}>
               
-              {/* Top Ambient Glow Gradient */}
-              <div className={`absolute -top-24 -left-24 w-48 h-48 rounded-full bg-gradient-to-br ${comm.accentColor} opacity-10 group-hover:opacity-20 blur-2xl transition-opacity pointer-events-none`} />
+              {/* Inner Card Content Container */}
+              <div className="ribbon-clip w-full h-full bg-cso-card rounded-t-xl p-6 pb-16 flex flex-col items-center text-center relative overflow-hidden">
+                
+                {/* Top Color Accent Line matching logo */}
+                <div className={`absolute top-0 inset-x-0 h-2.5 bg-gradient-to-r ${comm.accentColor} rounded-t-xl`} />
 
-              <div>
-                {/* Header: Logo Image + Category Icon */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-cso-input p-1.5 border border-cso shadow-inner shrink-0 flex items-center justify-center">
-                    <img
-                      src={comm.logo}
-                      alt={`${comm.name} Logo`}
-                      className="w-full h-full object-contain drop-shadow"
-                    />
-                  </div>
-                  <IconComp className={`w-6 h-6 ${comm.iconClassName}`} />
+                {/* Circular Logo Container with Gold Ring Outer Border */}
+                <div className="relative mt-2 mb-4 w-24 h-24 sm:w-28 sm:h-28 rounded-full p-2 bg-cso-input border-4 border-amber-400 shadow-md group-hover:scale-105 transition-transform flex items-center justify-center shrink-0">
+                  <img
+                    src={comm.logo}
+                    alt={`${comm.name} Logo`}
+                    className="w-full h-full object-contain drop-shadow"
+                  />
                 </div>
 
-                {/* Title & Short Name Badge */}
-                <span className={`inline-block px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider mb-2 border ${comm.badgeBg}`}>
+                {/* Committee Short Title */}
+                <h4 className="text-lg font-black tracking-tight text-neutral-900 dark:text-neutral-100 flex items-center justify-center gap-1.5 mt-1">
                   {comm.shortName}
+                </h4>
+
+                {/* Sub-badge */}
+                <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-md border mt-2 ${comm.badgeBg}`}>
+                  {getIcon(comm.shortName)} {comm.name}
                 </span>
 
-                <h3 className="text-lg font-black text-neutral-900 dark:text-neutral-100 group-hover:text-amber-500 transition-colors">
-                  {comm.name}
-                </h3>
-
-                <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-2 leading-relaxed font-medium">
+                {/* Committee Brief */}
+                <p className="text-xs text-neutral-700 dark:text-neutral-300 mt-3 leading-relaxed flex-1 font-medium">
                   {comm.description}
                 </p>
 
-                {/* Skill Tags */}
-                <div className="flex flex-wrap gap-1.5 mt-4 pt-3 border-t border-cso">
-                  {comm.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-0.5 rounded text-[10px] font-semibold bg-cso-input text-neutral-700 dark:text-neutral-300 border border-cso"
+                {/* Skills & Tag Chips */}
+                <div className="mt-4 flex flex-wrap justify-center gap-1">
+                  {comm.tags.map((tag, idx) => (
+                    <span 
+                      key={idx} 
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-cso-input text-neutral-800 dark:text-neutral-300 border border-cso"
                     >
                       {tag}
                     </span>
                   ))}
                 </div>
+
+                {/* CTA Arrow Button */}
+                <div className="mt-5 pt-3 border-t border-cso w-full flex items-center justify-center gap-1.5 text-xs font-bold text-neutral-800 dark:text-neutral-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                  Join {comm.shortName} <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+
               </div>
 
-              {/* Action Apply Button */}
-              <button
-                onClick={() => onSelectCommittee(comm.id)}
-                className="w-full mt-6 py-2.5 px-4 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-[#27272a] dark:hover:bg-[#3f3f46] dark:text-neutral-100 font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all group-hover:bg-amber-500 group-hover:text-white dark:group-hover:bg-amber-500 shadow-md min-h-[36px]"
-              >
-                <span>Apply for {comm.shortName}</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </button>
-
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
     </section>

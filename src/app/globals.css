@@ -71,16 +71,19 @@ body {
 }
 
 /* Custom Downward Ribbon Shape with WebKit fallbacks for Safari */
+.ribbon-clip {
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% calc(100% - 32px), 50% 100%, 0 calc(100% - 32px));
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 32px), 50% 100%, 0 calc(100% - 32px));
+}
+
 .ribbon-banner {
-  -webkit-clip-path: polygon(0 0, 100% 0, 100% calc(100% - 36px), 50% 100%, 0 calc(100% - 36px));
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 36px), 50% 100%, 0 calc(100% - 36px));
-  -webkit-filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.12));
-  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.12));
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
+  -webkit-filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.12));
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.12));
 }
 
 .dark .ribbon-banner {
