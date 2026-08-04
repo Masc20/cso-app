@@ -70,7 +70,7 @@ export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbons
             className="ribbon-banner cursor-pointer group relative p-[2px] rounded-t-xl transition-all"
           >
             {/* Outer Clipped Border Container Layer */}
-            <div className={`ribbon-clip w-full h-full p-[2px] rounded-t-xl transition-colors ${getBorderBg(comm.id)}`}>
+            <div className={`ribbon-clip w-full h-full p-[0.5px] rounded-t-xl transition-colors ${getBorderBg(comm.id)}`}>
               
               {/* Inner Card Content Container */}
               <div className="ribbon-clip w-full h-full bg-cso-card rounded-t-xl p-6 pb-16 flex flex-col items-center text-center relative overflow-hidden">
@@ -79,7 +79,7 @@ export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbons
                 <div className={`absolute top-0 inset-x-0 h-2.5 bg-gradient-to-r ${comm.accentColor} rounded-t-xl`} />
 
                 {/* Circular Logo Container with Gold Ring Outer Border */}
-                <div className="relative mt-2 mb-3 w-24 h-24 sm:w-28 sm:h-28 rounded-full p-2 bg-cso-input border-4 border-amber-400 shadow-md group-hover:scale-105 transition-transform flex items-center justify-center shrink-0">
+                <div className="relative mt-2 mb-3 w-24 h-24 sm:w-28 sm:h-28 rounded-full p-2 bg-cso-input shadow-md group-hover:scale-105 transition-transform flex items-center justify-center shrink-0">
                   <img
                     src={comm.logo}
                     alt={`${comm.name} Logo`}
@@ -94,7 +94,7 @@ export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbons
                     e.stopPropagation();
                     setSelectedVideoCommittee(comm);
                   }}
-                  className="mb-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500 hover:text-neutral-950 transition-all shadow-sm z-10"
+                  className="mb-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30 hover:bg-amber-500 hover:text-neutral-950 transition-all shadow-sm z-10"
                 >
                   <Play className="w-3 h-3 fill-current" /> Intro Video
                 </button>
