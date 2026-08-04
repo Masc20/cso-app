@@ -44,3 +44,23 @@ export function getCommitteeVideoUrl(pathOrUrl?: string): string {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   return `${supabaseUrl}/storage/v1/object/public/cso-videos/${trimmed}`;
 }
+
+/**
+ * Formats raw student ID input by auto-appending prefixes based on character length and patterns.
+ */
+export function formatStudentId(inputValue: string): string {
+  // Force uppercase
+  let value = inputValue.toUpperCase();
+
+  // Auto-format rules based on raw length checks
+  // Check if starts with a letter and hits the triggers
+  const startsWithLetter = /^[A-Z]/.test(value);
+
+  if (startsWithLetter && value.length === 3) {
+    value = `${value}-01-`;
+  } else if (startsWithLetter && value.length === 12) {
+    value = `${value}-MAN121`;
+  }
+
+  return value;
+}

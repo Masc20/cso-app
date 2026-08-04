@@ -5,7 +5,7 @@ import { Send, CheckCircle2, AlertCircle, User, Link as LinkIcon, GraduationCap,
 import confetti from 'canvas-confetti';
 import { FloatingInput, FloatingTextarea, FloatingSelect } from '@/components/ui';
 import { fetchRegistrationStatus } from '@/features/admin';
-import { sanitizeString, isValidFacebookUrl, isValidHttpUrl } from '@/lib/utils';
+import { sanitizeString, isValidFacebookUrl, isValidHttpUrl, formatStudentId } from '@/lib/utils';
 import { COURSE_OPTIONS, YEAR_LEVEL_OPTIONS, COMMITTEE_OPTIONS } from '@/data';
 import type { RegistrationPortalProps } from '@/types';
 
@@ -374,12 +374,15 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               <FloatingInput
                 label="Student ID Number"
                 required
-                infoTooltip="Format: e.g. 2025-00101 or your official ACLC Student ID number."
+                infoTooltip="Format: e.g. C00-01-0000-MAN121 or your LRN."
                 disabled={cooldownSeconds > 0 || loading}
                 maxLength={25}
                 icon={<Code className="w-4 h-4" />}
                 value={formData.studentId}
-                onChange={e => setFormData({ ...formData, studentId: e.target.value })}
+                onChange={e => {
+                  const formatted = formatStudentId(e.target.value);
+                  setFormData(prev => ({ ...prev, studentId: formatted }));
+                }}
                 onBlur={() => markTouched('studentId')}
                 errorMessage={touchedFields.studentId ? fieldErrors.studentId : undefined}
               />
