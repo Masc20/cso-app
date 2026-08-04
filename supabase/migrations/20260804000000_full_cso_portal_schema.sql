@@ -2,7 +2,7 @@
 -- SUPABASE MIGRATION: FULL CSO WEB PORTAL SCHEMA & SECURITY POLICIES
 -- File: supabase/migrations/20260804000000_full_cso_portal_schema.sql
 -- Description: Complete schema setup for Computer Studies Organization (CSO)
--- Includes: Tables, RLS Policies, Indexes, Triggers, and Auth Sync.
+-- Includes: Tables, RLS Policies, Indexes, Triggers, Auth Sync, and Storage Bucket.
 -- ====================================================================
 
 -- --------------------------------------------------------------------
@@ -177,3 +177,20 @@ SELECT
   END
 FROM auth.users
 ON CONFLICT (id) DO NOTHING;
+
+
+-- --------------------------------------------------------------------
+-- 5. STORAGE BUCKET: cso-videos & SECURITY POLICY (Remediates lint=0025)
+-- Public bucket serves files via direct CDN URL without needing broad SELECT listing
+-- --------------------------------------------------------------------
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('cso-videos', 'cso-videos', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Allow authenticated officers to upload and manage videos in cso-videos
+CREATE POLICY "Authenticated officers manage cso-videos"
+  ON storage.objects
+  FOR ALL
+  TO authenticated
+  USING (bucket_id = 'cso-videos')
+  WITH CHECK (bucket_id = 'cso-videos');

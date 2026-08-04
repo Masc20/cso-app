@@ -109,6 +109,35 @@ body {
   backdrop-filter: blur(16px);
 }
 
+/* Toast Animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes progressShrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-progress-shrink {
+  animation: progressShrink 3.5s linear forwards;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

@@ -11,6 +11,8 @@ export const COMMITTEES: Committee[] = [
     borderGlow: 'hover:shadow-amber-500/40 border-amber-500/60 dark:border-amber-400/50',
     badgeBg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30',
     Icon: Palette, iconClassName: 'text-amber-500', tags: ['UI/UX Design', 'Photoshop & Figma', 'Branding'],
+    videoUrl: 'GAD%20Committee.mp4',
+    videoTitle: 'G.A.D Committee 2025-2026',
   },
   {
     id: 'Gaming Committee', name: 'Gaming Committee', shortName: 'Gaming',
@@ -27,6 +29,8 @@ export const COMMITTEES: Committee[] = [
     borderGlow: 'hover:shadow-sky-500/40 border-sky-500/60 dark:border-sky-400/50',
     badgeBg: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30',
     Icon: Network, iconClassName: 'text-sky-500', tags: ['SysAdmin', 'LAN & Wi-Fi Setup', 'Cybersecurity'],
+    videoUrl: 'Networking%20Committee.mp4',
+    videoTitle: 'Networking Committee 2025-2026'
   },
   {
     id: 'Programming Committee', name: 'Programming Committee', shortName: 'Programming',

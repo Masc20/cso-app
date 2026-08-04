@@ -7,7 +7,7 @@ import { FloatingInput, FloatingTextarea, FloatingSelect } from '@/components/ui
 import { fetchRegistrationStatus } from '@/features/admin';
 import { sanitizeString, isValidFacebookUrl, isValidHttpUrl } from '@/lib/utils';
 import { COURSE_OPTIONS, YEAR_LEVEL_OPTIONS, COMMITTEE_OPTIONS } from '@/data';
-import type { RegistrationPortalProps } from './types';
+import type { RegistrationPortalProps } from '@/types';
 
 function normalizeUrlInput(urlStr: string): string {
   const trimmed = urlStr.trim();

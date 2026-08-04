@@ -26,3 +26,21 @@ export function getClientIp(req: NextRequest): string {
   const realIp = req.headers.get('x-real-ip');
   return forwarded ? forwarded.split(',')[0].trim() : realIp || '127.0.0.1';
 }
+
+/**
+ * Auto-URL Helper: Resolves committee video filename or full URL.
+ * Accepts filenames (e.g. 'gad_intro.mp4'), relative paths ('/videos/...'), or full URLs (YouTube / CDN).
+ */
+export function getCommitteeVideoUrl(pathOrUrl?: string): string {
+  if (!pathOrUrl || !pathOrUrl.trim()) return '';
+  const trimmed = pathOrUrl.trim();
+  
+  // If it's already a full HTTP/HTTPS URL or relative public path, return as is
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
+    return trimmed;
+  }
+  
+  // Otherwise, automatically construct the Supabase Storage CDN public bucket URL using process.env
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  return `${supabaseUrl}/storage/v1/object/public/cso-videos/${trimmed}`;
+}

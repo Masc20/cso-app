@@ -3,11 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Info, X, AlertCircle } from 'lucide-react';
 
-interface ExtendedFloatingTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  label: string;
-  infoTooltip?: string;
-  errorMessage?: string;
-}
+import type { FloatingTextareaProps } from '@/types';
 
 export default function FloatingTextarea({
   label,
@@ -22,7 +18,7 @@ export default function FloatingTextarea({
   className = '',
   id,
   ...props
-}: ExtendedFloatingTextareaProps) {
+}: FloatingTextareaProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);

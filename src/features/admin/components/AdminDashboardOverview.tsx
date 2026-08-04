@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { 
   Users, 
   Clock, 
@@ -13,7 +12,7 @@ import {
   ChevronRight,
   ShieldAlert
 } from 'lucide-react';
-import type { AdminDashboardOverviewProps } from '../types';
+import type { AdminDashboardOverviewProps } from '@/types';
 import { COMMITTEE_OPTIONS } from '@/data';
 import { calculateCommitteeCounts, calculateTopCommittee } from '@/lib/utils';
 

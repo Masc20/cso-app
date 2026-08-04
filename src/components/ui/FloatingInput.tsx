@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Info, X, AlertCircle } from 'lucide-react';
-import type { FloatingInputProps } from './types';
+import type { FloatingInputProps } from '@/types';
 
 export default function FloatingInput({
   label,

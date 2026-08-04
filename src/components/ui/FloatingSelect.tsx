@@ -3,19 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Info, X, ChevronDown, AlertCircle } from 'lucide-react';
 
-interface OptionItem {
-  value: string;
-  label: string;
-}
-
-interface ExtendedFloatingSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  label: string;
-  options: (OptionItem | string | [string, string])[];
-  placeholderOption?: string;
-  icon?: React.ReactNode;
-  infoTooltip?: string;
-  errorMessage?: string;
-}
+import type { FloatingSelectProps } from '@/types';
 
 export default function FloatingSelect({
   label,
@@ -32,7 +20,7 @@ export default function FloatingSelect({
   className = '',
   id,
   ...props
-}: ExtendedFloatingSelectProps) {
+}: FloatingSelectProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);

@@ -12,11 +12,11 @@ import {
   ChevronsRight,
   Lock
 } from 'lucide-react';
-import type { ApplicationsTableProps } from '../types';
+import type { ApplicationsTableProps } from '@/types';
 import { getStatusBadgeClass, exportApplicationsToCsv } from '@/lib/utils';
 import { STATUS_FILTER_OPTIONS, ROWS_PER_PAGE_OPTIONS, COMMITTEE_OPTIONS } from '@/data';
 
-export default function ApplicationsTable({ applications, onSelectApplication, userAssignedCommittee = 'All' }: ApplicationsTableProps) {
+export default function ApplicationsTable({ applications, onSelectApplication, onViewDetails, userAssignedCommittee = 'All', officerProfile }: ApplicationsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCommittee, setSelectedCommittee] = useState(userAssignedCommittee || 'All');
   const [selectedStatus, setSelectedStatus] = useState('All');
@@ -181,7 +181,7 @@ export default function ApplicationsTable({ applications, onSelectApplication, u
                   </td>
                   <td className="py-3.5 px-4 text-right space-x-2">
                     <button
-                      onClick={() => onSelectApplication(app)}
+                      onClick={() => (onSelectApplication || onViewDetails)?.(app)}
                       className="p-2 sm:p-2.5 rounded-md bg-neutral-200 dark:bg-[#27272a] text-neutral-800 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-[#3f3f46] inline-flex items-center justify-center min-w-[36px] min-h-[36px]"
                       title="View Details"
                     >

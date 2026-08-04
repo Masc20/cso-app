@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Users, Clock, CheckCircle2, Award } from 'lucide-react';
-import type { MetricCardsProps } from '../types';
+import type { MetricCardsProps } from '@/types';
 import { calculateCommitteeCounts, calculateTopCommittee } from '@/lib/utils';
 
 export default function MetricCards({ applications }: MetricCardsProps) {

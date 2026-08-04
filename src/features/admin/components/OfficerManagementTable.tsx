@@ -8,7 +8,7 @@ import {
   Edit3 
 } from 'lucide-react';
 import type { OfficerProfile } from '@/types';
-import EditOfficerModal from '../modals/EditOfficerModal';
+import { EditOfficerModal } from '@/components/modals';
 
 interface OfficerManagementTableProps {
   officers: OfficerProfile[];
@@ -145,6 +145,7 @@ export default function OfficerManagementTable({ officers, onUpdateOfficer, onRe
 
       {/* Extracted Edit Officer Modal Component */}
       <EditOfficerModal
+        isOpen={Boolean(editingOfficer)}
         officer={editingOfficer}
         onClose={() => setEditingOfficer(null)}
         onSave={handleSaveOfficer}

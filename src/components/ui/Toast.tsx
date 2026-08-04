@@ -1,29 +1,113 @@
 'use client';
 
-import React from 'react';
-import { CheckCircle2, Lock, X } from 'lucide-react';
-import type { ToastProps } from './types';
+import React, { useEffect } from 'react';
+import { CheckCircle2, AlertTriangle, XCircle, Trash2, Lock, Info, X } from 'lucide-react';
+import type { ToastProps } from '@/types';
 
 export default function Toast({ message, type = 'success', onClose }: ToastProps) {
+  // Auto-dismiss toast after 3.5 seconds
+  useEffect(() => {
+    if (!message) return;
+
+    const timer = setTimeout(() => {
+      onClose();
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, [message, onClose]);
+
   if (!message) return null;
 
+  const getIcon = () => {
+    switch (type) {
+      case 'success':
+        return <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />;
+      case 'delete':
+        return <Trash2 className="w-4 h-4 text-rose-400 shrink-0" />;
+      case 'closed':
+        return <Lock className="w-4 h-4 text-amber-400 shrink-0" />;
+      case 'error':
+        return <XCircle className="w-4 h-4 text-rose-400 shrink-0" />;
+      case 'warning':
+        return <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />;
+      case 'info':
+      default:
+        return <Info className="w-4 h-4 text-sky-400 shrink-0" />;
+    }
+  };
+
+  const getAccentStyle = () => {
+    switch (type) {
+      case 'success':
+        return {
+          border: 'border-emerald-500/40 shadow-emerald-500/10',
+          badgeBg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
+          progressBg: 'bg-emerald-500'
+        };
+      case 'delete':
+        return {
+          border: 'border-rose-500/50 shadow-rose-500/15',
+          badgeBg: 'bg-rose-500/10 border-rose-500/30 text-rose-400',
+          progressBg: 'bg-rose-500'
+        };
+      case 'closed':
+        return {
+          border: 'border-amber-500/40 shadow-amber-500/10',
+          badgeBg: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
+          progressBg: 'bg-amber-500'
+        };
+      case 'error':
+        return {
+          border: 'border-rose-500/40 shadow-rose-500/10',
+          badgeBg: 'bg-rose-500/10 border-rose-500/30 text-rose-400',
+          progressBg: 'bg-rose-500'
+        };
+      case 'warning':
+        return {
+          border: 'border-amber-500/40 shadow-amber-500/10',
+          badgeBg: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
+          progressBg: 'bg-amber-500'
+        };
+      case 'info':
+      default:
+        return {
+          border: 'border-sky-500/40 shadow-sky-500/10',
+          badgeBg: 'bg-sky-500/10 border-sky-500/30 text-sky-400',
+          progressBg: 'bg-sky-500'
+        };
+    }
+  };
+
+  const style = getAccentStyle();
+
   return (
-    <div className="fixed bottom-6 right-6 z-50 animate-bounce">
-      <div className={`p-4 rounded-xl border shadow-2xl flex items-center gap-3 font-bold text-xs ${
-        type === 'success' 
-          ? 'bg-emerald-500 text-white border-emerald-400' 
-          : type === 'error'
-          ? 'bg-rose-600 text-white border-rose-500'
-          : 'bg-amber-500 text-white border-amber-400'
-      }`}>
-        {type === 'success' ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : <Lock className="w-5 h-5 shrink-0" />}
-        <span className="max-w-xs">{message}</span>
+    <div className="fixed bottom-6 right-6 z-50 animate-slide-up pointer-events-auto max-w-sm">
+      <div className={`relative overflow-hidden rounded-xl bg-[#18181b]/95 dark:bg-[#09090b]/95 backdrop-blur-md border ${style.border} text-neutral-100 shadow-2xl p-3.5 pr-4 flex items-center gap-3 font-semibold text-xs transition-all`}>
+        
+        {/* Status Icon */}
+        <div className={`p-1.5 rounded-lg border ${style.badgeBg} flex items-center justify-center shrink-0`}>
+          {getIcon()}
+        </div>
+
+        {/* Toast Body Text */}
+        <span className="flex-1 leading-snug font-medium text-neutral-200">
+          {message}
+        </span>
+
+        {/* Manual Dismiss Button */}
         <button
           onClick={onClose}
-          className="p-1 rounded-md hover:bg-white/20 transition-colors ml-2"
+          className="p-1 rounded-lg text-neutral-400 hover:text-neutral-100 hover:bg-neutral-800 transition-colors shrink-0"
+          aria-label="Dismiss notification"
         >
-          <X className="w-4 h-4" />
+          <X className="w-3.5 h-3.5" />
         </button>
+
+        {/* Subtle Auto-Dismiss Countdown Bar */}
+        <div className="absolute bottom-0 inset-x-0 h-0.5 bg-neutral-800">
+          <div className={`h-full transition-all duration-[3500ms] ease-linear w-0 animate-progress-shrink ${style.progressBg}`} />
+        </div>
+
       </div>
     </div>
   );

@@ -14,10 +14,9 @@ import {
   fetchRegistrationStatus, 
   toggleRegistrationStatus, 
   fetchOfficerProfiles,
-  updateOfficerProfile,
-  ApplicationRecord, 
-  OfficerProfile 
+  updateOfficerProfile
 } from '@/features/admin';
+import type { ApplicationRecord, OfficerProfile, ToastType } from '@/types';
 import { RefreshCw, Sparkles, Sun, Moon, Loader2 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
@@ -28,218 +27,204 @@ export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
   
   // Dual-stream datasets: global for overview metrics, scoped for applicant table
-  const [globalApplications, setGlobalApplications] = useState<ApplicationRecord[]>([]);
+  const [allApplications, setAllApplications] = useState<ApplicationRecord[]>([]);
   const [scopedApplications, setScopedApplications] = useState<ApplicationRecord[]>([]);
-  const [officerProfiles, setOfficerProfiles] = useState<OfficerProfile[]>([]);
+  const [officers, setOfficers] = useState<OfficerProfile[]>([]);
   
+  const [selectedApplication, setSelectedApplication] = useState<ApplicationRecord | null>(null);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
-  const [toggling, setToggling] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('success');
-  const [loading, setLoading] = useState(true);
-  const [selectedApp, setSelectedApp] = useState<ApplicationRecord | null>(null);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [toastState, setToastState] = useState<{ message: string; type: ToastType } | null>(null);
 
-  // Protect Admin Route: Redirect to /admin/login if not authenticated
+  const isSuperAdmin = profile?.role === 'super_admin';
+  const assignedScope = isSuperAdmin ? 'All' : profile?.assigned_committee || 'All';
+
+  // Fetch Dual Stream Applications, Officers, and Settings
+  const loadDashboardData = useCallback(async () => {
+    setDataLoading(true);
+    try {
+      // 1. Fetch Global Applications for Overview Analytics & Demand Distribution
+      const globalApps = await fetchApplications('All');
+      setAllApplications(globalApps);
+
+      // 2. Fetch Scoped Applications for Applicant Records Table (Committee-locked for Officers)
+      if (assignedScope === 'All') {
+        setScopedApplications(globalApps);
+      } else {
+        const scoped = await fetchApplications(assignedScope);
+        setScopedApplications(scoped);
+      }
+
+      // 3. Fetch Registration Gate Status
+      const openStatus = await fetchRegistrationStatus();
+      setIsRegistrationOpen(openStatus);
+
+      // 4. Fetch Officers if Super Admin
+      if (isSuperAdmin) {
+        const officerList = await fetchOfficerProfiles();
+        setOfficers(officerList);
+      }
+    } catch (err) {
+      console.error('Error loading dashboard data:', err);
+      setToastState({ message: 'Failed to load dashboard data. Please try again.', type: 'error' });
+    } finally {
+      setDataLoading(false);
+    }
+  }, [assignedScope, isSuperAdmin]);
+
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       router.replace('/admin/login');
+    } else if (isAuthenticated) {
+      loadDashboardData();
     }
-  }, [isAuthenticated, authLoading, router]);
-
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    const assignedScope = profile?.assigned_committee || 'All';
-    
-    // Fetch global applications for overview metrics, scoped applications for table, & officer profiles for management
-    const [globalData, scopedData, regStatus, officersData] = await Promise.all([
-      fetchApplications('All'),
-      fetchApplications(assignedScope),
-      fetchRegistrationStatus(),
-      fetchOfficerProfiles()
-    ]);
-
-    setGlobalApplications(globalData);
-    setScopedApplications(scopedData);
-    setIsRegistrationOpen(regStatus);
-
-    // Fallback: If DB table officer_profiles has no rows yet, include current logged-in officer profile
-    if (officersData.length === 0 && profile) {
-      setOfficerProfiles([profile]);
-    } else {
-      setOfficerProfiles(officersData);
-    }
-
-    setLoading(false);
-  }, [profile]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadData();
-    }
-  }, [isAuthenticated, loadData]);
+  }, [authLoading, isAuthenticated, router, loadDashboardData]);
 
   const handleToggleRegistration = async () => {
-    if (profile?.role === 'officer') {
-      setToastType('error');
-      setToastMessage('Permission Denied: Only Super Admin officers can open or close registration.');
-      setTimeout(() => setToastMessage(null), 4000);
-      return;
-    }
-
-    setToggling(true);
-    const nextState = !isRegistrationOpen;
-    const success = await toggleRegistrationStatus(nextState);
-
+    const newStatus = !isRegistrationOpen;
+    setIsRegistrationOpen(newStatus);
+    const success = await toggleRegistrationStatus(newStatus);
     if (success) {
-      setIsRegistrationOpen(nextState);
-      setToastType(nextState ? 'success' : 'error');
-      setToastMessage(
-        nextState 
-          ? 'Registration Portal OPENED in Supabase! Students can now register.' 
-          : 'Registration Portal CLOSED in Supabase! Form locked.'
-      );
+      setToastState({
+        message: `Registration portal ${newStatus ? 'OPENED' : 'CLOSED'} successfully.`,
+        type: newStatus ? 'success' : 'closed'
+      });
     } else {
-      setToastType('error');
-      setToastMessage('Failed to update Supabase cso_settings table. Please check Supabase credentials & SQL RLS policy.');
+      setIsRegistrationOpen(!newStatus); // Revert on failure
+      setToastState({ message: 'Failed to update registration status.', type: 'error' });
     }
-
-    setToggling(false);
-
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 5000);
   };
 
-  const handleUpdateOfficerProfile = async (
-    id: string, 
-    role: 'super_admin' | 'officer', 
-    committee: OfficerProfile['assigned_committee']
-  ) => {
+  const handleUpdateApplicationStatus = async (id: string, status: string, notes?: string) => {
+    // Optimistic Update
+    setAllApplications(prev => prev.map(a => a.id === id ? { ...a, application_status: status, admin_notes: notes !== undefined ? notes : a.admin_notes } : a));
+    setScopedApplications(prev => prev.map(a => a.id === id ? { ...a, application_status: status, admin_notes: notes !== undefined ? notes : a.admin_notes } : a));
+    
+    const toastType: ToastType = status === 'Rejected' ? 'delete' : 'success';
+    setToastState({ message: `Application status updated to "${status}".`, type: toastType });
+  };
+
+  const handleUpdateOfficerPermissions = async (id: string, role: 'super_admin' | 'officer', committee: OfficerProfile['assigned_committee']) => {
     const success = await updateOfficerProfile(id, role, committee);
     if (success) {
-      setToastType('success');
-      setToastMessage('Officer permissions updated successfully!');
-      loadData();
+      setToastState({ message: 'Officer profile permissions updated.', type: 'success' });
+      loadDashboardData();
+      return true;
     } else {
-      setOfficerProfiles(prev => prev.map(p => p.id === id ? { ...p, role, assigned_committee: committee } : p));
-      setToastType('info');
-      setToastMessage('Updated local officer permissions.');
+      setToastState({ message: 'Failed to update officer profile.', type: 'error' });
+      return false;
     }
-    setTimeout(() => setToastMessage(null), 4000);
-    return true;
   };
 
-  const handleLogout = async () => {
-    await logout();
-    router.replace('/admin/login');
-  };
-
-  if (authLoading || (!isAuthenticated && !authLoading)) {
+  if (authLoading || (dataLoading && allApplications.length === 0)) {
     return (
-      <div className={`min-h-screen w-full bg-cso-page flex items-center justify-center ${darkMode ? 'dark' : ''}`}>
+      <div className="min-h-screen bg-cso-page flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
-          <span className="text-xs font-bold text-neutral-600 dark:text-neutral-400">Verifying officer session...</span>
+          <p className="text-xs font-bold text-neutral-600 dark:text-neutral-400 uppercase tracking-widest">
+            Loading CSO Command Center...
+          </p>
         </div>
       </div>
     );
   }
 
-  const isSuperAdmin = !profile || profile.role === 'super_admin';
-
   return (
-    <div className={`min-h-screen w-full flex flex-col md:flex-row bg-cso-page text-neutral-900 dark:text-neutral-100 ${darkMode ? 'dark' : ''}`}>
+    <div className="min-h-screen bg-cso-page flex flex-col md:flex-row transition-colors">
       
-      {/* Sidebar Navigation with Officer Profile Scope & 3 Navigation Tabs */}
+      {/* Sidebar Navigation */}
       <AdminSidebar
-        profile={profile}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onLogout={handleLogout}
+        onLogout={logout}
+        profile={profile}
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 p-4 sm:p-8 lg:p-10 overflow-y-auto relative">
+      <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
         
-        {/* Top Action Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 sm:mb-8">
+        {/* Top Header Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-cso">
           <div>
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
-              <Sparkles className="w-3.5 h-3.5" /> {profile?.full_name || 'CSO Officer'} • {isSuperAdmin ? 'Super Admin' : profile?.assigned_committee}
+            <span className="text-[11px] font-extrabold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+              Computer Studies Organization &bull; Command Center
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 mt-1">
-              {activeTab === 'dashboard' && 'CSO Executive Dashboard'}
-              {activeTab === 'applications' && 'Committee Applicant Records'}
-              {activeTab === 'officers' && 'Officer Account Management'}
+            <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-neutral-100 tracking-tight mt-0.5">
+              {activeTab === 'dashboard' && 'Executive Overview'}
+              {activeTab === 'applications' && 'Applicant Records'}
+              {activeTab === 'officers' && 'Officer Management'}
             </h1>
           </div>
 
-          {/* Right Header Controls: Refresh & Theme */}
-          <div className="flex items-center gap-2.5 w-full md:w-auto">
+          {/* Quick Action Controls */}
+          <div className="flex items-center gap-2">
             <button
-              onClick={loadData}
-              disabled={loading}
-              className="p-2.5 rounded-lg bg-cso-card border border-cso text-neutral-800 dark:text-neutral-200 shadow-sm"
+              onClick={loadDashboardData}
+              className="p-2.5 rounded-lg border border-cso bg-cso-card hover:bg-neutral-200 dark:hover:bg-[#27272a] text-neutral-700 dark:text-neutral-300 transition-colors shadow-sm"
               title="Refresh Data"
             >
-              <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin text-amber-500' : ''}`} />
             </button>
 
             <button
-              onClick={() => setDarkMode(prev => !prev)}
-              className="p-2.5 rounded-lg bg-cso-card border border-cso text-neutral-800 dark:text-neutral-200 shadow-sm"
-              title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              onClick={() => setDarkMode(!darkMode)}
+              className="p-2.5 rounded-lg border border-cso bg-cso-card hover:bg-neutral-200 dark:hover:bg-[#27272a] text-neutral-700 dark:text-neutral-300 transition-colors shadow-sm"
+              title="Toggle Light/Dark Theme"
             >
-              {darkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-neutral-800" />}
+              {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-neutral-700" />}
             </button>
           </div>
         </div>
 
-        {/* Tab View 1: Executive Dashboard & Analytics */}
+        {/* Tab 1: Executive Dashboard Overview */}
         {activeTab === 'dashboard' && (
           <AdminDashboardOverview
-            applications={globalApplications}
+            applications={allApplications}
+            officers={officers}
+            onNavigateTab={(tab: 'overview' | 'applications' | 'officers' | 'dashboard') => setActiveTab(tab)}
             isRegistrationOpen={isRegistrationOpen}
             onToggleRegistration={handleToggleRegistration}
-            toggling={toggling}
-            profile={profile}
-            onNavigateToApplications={() => setActiveTab('applications')}
           />
         )}
 
-        {/* Tab View 2: Committee Applicant Records Table */}
+        {/* Tab 2: Applicant Records Table */}
         {activeTab === 'applications' && (
           <ApplicationsTable
             applications={scopedApplications}
-            userAssignedCommittee={profile?.assigned_committee}
-            onSelectApplication={(app) => setSelectedApp(app)}
+            onSelectApplication={(app) => setSelectedApplication(app)}
+            userAssignedCommittee={assignedScope}
           />
         )}
 
-        {/* Tab View 3: Officer User Management (Super Admin Only) */}
-        {activeTab === 'officers' && (
+        {/* Tab 3: Officer Management Table (Super Admin Only) */}
+        {activeTab === 'officers' && isSuperAdmin && (
           <OfficerManagementTable
-            officers={officerProfiles}
-            onUpdateOfficer={handleUpdateOfficerProfile}
-            onRefresh={loadData}
+            officers={officers}
+            onUpdateOfficer={handleUpdateOfficerPermissions}
+            onRefresh={loadDashboardData}
           />
         )}
-
-        {/* Application Detail Modal */}
-        <ApplicationDetailModal
-          application={selectedApp}
-          onClose={() => setSelectedApp(null)}
-          onUpdate={loadData}
-        />
-
-        {/* Toast Notification System */}
-        <Toast
-          message={toastMessage}
-          type={toastType}
-          onClose={() => setToastMessage(null)}
-        />
 
       </main>
+
+      {/* Feature Application Detail Modal */}
+      {selectedApplication && (
+        <ApplicationDetailModal
+          application={selectedApplication}
+          onClose={() => setSelectedApplication(null)}
+          onUpdate={(id, status, notes) => {
+            handleUpdateApplicationStatus(id, status, notes);
+            setSelectedApplication(null);
+          }}
+        />
+      )}
+
+      {/* Dynamic Visual Toast Primitive */}
+      <Toast 
+        message={toastState?.message || null} 
+        type={toastState?.type}
+        onClose={() => setToastState(null)} 
+      />
 
     </div>
   );

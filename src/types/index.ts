@@ -1,14 +1,16 @@
+import type React from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 /**
  * ====================================================================
- * GLOBAL APPLICATION DOMAIN ENTITY MODELS
+ * GLOBAL APPLICATION DOMAIN ENTITY MODELS & COMPONENT CONTRACTS
  * ====================================================================
  */
 
-/**
- * CSO Admin Officer Profile & Role Permissions Entity
- */
+/* --------------------------------------------------------------------
+ * 1. DOMAIN ENTITY MODELS
+ * -------------------------------------------------------------------- */
+
 export interface OfficerProfile {
   id: string;
   email: string;
@@ -18,9 +20,6 @@ export interface OfficerProfile {
   created_at?: string;
 }
 
-/**
- * Committee Application Record Entity from Supabase PostgreSQL
- */
 export interface ApplicationRecord {
   id: string;
   created_at: string;
@@ -40,9 +39,6 @@ export interface ApplicationRecord {
   admin_notes?: string | null;
 }
 
-/**
- * CSO Committee Visual & Metadata Entity
- */
 export interface Committee {
   id: string;
   name: string;
@@ -55,11 +51,11 @@ export interface Committee {
   Icon: LucideIcon;
   iconClassName: string;
   tags: string[];
+  videoUrl?: string;
+  videoPoster?: string;
+  videoTitle?: string;
 }
 
-/**
- * Media Gallery Carousel Item Entity
- */
 export interface MediaItem {
   id: string;
   title: string;
@@ -68,9 +64,6 @@ export interface MediaItem {
   subtitle: string;
 }
 
-/**
- * Registration Portal Student Form Payload
- */
 export interface RegistrationFormData {
   studentId: string;
   firstName: string;
@@ -85,11 +78,126 @@ export interface RegistrationFormData {
   motivationStatement: string;
 }
 
-/**
- * Server In-Memory Rate Limiter Record
- */
 export interface RateLimitRecord {
   count: number;
   resetTime: number;
   lockedUntil: number;
+}
+
+/* --------------------------------------------------------------------
+ * 2. COMPONENT PROPS CONTRACTS
+ * -------------------------------------------------------------------- */
+
+export interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  children: React.ReactNode;
+  className?: string;
+}
+
+export type ToastType = 'success' | 'info' | 'error' | 'warning' | 'delete' | 'closed';
+
+export interface ToastProps {
+  message: string | null;
+  type?: ToastType;
+  onClose: () => void;
+}
+
+export interface FloatingInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+  label: string;
+  icon?: React.ReactNode;
+  infoTooltip?: string;
+  errorMessage?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+export interface FloatingTextareaProps extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'onChange'> {
+  label: string;
+  infoTooltip?: string;
+  errorMessage?: string;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+}
+
+export interface FloatingSelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
+  label: string;
+  options: Array<{ value: string; label: string } | string | [string, string]>;
+  icon?: React.ReactNode;
+  infoTooltip?: string;
+  placeholderOption?: string;
+  errorMessage?: string;
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+}
+
+export interface AdminSidebarProps {
+  currentTab?: 'overview' | 'applications' | 'officers' | 'dashboard';
+  activeTab?: string;
+  setCurrentTab?: (tab: 'overview' | 'applications' | 'officers' | 'dashboard') => void;
+  setActiveTab?: (tab: string) => void;
+  onLogout: () => void;
+  officerProfile?: OfficerProfile | null;
+  profile?: OfficerProfile | null;
+}
+
+export interface NavbarProps {
+  darkMode?: boolean;
+  setDarkMode?: (val: boolean | ((prev: boolean) => boolean)) => void;
+  onNavigateRegister?: () => void;
+  onSelectCommittee?: (name: string) => void;
+}
+
+export interface CommitteeRibbonsProps {
+  onSelectCommittee: (name: string) => void;
+}
+
+export interface RegistrationPortalProps {
+  selectedCommittee?: string;
+}
+
+export interface AdminDashboardOverviewProps {
+  applications: ApplicationRecord[];
+  officers?: OfficerProfile[];
+  onNavigateTab?: (tab: 'overview' | 'applications' | 'officers' | 'dashboard') => void;
+  isRegistrationOpen: boolean;
+  onToggleRegistration: () => void;
+  toggling?: boolean;
+  profile?: OfficerProfile | null;
+  onNavigateToApplications?: () => void;
+}
+
+export interface ApplicationsTableProps {
+  applications: ApplicationRecord[];
+  onViewDetails?: (app: ApplicationRecord) => void;
+  onSelectApplication?: (app: ApplicationRecord) => void;
+  onUpdateStatus?: (id: string, status: string) => void;
+  userAssignedCommittee?: string;
+  officerProfile?: OfficerProfile | null;
+}
+
+export interface MetricCardsProps {
+  applications: ApplicationRecord[];
+  officers?: OfficerProfile[];
+}
+
+export interface ApplicationDetailModalProps {
+  isOpen?: boolean;
+  onClose: () => void;
+  application: ApplicationRecord | null;
+  onUpdate?: (id: string, status: string, notes?: string) => void;
+  onSaveNotes?: (id: string, notes: string) => void;
+  onUpdateStatus?: (id: string, status: string) => void;
+}
+
+export interface EditOfficerModalProps {
+  isOpen?: boolean;
+  onClose: () => void;
+  officer: OfficerProfile | null;
+  onSave: (id: string, role: 'super_admin' | 'officer', committee: OfficerProfile['assigned_committee']) => void;
+}
+
+export interface CommitteeVideoModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  committee: Committee | null;
+  onApply: (committeeId: string) => void;
 }
