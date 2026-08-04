@@ -1,23 +1,28 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Info, X } from 'lucide-react';
+import { Info, X, AlertCircle } from 'lucide-react';
 
-interface FloatingTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface ExtendedFloatingTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string;
   infoTooltip?: string;
+  errorMessage?: string;
 }
 
 export default function FloatingTextarea({
   label,
   infoTooltip,
+  errorMessage,
   value,
   onChange,
+  onFocus,
+  onBlur,
   required,
   rows = 3,
   className = '',
+  id,
   ...props
-}: FloatingTextareaProps) {
+}: ExtendedFloatingTextareaProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -50,28 +55,42 @@ export default function FloatingTextarea({
     };
   }, [showTooltip]);
 
+  const hasError = Boolean(errorMessage);
+
   return (
     <div ref={containerRef} className="relative w-full">
       <div className="relative">
         <textarea
           {...props}
+          id={id}
           value={value}
           onChange={onChange}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={(e) => {
+            setIsFocused(true);
+            if (onFocus) onFocus(e);
+          }}
+          onBlur={(e) => {
+            setIsFocused(false);
+            if (onBlur) onBlur(e);
+          }}
           required={required}
           rows={rows}
-          placeholder=""
-          className={`peer w-full rounded-lg bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 text-sm pt-6 pb-2.5 pl-4 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 ${className}`}
+          placeholder=" "
+          className={`peer w-full rounded-lg bg-cso-input border text-neutral-900 dark:text-neutral-100 text-sm pt-6 pb-2.5 pl-4 pr-10 shadow-sm transition-all ${
+            hasError
+              ? 'border-rose-500 ring-2 ring-rose-500/30 focus:border-rose-500 focus:ring-rose-500/50'
+              : 'border-cso focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500'
+          } ${className}`}
         />
 
         <label
+          htmlFor={id}
           style={{ transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)' }}
           className={`absolute left-4 pointer-events-none origin-top-left ${
             isFloating
-              ? 'top-1.5 text-[10px] font-extrabold tracking-wide text-amber-600 dark:text-amber-400'
-              : 'top-3.5 text-sm font-semibold text-neutral-500 dark:text-neutral-400'
-          }`}
+              ? `top-1.5 text-[10px] font-extrabold tracking-wide ${hasError ? 'text-rose-500' : 'text-amber-600 dark:text-amber-400'}`
+              : `top-3.5 text-sm font-semibold ${hasError ? 'text-rose-400' : 'text-neutral-500 dark:text-neutral-400'}`
+          } peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:font-extrabold`}
         >
           {label} {required && <span className="text-rose-500">*</span>}
         </label>
@@ -90,7 +109,15 @@ export default function FloatingTextarea({
         )}
       </div>
 
-      {/* Floating Info Tooltip Card (Absolute Positioned — Auto-dismisses on Outside Click) */}
+      {/* Inline Field Error Message */}
+      {hasError && (
+        <p className="text-[11px] font-bold text-rose-500 mt-1 flex items-center gap-1 leading-tight animate-fade-in">
+          <AlertCircle className="w-3 h-3 shrink-0" />
+          <span>{errorMessage}</span>
+        </p>
+      )}
+
+      {/* Floating Info Tooltip Card */}
       {infoTooltip && showTooltip && (
         <div className="absolute left-0 top-full mt-1.5 w-full z-30 p-2.5 rounded-lg bg-neutral-900 text-white dark:bg-[#27272a] dark:text-neutral-100 text-[11px] font-medium shadow-2xl border border-neutral-700 dark:border-[#3f3f46] flex items-start justify-between gap-2 animate-fade-in pointer-events-auto">
           <div className="flex items-start gap-1.5">

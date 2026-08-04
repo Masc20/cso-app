@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Send, CheckCircle2, AlertCircle, User, Link as LinkIcon, GraduationCap, Code, ShieldCheck, Lock, ExternalLink, Clock, Loader2, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { FloatingInput, FloatingTextarea, FloatingSelect } from '@/components/ui';
@@ -8,6 +8,15 @@ import { fetchRegistrationStatus } from '@/features/admin';
 import { sanitizeString, isValidFacebookUrl, isValidHttpUrl } from '@/lib/utils';
 import { COURSE_OPTIONS, YEAR_LEVEL_OPTIONS, COMMITTEE_OPTIONS } from '@/data';
 import type { RegistrationPortalProps } from './types';
+
+function normalizeUrlInput(urlStr: string): string {
+  const trimmed = urlStr.trim();
+  if (!trimmed) return '';
+  if (!/^https?:\/\//i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+  return trimmed;
+}
 
 export default function RegistrationPortal({ selectedCommittee }: RegistrationPortalProps) {
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
@@ -25,23 +34,70 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     motivationStatement: ''
   });
 
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
 
-  const isFormValid = Boolean(
-    formData.firstName.trim().length >= 1 &&
-    formData.lastName.trim().length >= 1 &&
-    formData.studentId.trim().length >= 3 &&
-    formData.courseProgram &&
-    formData.yearLevel &&
-    formData.primaryCommittee &&
-    formData.facebookLink.trim().length >= 5 &&
-    isValidFacebookUrl(formData.facebookLink.trim()) &&
-    formData.motivationStatement.trim().length >= 10 &&
-    (!formData.portfolioUrl.trim() || isValidHttpUrl(formData.portfolioUrl.trim()))
-  );
+  const markTouched = (field: string) => {
+    setTouchedFields(prev => ({ ...prev, [field]: true }));
+  };
+
+  // Real-time Field Errors Calculation
+  const fieldErrors = useMemo(() => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.firstName.trim()) {
+      errors.firstName = 'First Name is required.';
+    }
+
+    if (!formData.lastName.trim()) {
+      errors.lastName = 'Last Name is required.';
+    }
+
+    if (!formData.studentId.trim()) {
+      errors.studentId = 'Student ID Number is required.';
+    } else if (formData.studentId.trim().length < 3) {
+      errors.studentId = 'Student ID must be at least 3 characters.';
+    }
+
+    const normalizedFb = normalizeUrlInput(formData.facebookLink);
+    if (!formData.facebookLink.trim()) {
+      errors.facebookLink = 'Facebook Profile Link is required.';
+    } else if (!isValidFacebookUrl(normalizedFb)) {
+      errors.facebookLink = 'Please provide a valid Facebook Profile Link (e.g. facebook.com/your.profile).';
+    }
+
+    if (!formData.courseProgram) {
+      errors.courseProgram = 'Please select your Program / Course.';
+    }
+
+    if (!formData.yearLevel) {
+      errors.yearLevel = 'Please select your Year Level.';
+    }
+
+    if (!formData.primaryCommittee) {
+      errors.primaryCommittee = 'Please select your Primary Committee Preference.';
+    }
+
+    if (!formData.motivationStatement.trim()) {
+      errors.motivationStatement = 'Motivation statement is required.';
+    } else if (formData.motivationStatement.trim().length < 10) {
+      errors.motivationStatement = 'Please write at least 10 characters explaining your interest.';
+    }
+
+    if (formData.portfolioUrl.trim()) {
+      const normalizedPort = normalizeUrlInput(formData.portfolioUrl);
+      if (!isValidHttpUrl(normalizedPort)) {
+        errors.portfolioUrl = 'Please enter a valid Web/GitHub/Portfolio URL.';
+      }
+    }
+
+    return errors;
+  }, [formData]);
+
+  const isFormValid = Object.keys(fieldErrors).length === 0;
 
   useEffect(() => {
     const checkStatus = async () => {
@@ -74,14 +130,33 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     setFormData(prev => ({
       ...prev,
       primaryCommittee: newPrimary,
-      // Automatically reset secondary committee to 'None' if user selects the same committee
       secondaryCommittee: prev.secondaryCommittee === newPrimary ? 'None' : prev.secondaryCommittee
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isRegistrationOpen || cooldownSeconds > 0 || !isFormValid) return;
+
+    // Mark ALL fields as touched to show errors if form is submitted with missing/invalid inputs
+    setTouchedFields({
+      firstName: true,
+      lastName: true,
+      studentId: true,
+      facebookLink: true,
+      courseProgram: true,
+      yearLevel: true,
+      primaryCommittee: true,
+      motivationStatement: true,
+      portfolioUrl: true
+    });
+
+    if (!isRegistrationOpen || cooldownSeconds > 0) return;
+
+    if (!isFormValid) {
+      const firstErrKey = Object.keys(fieldErrors)[0];
+      setErrorMsg(`Please fix the errors below before submitting: ${fieldErrors[firstErrKey]}`);
+      return;
+    }
 
     setLoading(true);
     setErrorMsg('');
@@ -90,57 +165,9 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     const cleanFirstName = sanitizeString(formData.firstName);
     const cleanMiddleName = sanitizeString(formData.middleName);
     const cleanLastName = sanitizeString(formData.lastName);
-    const cleanFbLink = sanitizeString(formData.facebookLink);
-    const cleanPortfolioUrl = sanitizeString(formData.portfolioUrl);
+    const cleanFbLink = sanitizeString(normalizeUrlInput(formData.facebookLink));
+    const cleanPortfolioUrl = sanitizeString(normalizeUrlInput(formData.portfolioUrl));
     const cleanMotivation = sanitizeString(formData.motivationStatement);
-
-    if (!cleanFirstName || !cleanLastName) {
-      setErrorMsg('Please enter your full first name and last name.');
-      setLoading(false);
-      return;
-    }
-
-    if (!cleanStudentId) {
-      setErrorMsg('Please enter a valid Student ID Number.');
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.courseProgram) {
-      setErrorMsg('Please select your Program / Course.');
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.yearLevel) {
-      setErrorMsg('Please select your Year Level.');
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.primaryCommittee) {
-      setErrorMsg('Please select your Primary Committee Preference.');
-      setLoading(false);
-      return;
-    }
-
-    if (!cleanFbLink || !isValidFacebookUrl(cleanFbLink)) {
-      setErrorMsg('Please provide a valid Facebook Profile Link (e.g. https://facebook.com/your.profile).');
-      setLoading(false);
-      return;
-    }
-
-    if (cleanPortfolioUrl && !isValidHttpUrl(cleanPortfolioUrl)) {
-      setErrorMsg('Please enter a valid Portfolio URL starting with http:// or https://');
-      setLoading(false);
-      return;
-    }
-
-    if (!cleanMotivation || cleanMotivation.length < 10) {
-      setErrorMsg('Please write a brief motivation statement (minimum 10 characters).');
-      setLoading(false);
-      return;
-    }
 
     try {
       const res = await fetch('/api/register', {
@@ -176,6 +203,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
 
       setLoading(false);
       setSuccess(true);
+      setTouchedFields({});
 
       // Trigger Confetti Celebration
       try {
@@ -188,13 +216,15 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
         console.log('Confetti triggered', err);
       }
 
-    } catch (err) {
+    } catch (err: any) {
       setLoading(false);
-      setSuccess(true); // Graceful fallback
+      setErrorMsg(err?.message || 'Network error during submission. Please check your connection.');
     }
   };
 
   const committeeSelectOptions = COMMITTEE_OPTIONS.map(c => ({ value: c.id, label: c.label }));
+  
+  // Filter out the selected primary committee from the secondary committee options list
   const secondaryCommitteeOptions = [
     { value: 'None', label: 'None' },
     ...committeeSelectOptions.filter(c => c.value !== formData.primaryCommittee)
@@ -277,6 +307,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                   portfolioUrl: '',
                   motivationStatement: ''
                 });
+                setTouchedFields({});
               }}
               className="mt-4 px-6 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 text-white font-bold text-xs uppercase tracking-wider min-h-[36px]"
             >
@@ -294,11 +325,11 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               </div>
             )}
 
-            {/* Standard Error Alert */}
+            {/* Standard Error Alert Banner */}
             {cooldownSeconds <= 0 && errorMsg && (
-              <div className="p-4 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs flex items-center gap-2 font-bold">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                {errorMsg}
+              <div className="p-4 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs flex items-center gap-2 font-bold animate-fade-in">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
+                <span>{errorMsg}</span>
               </div>
             )}
 
@@ -312,6 +343,8 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 icon={<User className="w-4 h-4" />}
                 value={formData.firstName}
                 onChange={e => setFormData({ ...formData, firstName: e.target.value })}
+                onBlur={() => markTouched('firstName')}
+                errorMessage={touchedFields.firstName ? fieldErrors.firstName : undefined}
               />
 
               <FloatingInput
@@ -331,6 +364,8 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 icon={<User className="w-4 h-4" />}
                 value={formData.lastName}
                 onChange={e => setFormData({ ...formData, lastName: e.target.value })}
+                onBlur={() => markTouched('lastName')}
+                errorMessage={touchedFields.lastName ? fieldErrors.lastName : undefined}
               />
             </div>
 
@@ -345,17 +380,21 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 icon={<Code className="w-4 h-4" />}
                 value={formData.studentId}
                 onChange={e => setFormData({ ...formData, studentId: e.target.value })}
+                onBlur={() => markTouched('studentId')}
+                errorMessage={touchedFields.studentId ? fieldErrors.studentId : undefined}
               />
 
               <FloatingInput
                 label="Facebook Profile Link"
                 required
-                infoTooltip="Must be a valid Facebook link starting with https://facebook.com/ or https://www.facebook.com/"
+                infoTooltip="You can enter facebook.com/your.profile or www.facebook.com/username"
                 disabled={cooldownSeconds > 0 || loading}
-                type="url"
+                type="text"
                 icon={<LinkIcon className="w-4 h-4" />}
                 value={formData.facebookLink}
                 onChange={e => setFormData({ ...formData, facebookLink: e.target.value })}
+                onBlur={() => markTouched('facebookLink')}
+                errorMessage={touchedFields.facebookLink ? fieldErrors.facebookLink : undefined}
               />
             </div>
 
@@ -370,6 +409,8 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 value={formData.courseProgram}
                 disabled={cooldownSeconds > 0 || loading}
                 onChange={e => setFormData({ ...formData, courseProgram: e.target.value })}
+                onBlur={() => markTouched('courseProgram')}
+                errorMessage={touchedFields.courseProgram ? fieldErrors.courseProgram : undefined}
               />
 
               <FloatingSelect
@@ -380,6 +421,8 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 value={formData.yearLevel}
                 disabled={cooldownSeconds > 0 || loading}
                 onChange={e => setFormData({ ...formData, yearLevel: e.target.value })}
+                onBlur={() => markTouched('yearLevel')}
+                errorMessage={touchedFields.yearLevel ? fieldErrors.yearLevel : undefined}
               />
             </div>
 
@@ -394,6 +437,8 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 value={formData.primaryCommittee}
                 disabled={cooldownSeconds > 0 || loading}
                 onChange={e => handlePrimaryCommitteeChange(e.target.value)}
+                onBlur={() => markTouched('primaryCommittee')}
+                errorMessage={touchedFields.primaryCommittee ? fieldErrors.primaryCommittee : undefined}
               />
 
               <FloatingSelect
@@ -409,12 +454,14 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
             {/* Portfolio Link */}
             <FloatingInput
               label="Portfolio / GitHub / LinkedIn Link (Optional)"
-              type="url"
-              infoTooltip="Optional: Enter a full web link (starting with http:// or https://) to your GitHub, Behance, LinkedIn, or personal portfolio site."
+              type="text"
+              infoTooltip="Optional: Enter a web link (e.g. github.com/yourname or https://yourportfolio.com)"
               disabled={cooldownSeconds > 0 || loading}
               maxLength={150}
               value={formData.portfolioUrl}
               onChange={e => setFormData({ ...formData, portfolioUrl: e.target.value })}
+              onBlur={() => markTouched('portfolioUrl')}
+              errorMessage={touchedFields.portfolioUrl ? fieldErrors.portfolioUrl : undefined}
             />
 
             {/* Motivation Statement */}
@@ -424,12 +471,15 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               infoTooltip="Write at least 10 characters explaining your interest, technical skills, or goals with CSO."
               disabled={cooldownSeconds > 0 || loading}
               rows={3}
+              minLength={10}
               maxLength={1000}
               value={formData.motivationStatement}
               onChange={e => setFormData({ ...formData, motivationStatement: e.target.value })}
+              onBlur={() => markTouched('motivationStatement')}
+              errorMessage={touchedFields.motivationStatement ? fieldErrors.motivationStatement : undefined}
             />
 
-            {/* Submit Button with Animated Loading State & Validation Disable */}
+            {/* Submit Button with Animated Loading State */}
             <button
               type="submit"
               disabled={cooldownSeconds > 0 || loading || !isFormValid}

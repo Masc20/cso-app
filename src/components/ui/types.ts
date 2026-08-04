@@ -20,11 +20,13 @@ export interface FloatingInputProps extends React.InputHTMLAttributes<HTMLInputE
   label: string;
   icon?: React.ReactNode;
   infoTooltip?: string;
+  errorMessage?: string;
 }
 
 export interface FloatingTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string;
   infoTooltip?: string;
+  errorMessage?: string;
 }
 
 export interface FloatingSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
@@ -33,4 +35,5 @@ export interface FloatingSelectProps extends React.SelectHTMLAttributes<HTMLSele
   icon?: React.ReactNode;
   infoTooltip?: string;
   placeholderOption?: string;
+  errorMessage?: string;
 }
