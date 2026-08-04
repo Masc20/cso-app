@@ -53,7 +53,11 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
 
   useEffect(() => {
     if (selectedCommittee) {
-      setFormData(prev => ({ ...prev, primaryCommittee: selectedCommittee }));
+      setFormData(prev => ({ 
+        ...prev, 
+        primaryCommittee: selectedCommittee,
+        secondaryCommittee: prev.secondaryCommittee === selectedCommittee ? 'None' : prev.secondaryCommittee
+      }));
     }
   }, [selectedCommittee]);
 
@@ -65,6 +69,15 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     }, 1000);
     return () => clearInterval(timer);
   }, [cooldownSeconds]);
+
+  const handlePrimaryCommitteeChange = (newPrimary: string) => {
+    setFormData(prev => ({
+      ...prev,
+      primaryCommittee: newPrimary,
+      // Automatically reset secondary committee to 'None' if user selects the same committee
+      secondaryCommittee: prev.secondaryCommittee === newPrimary ? 'None' : prev.secondaryCommittee
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,7 +195,10 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
   };
 
   const committeeSelectOptions = COMMITTEE_OPTIONS.map(c => ({ value: c.id, label: c.label }));
-  const secondaryCommitteeOptions = [{ value: 'None', label: 'None' }, ...committeeSelectOptions];
+  const secondaryCommitteeOptions = [
+    { value: 'None', label: 'None' },
+    ...committeeSelectOptions.filter(c => c.value !== formData.primaryCommittee)
+  ];
 
   return (
     <section id="register" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -377,7 +393,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 options={committeeSelectOptions}
                 value={formData.primaryCommittee}
                 disabled={cooldownSeconds > 0 || loading}
-                onChange={e => setFormData({ ...formData, primaryCommittee: e.target.value })}
+                onChange={e => handlePrimaryCommitteeChange(e.target.value)}
               />
 
               <FloatingSelect
