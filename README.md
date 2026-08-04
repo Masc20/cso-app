@@ -6,7 +6,7 @@ An official web application, committee registration portal, and officer command 
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 - **Framework**: Next.js 16+ (App Router, Turbopack, React 19)
 - **Language**: TypeScript (Strict Mode)
@@ -23,7 +23,7 @@ The project strictly adheres to a **Feature-Based Modular Architecture**:
 
 ```text
 src/
-├── app/                        # Next.js 14+ App Router Routes & API Endpoints
+├── app/                        # Next.js 16+ App Router Routes & API Endpoints
 │   ├── admin/
 │   │   ├── dashboard/page.tsx  # Executive Dashboard & Scoped Applicant Management
 │   │   └── login/page.tsx       # Officer Login Gateway
@@ -37,22 +37,26 @@ src/
 ├── components/                 # Shared UI & Layout Primitives
 │   ├── index.ts                # Master Components Barrel Export
 │   ├── layout/
-│   │   ├── types.ts            # Layout Props Contracts (NavbarProps, AdminSidebarProps)
 │   │   ├── AdminSidebar.tsx    # Multi-Tab Officer Navigation & Role Profile
 │   │   ├── Footer.tsx          # Campus Info & Committee Links
 │   │   ├── HeroCSO.tsx         # Title Typography Banner
 │   │   └── Navbar.tsx          # Dynamic Glassmorphic Blur Header
+│   ├── modals/
+│   │   ├── ApplicationDetailModal.tsx # Applicant Detail Evaluation Modal
+│   │   ├── CommitteeVideoModal.tsx    # Committee Intro Video Player Modal
+│   │   ├── EditOfficerModal.tsx       # Officer Permissions Management Modal
+│   │   ├── Modal.tsx                  # Accessible Backdrop Primitive
+│   │   └── index.ts                   # Modals Barrel Export
 │   └── ui/
-│       ├── types.ts            # UI Component Props Contracts (ModalProps, ToastProps)
 │       ├── FloatingInput.tsx   # Floating-label Input with Tooltips
 │       ├── FloatingSelect.tsx  # Floating-label Select Dropdown
 │       ├── FloatingTextarea.tsx# Floating-label Textarea with Tooltips
-│       ├── Modal.tsx           # Accessible Backdrop Modal
-│       └── Toast.tsx           # Reusable Toast Notification System
+│       ├── Toast.tsx           # Reusable Toast Notification System
+│       └── index.ts            # UI Primitives Barrel Export
 │
 ├── data/                       # Centralized Static Registries & Data Constants
 │   ├── index.ts                # Master Data Barrel Export
-│   ├── committees.ts           # Official Committee Metadata & G.A.D Committee Config
+│   ├── committees.ts           # Official Committee Metadata & Videos Config
 │   ├── mediaGallery.ts         # Showcase Media Items
 │   ├── navigation.ts           # Nav Links & Official Facebook Links
 │   └── options.ts              # Course, Year Level, Status, & Officer Role Options
@@ -60,38 +64,35 @@ src/
 ├── features/                   # Feature-Driven Modular Domain Engines
 │   ├── index.ts                # Master Features Barrel Export
 │   ├── admin/                  # Executive Admin Portal Domain
-│   │   ├── types.ts            # Admin Feature Props Contracts
 │   │   ├── components/         # AdminDashboardOverview, ApplicationsTable, OfficerManagementTable
-│   │   ├── modals/             # ApplicationDetailModal, EditOfficerModal
+│   │   ├── modals/             # Re-exports ApplicationDetailModal, EditOfficerModal
 │   │   ├── services/adminApi.ts# Supabase RPC & Table Queries
 │   │   └── index.ts            # Admin Feature Barrel Export
 │   ├── committees/             # Committee Ribbons Domain
-│   │   ├── types.ts
-│   │   ├── CommitteeRibbons.tsx# Central Emblem Badge & Gold-Ring Ribbon Cards
+│   │   ├── components/         # CommitteeRibbons
 │   │   └── index.ts
 │   ├── gallery/                # Media Showcase Domain
 │   └── registration/           # Student Registration Domain
-│       ├── types.ts
-│       ├── RegistrationPortal.tsx# Registration Form & Deduplication Check
+│       ├── RegistrationPortal.tsx # Registration Form & Deduplication Check
 │       └── index.ts
 │
 ├── hooks/                      # Custom React Hooks
 │   ├── index.ts                # Hooks Barrel Export
 │   ├── useAdminAuth.ts         # Multi-Tier Profile & Auth Hook
-│   └── useDarkMode.ts          # Instant 15ms Dark Mode Manager
+│   └── useDarkMode.ts          # Instant Dark Mode Manager
 │
 ├── lib/                        # Infrastructure, Services & Helper Utilities
 │   ├── serverRateLimit.ts      # Server IP Rate Limiter Engine
-│   ├── supabase.ts             # Typed Supabase Client
+│   ├── supabase/               # Typed Supabase Client
 │   └── utils/
 │       ├── index.ts            # Master Utils Barrel Export
 │       ├── analyticsHelpers.ts # Demand Breakdown & Top Choice Calculators
 │       ├── exportHelpers.ts    # CSV Browser Export Engine
-│       ├── formatting.ts       # Status Badges & IP Extractors
+│       ├── formatting.ts       # Status Badges & Auto-URL Resolvers
 │       └── validation.ts       # XSS Sanitizer & URL Validators
 │
 └── types/
-    └── index.ts                # Global Database Domain Entities (OfficerProfile, ApplicationRecord)
+    └── index.ts                # Global Domain Entities & Component Contracts
 ```
 
 ---
@@ -100,7 +101,7 @@ src/
 
 1. **Multi-Tier Officer Role-Based Access Control (RBAC)**:
    - **Super Admin**: Full access to global analytics, officer permission editing (`EditOfficerModal.tsx`), role promotion/demotion (`super_admin` vs `officer`), committee scope assignment, and recruitment gate toggling.
-   - **Committee Officer**: Hard-locked view to their assigned committee applicants (e.g. `G.A.D Committee`, `Gaming Committee`, `Networking Committee`, `Programming Committee`) with visual lock indicator.
+   - **Committee Officer**: Hard-locked view to their assigned committee applicants (e.g. `G.A.D Committee`, `Gaming Committee`, `Networking Committee`, `Programming Committee`) with visual scope indicator.
 2. **Dual-Stream Data Pipeline**:
    - Executive metrics calculate global demand distribution across all 4 committees (`fetchApplications('All')`), while applicant table data respects the officer's assigned scope.
 3. **Primary & Secondary Committee Deduplication**:
@@ -108,7 +109,7 @@ src/
 4. **Security & Rate Limiting Engine**:
    - Protects against brute-force attacks with a 5-attempt / 15-minute IP lock on admin login and 10-attempt / 30-second cooldown on registration submissions.
 5. **Glassmorphic Design System**:
-   - Dynamic hybrid glassmorphic navbar (`backdrop-blur-md bg-cso-card/90`), restored central floating CSO emblem badge, and dual-clipped V-bottom ribbon cards.
+   - Dynamic hybrid glassmorphic navbar (`backdrop-blur-md bg-cso-card/90`), central floating CSO emblem badge, downward-shaped ribbon cards, and centralized toast notification system.
 
 ---
 
@@ -124,8 +125,7 @@ src/
 Clone the repository and install dependencies:
 
 ```bash
-git clone https://github.com/your-org/CSO_Web.git
-cd CSO_Web/cso-app
+cd cso-app
 npm install
 ```
 
@@ -159,7 +159,7 @@ Copy and execute the following SQL script in your **Supabase SQL Editor**:
 
 ```sql
 -- 1. Create Committee Applications Table
-CREATE TABLE IF NOT EXISTS public.committee_applications (
+CREATE TABLE IF NOT EXISTS public.committee_applications  (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     student_id TEXT NOT NULL UNIQUE,
@@ -189,13 +189,13 @@ CREATE TABLE IF NOT EXISTS public.officer_profiles (
 
 -- 3. Create CSO Settings Table (Recruitment Gate Management)
 CREATE TABLE IF NOT EXISTS public.cso_settings (
-    key TEXT PRIMARY KEY,
-    value JSONB NOT NULL,
+    setting_key TEXT PRIMARY KEY,
+    setting_value TEXT NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
 -- 4. Enable Row Level Security (RLS)
-ALTER TABLE public.committee_applications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.committee_applications  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.officer_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.cso_settings ENABLE ROW LEVEL SECURITY;
 
