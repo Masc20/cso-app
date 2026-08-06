@@ -6,7 +6,7 @@ import type { ApplicationDetailModalProps } from '@/types';
 import { updateApplicationStatus, updateAdminNotes } from '@/features/admin';
 import { Modal } from '@/components/ui';
 import { sanitizeString, getStatusBadgeClass } from '@/lib/utils';
-import { APPLICATION_STATUS_MUTATION_OPTIONS } from '@/data';
+import { STATUS_OPTIONS } from '@/data';
 
 export default function ApplicationDetailModal({ application, onClose, onUpdate }: ApplicationDetailModalProps) {
   const [status, setStatus] = useState(application?.application_status || 'Pending');
@@ -168,7 +168,7 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
                 onChange={e => setStatus(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-lg bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
               >
-                {APPLICATION_STATUS_MUTATION_OPTIONS.map(st => (
+                {STATUS_OPTIONS.map(st => (
                   <option key={st} value={st}>{st}</option>
                 ))}
               </select>

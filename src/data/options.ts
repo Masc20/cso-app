@@ -15,16 +15,8 @@ export const COURSE_OPTIONS = [
   ['Other Senior High / Tech Track', 'Other Senior High / Tech Track'],
 ] as const;
 
-export const STATUS_FILTER_OPTIONS = [
-  'All',
-  'Pending',
-  'Approved',
-  'Under Review',
-  'Contacted'
-] as const;
 
-
-export const APPLICATION_STATUS_MUTATION_OPTIONS = [
+export const STATUS_OPTIONS = [
   'All',
   'Pending',
   'Approved',
