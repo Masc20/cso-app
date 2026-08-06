@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X, ExternalLink, GraduationCap, Code, FileText, CheckCircle2, Save } from 'lucide-react';
-import type { ApplicationRecord } from '@/types';
 import type { ApplicationDetailModalProps } from '@/types';
 import { updateApplicationStatus, updateAdminNotes } from '@/features/admin';
 import { Modal } from '@/components/ui';
@@ -46,7 +45,7 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
     <Modal 
       isOpen={!!application} 
       onClose={onClose} 
-      className="w-[calc(100vw-2rem)] !max-w-2xl max-h-[calc(100dvh-2rem)] overflow-hidden rounded-2xl [&>div:last-child]:flex [&>div:last-child]:flex-1 [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:!p-4 sm:[&>div:last-child]:!p-6"
+      className="max-w-2xl sm:max-w-3xl"
     >
       
       {/* Fixed Header Bar */}
@@ -55,7 +54,7 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] sm:text-xs font-bold border ${getStatusBadgeClass(status)}`}>
             {status}
           </span>
-          <h3 className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-neutral-100 mt-1.5 leading-tight">
+          <h3 className="text-lg sm:text-2xl font-black text-neutral-900 dark:text-neutral-100 mt-1.5 leading-tight">
             {application.first_name} {application.middle_name ? `${application.middle_name} ` : ''}{application.last_name}
           </h3>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-neutral-500 dark:text-neutral-400 mt-1 font-mono">
@@ -76,7 +75,7 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
       </div>
 
       {/* Scrollable Content Body */}
-      <div className="flex-1 overflow-y-auto pr-1 space-y-4 text-xs sm:text-sm">
+      <div className="flex-1 overflow-y-auto pr-1 space-y-4 text-xs sm:text-sm min-h-0">
         
         {/* Contact & Education Info */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#f4f4f2] dark:bg-[#121215] p-3.5 rounded-lg border border-cso">
@@ -148,7 +147,7 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
           <span className="text-xs font-extrabold uppercase text-neutral-500 dark:text-neutral-400 block mb-1 flex items-center gap-1">
             <FileText className="w-4 h-4 text-amber-500 shrink-0" /> Motivation Statement
           </span>
-          <div className="p-3.5 rounded-lg bg-white dark:bg-[#121215] border border-cso text-neutral-800 dark:text-neutral-200 leading-relaxed font-medium">
+          <div className="p-3.5 rounded-lg bg-white dark:bg-[#121215] border border-cso text-neutral-800 dark:text-neutral-200 leading-relaxed font-medium max-h-48 sm:max-h-64 overflow-y-auto whitespace-pre-wrap">
             "{application.motivation_statement}"
           </div>
         </div>

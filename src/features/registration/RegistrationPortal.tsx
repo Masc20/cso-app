@@ -5,18 +5,9 @@ import { Send, CheckCircle2, AlertCircle, User, Link as LinkIcon, GraduationCap,
 import confetti from 'canvas-confetti';
 import { FloatingInput, FloatingTextarea, FloatingSelect } from '@/components/ui';
 import { fetchRegistrationStatus } from '@/features/admin';
-import { sanitizeString, isValidFacebookUrl, isValidHttpUrl, formatStudentId } from '@/lib/utils';
+import { sanitizeString, isValidFacebookUrl, isValidHttpUrl, formatStudentId, normalizeUrlInput } from '@/lib/utils';
 import { COURSE_OPTIONS, YEAR_LEVEL_OPTIONS, COMMITTEE_OPTIONS } from '@/data';
 import type { RegistrationPortalProps } from '@/types';
-
-function normalizeUrlInput(urlStr: string): string {
-  const trimmed = urlStr.trim();
-  if (!trimmed) return '';
-  if (!/^https?:\/\//i.test(trimmed)) {
-    return `https://${trimmed}`;
-  }
-  return trimmed;
-}
 
 export default function RegistrationPortal({ selectedCommittee }: RegistrationPortalProps) {
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
@@ -380,7 +371,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
                 icon={<Code className="w-4 h-4" />}
                 value={formData.studentId}
                 onChange={e => {
-                  const formatted = formatStudentId(e.target.value);
+                  const formatted = formatStudentId(e.target.value, formData.studentId);
                   setFormData(prev => ({ ...prev, studentId: formatted }));
                 }}
                 onBlur={() => markTouched('studentId')}

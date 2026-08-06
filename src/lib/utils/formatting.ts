@@ -47,20 +47,34 @@ export function getCommitteeVideoUrl(pathOrUrl?: string): string {
 
 /**
  * Formats raw student ID input by auto-appending prefixes based on character length and patterns.
+ * Matches PHP autofill behavior:
+ * - When 1st char is letter and length hits 4, appends '-01-' (e.g. 'AMAC' -> 'AMAC-01-')
+ * - When 1st char is letter and length hits 12, appends '-MAN121' (e.g. 'AMAC-01-22-1' -> 'AMAC-01-22-1-MAN121')
  */
-export function formatStudentId(inputValue: string): string {
-  // Force uppercase
+export function formatStudentId(inputValue: string, prevValue: string = ''): string {
   let value = inputValue.toUpperCase();
 
-  // Auto-format rules based on raw length checks
-  // Check if starts with a letter and hits the triggers
+  // If user is deleting (backspacing), allow deleting without auto-appending again
+  if (prevValue && value.length < prevValue.length) {
+    return value;
+  }
+
   const startsWithLetter = /^[A-Z]/.test(value);
 
-  if (startsWithLetter && value.length === 3) {
+  if (startsWithLetter && value.length === 4 && !value.endsWith('-')) {
     value = `${value}-01-`;
-  } else if (startsWithLetter && value.length === 12) {
+  } else if (startsWithLetter && value.length === 12 && !value.endsWith('-')) {
     value = `${value}-MAN121`;
   }
 
   return value;
+}
+
+export function normalizeUrlInput(urlStr: string): string {
+  const trimmed = urlStr.trim();
+  if (!trimmed) return '';
+  if (!/^https?:\/\//i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+  return trimmed;
 }
