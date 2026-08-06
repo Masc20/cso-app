@@ -5,7 +5,7 @@ import { Palette, Gamepad2, Network, Code2, ArrowRight, Play } from 'lucide-reac
 import type { CommitteeRibbonsProps, Committee } from '@/types';
 import { CommitteeVideoModal } from '@/components/modals';
 import { fetchCommittees } from '@/features/admin';
-import { RibbonSkeleton } from '@/lib/utils/skeleton'
+import { RibbonSkeleton } from '@/components/ui/Skeleton'
 
 export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbonsProps) {
   const [selectedVideoCommittee, setSelectedVideoCommittee] = useState<Committee | null>(null);

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, Edit3, Trash2, Video, Play, Power } from 'lucide-react';
+import { Plus, Edit3, Trash2, Video, Play, Power, Lock } from 'lucide-react';
 import type { CommitteeManagementTableProps, Committee } from '@/types';
 import { getCommitteeBadgeClass } from '@/lib/utils';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableEmpty } from '@/components/ui';
@@ -21,6 +21,25 @@ export default function CommitteeManagementTable({
   const [isCreatingNew, setIsCreatingNew] = useState(false);
 
   const isSuperAdmin = officerProfile?.role === 'super_admin';
+  const officerAssignedScope = officerProfile?.assigned_committee || 'All';
+
+  // Check if current officer can edit this committee
+  const canEditCommittee = (comm: Committee) => {
+    if (isSuperAdmin) return true;
+    if (!officerAssignedScope || officerAssignedScope === 'All') return true;
+
+    const commName = (comm.name || '').toLowerCase();
+    const commShort = (comm.shortName || comm.short_name || '').toLowerCase();
+    const commId = (comm.id || '').toLowerCase();
+    const scope = officerAssignedScope.toLowerCase();
+
+    return (
+      commName === scope ||
+      commShort === scope ||
+      commId === scope ||
+      (scope.includes('g.a.d') && commName.includes('g.a.d'))
+    );
+  };
 
   return (
     <div className="bg-cso-card border border-cso rounded-xl p-4 sm:p-6 shadow-xl space-y-4">
@@ -69,6 +88,7 @@ export default function CommitteeManagementTable({
               const videoTitle = comm.videoTitle || comm.video_title;
               const hasVideo = Boolean(videoSrc && videoSrc.trim());
               const displayTitle = videoTitle || (videoSrc ? videoSrc.split('/').pop() : 'Intro Video');
+              const isEditable = canEditCommittee(comm);
 
               return (
                 <TableRow key={comm.id}>
@@ -144,15 +164,26 @@ export default function CommitteeManagementTable({
                     </span>
                   </TableCell>
 
-                  {/* Actions */}
+                  {/* Actions (Scoped to Officer Assigned Committee) */}
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => setSelectedEditCommittee(comm)}
-                        className="px-3 py-1.5 rounded-lg bg-cso-input border border-cso text-xs font-bold text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#27272a] transition-all inline-flex items-center gap-1.5 shadow-sm"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" /> Edit Details & Video
-                      </button>
+                      {isEditable ? (
+                        <button
+                          onClick={() => setSelectedEditCommittee(comm)}
+                          className="px-3 py-1.5 rounded-lg bg-cso-input border border-cso text-xs font-bold text-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#27272a] transition-all inline-flex items-center gap-1.5 shadow-sm"
+                          title="Edit Committee Details & Showcase Video"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" /> Edit Details & Video
+                        </button>
+                      ) : (
+                        <button
+                          disabled
+                          className="px-3 py-1.5 rounded-lg bg-neutral-200/50 dark:bg-neutral-800/40 border border-cso text-xs font-bold text-neutral-400 dark:text-neutral-500 cursor-not-allowed opacity-60 inline-flex items-center gap-1.5 shadow-sm"
+                          title={`Scope Locked: You can only edit your assigned committee (${officerAssignedScope})`}
+                        >
+                          <Lock className="w-3.5 h-3.5" /> Scope Locked
+                        </button>
+                      )}
 
                       {isSuperAdmin && (
                         <>

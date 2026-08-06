@@ -5,3 +5,4 @@ export { default as Toast } from './Toast';
 export { default as Modal } from './Modal';
 export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableEmpty, TablePagination } from './Table';
 export type { TableProps, TablePaginationProps } from './Table';
+export { RibbonSkeleton } from './Skeleton';
