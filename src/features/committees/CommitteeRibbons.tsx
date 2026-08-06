@@ -5,16 +5,25 @@ import { Palette, Gamepad2, Network, Code2, ArrowRight, Play } from 'lucide-reac
 import type { CommitteeRibbonsProps, Committee } from '@/types';
 import { CommitteeVideoModal } from '@/components/modals';
 import { fetchCommittees } from '@/features/admin';
+import { RibbonSkeleton } from '@/lib/utils/skeleton'
 
 export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbonsProps) {
   const [selectedVideoCommittee, setSelectedVideoCommittee] = useState<Committee | null>(null);
   const [committees, setCommittees] = useState<Committee[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadDynamicCommittees = async () => {
-      const liveCommittees = await fetchCommittees(false); // Active only
-      if (liveCommittees && liveCommittees.length > 0) {
-        setCommittees(liveCommittees);
+      setLoading(true);
+      try {
+        const liveCommittees = await fetchCommittees(false); // Active only
+        if (liveCommittees && liveCommittees.length > 0) {
+          setCommittees(liveCommittees);
+        }
+      } catch (err) {
+        console.warn('Failed to load dynamic committees:', err);
+      } finally {
+        setLoading(false);
       }
     };
     loadDynamicCommittees();
@@ -103,86 +112,92 @@ export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbons
 
       {/* Dynamic Active Committee Banner Ribbons Grid */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 items-stretch">
-        {committees.map((comm) => {
-          const styles = getCommitteeStyles(comm);
+        {loading || committees.length === 0 ? (
+          Array.from({ length: 4 }).map((_, idx) => (
+            <RibbonSkeleton key={idx} />
+          ))
+        ) : (
+          committees.map((comm) => {
+            const styles = getCommitteeStyles(comm);
 
-          return (
-            <div
-              key={comm.id}
-              onClick={() => onSelectCommittee(comm.name || comm.id)}
-              className={`ribbon-banner cursor-pointer group relative p-[2px] rounded-t-xl transition-all ${styles.hoverGlow}`}
-            >
-              {/* Outer Clipped Border Container Layer */}
-              <div className={`ribbon-clip w-full h-full p-[0.5px] rounded-t-xl transition-colors ${styles.borderBg}`}>
-                
-                {/* Inner Card Content Container */}
-                <div className="ribbon-clip w-full h-full bg-cso-card rounded-t-xl p-6 pb-16 flex flex-col items-center text-center relative overflow-hidden">
+            return (
+              <div
+                key={comm.id}
+                onClick={() => onSelectCommittee(comm.name || comm.id)}
+                className={`ribbon-banner cursor-pointer group relative p-[2px] rounded-t-xl transition-all ${styles.hoverGlow}`}
+              >
+                {/* Outer Clipped Border Container Layer */}
+                <div className={`ribbon-clip w-full h-full p-[0.5px] rounded-t-xl transition-colors ${styles.borderBg}`}>
                   
-                  {/* Top Color Accent Line matching logo */}
-                  <div className={`absolute top-0 inset-x-0 h-2.5 bg-gradient-to-r ${styles.accentLine} rounded-t-xl`} />
+                  {/* Inner Card Content Container */}
+                  <div className="ribbon-clip w-full h-full bg-cso-card rounded-t-xl p-6 pb-16 flex flex-col items-center text-center relative overflow-hidden">
+                    
+                    {/* Top Color Accent Line matching logo */}
+                    <div className={`absolute top-0 inset-x-0 h-2.5 bg-gradient-to-r ${styles.accentLine} rounded-t-xl`} />
 
-                  {/* Circular Logo Container */}
-                  <div className="relative mt-2 mb-3 w-24 h-24 sm:w-28 sm:h-28 rounded-full p-2 bg-cso-input shadow-md group-hover:scale-105 transition-transform flex items-center justify-center shrink-0">
-                    <img
-                      src={comm.logo || '/imgs/CSOLOGO.png'}
-                      alt={`${comm.name} Logo`}
-                      onError={(e) => {
-                        (e.target as HTMLElement).setAttribute('src', '/imgs/CSOLOGO.png');
+                    {/* Circular Logo Container */}
+                    <div className="relative mt-2 mb-3 w-24 h-24 sm:w-28 sm:h-28 rounded-full p-2 bg-cso-input shadow-md group-hover:scale-105 transition-transform flex items-center justify-center shrink-0">
+                      <img
+                        src={comm.logo || '/imgs/CSOLOGO.png'}
+                        alt={`${comm.name} Logo`}
+                        onError={(e) => {
+                          (e.target as HTMLElement).setAttribute('src', '/imgs/CSOLOGO.png');
+                        }}
+                        className="w-full h-full object-contain drop-shadow"
+                      />
+                    </div>
+
+                    {/* Watch Intro Video Trigger Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedVideoCommittee(comm);
                       }}
-                      className="w-full h-full object-contain drop-shadow"
-                    />
-                  </div>
+                      className="mb-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white transition-all shadow-sm z-10"
+                    >
+                      <Play className="w-3 h-3 fill-current" /> Intro Video
+                    </button>
 
-                  {/* Watch Intro Video Trigger Button */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedVideoCommittee(comm);
-                    }}
-                    className="mb-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white transition-all shadow-sm z-10"
-                  >
-                    <Play className="w-3 h-3 fill-current" /> Intro Video
-                  </button>
+                    {/* Committee Short Title */}
+                    <h4 className="text-lg font-black tracking-tight text-neutral-900 dark:text-neutral-100 flex items-center justify-center gap-1.5">
+                      {comm.shortName || comm.short_name}
+                    </h4>
 
-                  {/* Committee Short Title */}
-                  <h4 className="text-lg font-black tracking-tight text-neutral-900 dark:text-neutral-100 flex items-center justify-center gap-1.5">
-                    {comm.shortName || comm.short_name}
-                  </h4>
+                    {/* Sub-badge */}
+                    <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-md border mt-2 ${styles.badgeBg}`}>
+                      {styles.icon} {comm.name}
+                    </span>
 
-                  {/* Sub-badge */}
-                  <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-md border mt-2 ${styles.badgeBg}`}>
-                    {styles.icon} {comm.name}
-                  </span>
+                    {/* Committee Brief */}
+                    <p className="text-xs text-neutral-700 dark:text-neutral-300 mt-3 leading-relaxed flex-1 font-medium">
+                      {comm.description}
+                    </p>
 
-                  {/* Committee Brief */}
-                  <p className="text-xs text-neutral-700 dark:text-neutral-300 mt-3 leading-relaxed flex-1 font-medium">
-                    {comm.description}
-                  </p>
+                    {/* Skills & Tag Chips */}
+                    <div className="mt-4 flex flex-wrap justify-center gap-1">
+                      {(comm.tags || []).map((tag, idx) => (
+                        <span 
+                          key={idx} 
+                          className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-cso-input text-neutral-800 dark:text-neutral-300 border border-cso"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
 
-                  {/* Skills & Tag Chips */}
-                  <div className="mt-4 flex flex-wrap justify-center gap-1">
-                    {(comm.tags || []).map((tag, idx) => (
-                      <span 
-                        key={idx} 
-                        className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-cso-input text-neutral-800 dark:text-neutral-300 border border-cso"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                    {/* CTA Arrow Button */}
+                    <div className={`mt-5 pt-3 border-t border-cso w-full flex items-center justify-center gap-1.5 text-xs font-bold text-neutral-800 dark:text-neutral-200 ${styles.ctaText} transition-colors`}>
+                      Join {comm.shortName || comm.short_name} <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    </div>
 
-                  {/* CTA Arrow Button */}
-                  <div className={`mt-5 pt-3 border-t border-cso w-full flex items-center justify-center gap-1.5 text-xs font-bold text-neutral-800 dark:text-neutral-200 ${styles.ctaText} transition-colors`}>
-                    Join {comm.shortName || comm.short_name} <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </div>
 
                 </div>
-
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
       {/* Centralized Committee Video Modal Primitive */}
