@@ -5,7 +5,7 @@ import { X, ExternalLink, GraduationCap, Code, FileText, CheckCircle2, Save } fr
 import type { ApplicationDetailModalProps } from '@/types';
 import { updateApplicationStatus, updateAdminNotes } from '@/features/admin';
 import { Modal } from '@/components/ui';
-import { sanitizeString, getStatusBadgeClass } from '@/lib/utils';
+import { sanitizeString, getStatusBadgeClass, getCommitteeBadgeClass, getStatusTextColorClass } from '@/lib/utils';
 import { STATUS_OPTIONS } from '@/data';
 
 export default function ApplicationDetailModal({ application, onClose, onUpdate }: ApplicationDetailModalProps) {
@@ -106,20 +106,20 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
 
         {/* Committee Preferences */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/30">
-            <span className="text-[10px] font-extrabold uppercase text-amber-600 dark:text-amber-400 block mb-1">
+          <div className={`p-3.5 rounded-lg border ${getCommitteeBadgeClass(application.primary_committee)}`}>
+            <span className="text-[10px] font-extrabold uppercase block mb-1 opacity-80">
               Primary Committee Choice
             </span>
-            <p className="font-extrabold text-neutral-900 dark:text-neutral-100">
+            <p className="font-black text-sm">
               {application.primary_committee}
             </p>
           </div>
 
-          <div className="p-3.5 rounded-lg bg-cso-input border border-cso">
-            <span className="text-[10px] font-extrabold uppercase text-neutral-500 dark:text-neutral-400 block mb-1">
+          <div className={`p-3.5 rounded-lg border ${application.secondary_committee ? getCommitteeBadgeClass(application.secondary_committee) : 'bg-cso-input border-cso text-neutral-500'}`}>
+            <span className="text-[10px] font-extrabold uppercase block mb-1 opacity-80">
               Secondary Committee Choice
             </span>
-            <p className="font-bold text-neutral-900 dark:text-neutral-100">
+            <p className="font-bold text-sm">
               {application.secondary_committee || 'None'}
             </p>
           </div>
@@ -166,10 +166,10 @@ export default function ApplicationDetailModal({ application, onClose, onUpdate 
               <select
                 value={status}
                 onChange={e => setStatus(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-cso-input border border-cso text-neutral-900 dark:text-neutral-100 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                className={`w-full px-3.5 py-2.5 rounded-lg border text-xs font-extrabold focus:outline-none focus:ring-2 focus:ring-neutral-400/50 transition-colors ${getStatusBadgeClass(status)}`}
               >
-                {STATUS_OPTIONS.map(st => (
-                  <option key={st} value={st}>{st}</option>
+                {STATUS_OPTIONS.filter(s => s !== 'All').map(st => (
+                  <option key={st} value={st} className={`bg-[#f4f4f2] dark:bg-[#18181b] ${getStatusTextColorClass(st)}`}>{st}</option>
                 ))}
               </select>
             </div>

@@ -11,6 +11,8 @@ import type { LucideIcon } from 'lucide-react';
  * 1. DOMAIN ENTITY MODELS
  * -------------------------------------------------------------------- */
 
+
+
 export interface OfficerProfile {
   id: string;
   email: string;
@@ -43,17 +45,23 @@ export interface Committee {
   id: string;
   name: string;
   shortName: string;
+  short_name?: string;
   description: string;
   logo: string;
-  accentColor: string;
-  borderGlow: string;
-  badgeBg: string;
-  Icon: LucideIcon;
-  iconClassName: string;
+  accentColor?: string;
+  borderGlow?: string;
+  badgeBg?: string;
+  Icon?: LucideIcon;
+  iconClassName?: string;
   tags: string[];
   videoUrl?: string;
+  video_url?: string;
   videoPoster?: string;
+  video_poster?: string;
   videoTitle?: string;
+  video_title?: string;
+  is_active?: boolean;
+  created_at?: string;
 }
 
 export interface MediaItem {
@@ -132,9 +140,9 @@ export interface FloatingSelectProps extends Omit<React.SelectHTMLAttributes<HTM
 }
 
 export interface AdminSidebarProps {
-  currentTab?: 'overview' | 'applications' | 'officers' | 'dashboard';
+  currentTab?: 'overview' | 'applications' | 'officers' | 'committees' | 'dashboard';
   activeTab?: string;
-  setCurrentTab?: (tab: 'overview' | 'applications' | 'officers' | 'dashboard') => void;
+  setCurrentTab?: (tab: 'overview' | 'applications' | 'officers' | 'committees' | 'dashboard') => void;
   setActiveTab?: (tab: string) => void;
   onLogout: () => void;
   officerProfile?: OfficerProfile | null;
@@ -202,4 +210,25 @@ export interface CommitteeVideoModalProps {
   onClose: () => void;
   committee: Committee | null;
   onApply: (committeeId: string) => void;
+}
+
+export interface EditCommitteeModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  committee: Committee | null;
+  onSave: (committeeData: Partial<Committee>) => Promise<boolean>;
+  isSuperAdmin: boolean;
+}
+
+export interface CommitteeManagementTableProps {
+  committees: Committee[];
+  officerProfile: OfficerProfile | null;
+  onSaveCommittee: (committeeData: Partial<Committee>) => Promise<boolean>;
+  onToggleActive: (id: string, isActive: boolean) => Promise<boolean>;
+  onDeleteCommittee: (id: string) => Promise<boolean>;
+  onRefresh: () => void;
+}
+export interface ToastContextValue {
+  showToast: (message: string, type?: ToastType) => void;
+  removeToast: (id: string) => void;
 }

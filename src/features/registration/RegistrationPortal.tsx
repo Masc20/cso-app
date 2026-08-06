@@ -4,12 +4,14 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Send, CheckCircle2, AlertCircle, User, Link as LinkIcon, GraduationCap, Code, ShieldCheck, Lock, ExternalLink, Clock, Loader2, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { FloatingInput, FloatingTextarea, FloatingSelect } from '@/components/ui';
-import { fetchRegistrationStatus } from '@/features/admin';
+import { fetchRegistrationStatus, fetchCommittees } from '@/features/admin';
 import { sanitizeString, isValidFacebookUrl, isValidHttpUrl, formatStudentId, normalizeUrlInput } from '@/lib/utils';
+import { useToast } from '@/hooks';
 import { COURSE_OPTIONS, YEAR_LEVEL_OPTIONS, COMMITTEE_OPTIONS } from '@/data';
 import type { RegistrationPortalProps } from '@/types';
 
 export default function RegistrationPortal({ selectedCommittee }: RegistrationPortalProps) {
+  const { showToast } = useToast();
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
   const [formData, setFormData] = useState({
     studentId: '',
@@ -195,6 +197,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
       setLoading(false);
       setSuccess(true);
       setTouchedFields({});
+      showToast('Application submitted successfully!', 'success');
 
       // Trigger Confetti Celebration
       try {
@@ -213,7 +216,19 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
     }
   };
 
-  const committeeSelectOptions = COMMITTEE_OPTIONS.map(c => ({ value: c.id, label: c.label }));
+  const [dynamicCommittees, setDynamicCommittees] = useState<{ id: string; label: string }[]>([...COMMITTEE_OPTIONS]);
+
+  useEffect(() => {
+    const loadDynamicCommittees = async () => {
+      const live = await fetchCommittees(false);
+      if (live && live.length > 0) {
+        setDynamicCommittees(live.map(c => ({ id: c.name, label: c.name })));
+      }
+    };
+    loadDynamicCommittees();
+  }, []);
+
+  const committeeSelectOptions = dynamicCommittees.map(c => ({ value: c.id || c.label, label: c.label }));
   
   // Filter out the selected primary committee from the secondary committee options list
   const secondaryCommitteeOptions = [

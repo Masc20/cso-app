@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '../../supabase/supabase';
+import { supabase } from '../lib/supabase';
 import { User } from '@supabase/supabase-js';
 import type { OfficerProfile } from '@/types';
 

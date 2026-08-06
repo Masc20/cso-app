@@ -90,7 +90,7 @@ export default function AdminSidebar({
                     <h3 className="text-sm font-black text-neutral-900 dark:text-neutral-100">
                       {activeOfficer?.full_name || 'CSO Admin'}
                     </h3>
-                    <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider">
+                    <span className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                       {roleLabel}
                     </span>
                   </div>
@@ -115,7 +115,7 @@ export default function AdminSidebar({
                     : 'text-neutral-700 dark:text-neutral-300 bg-[#ebebe8] dark:bg-[#18181b]'
                 }`}
               >
-                <LayoutDashboard className="w-4 h-4 text-amber-500" />
+                <LayoutDashboard className="w-4 h-4 text-neutral-400" />
                 Overview & Analytics
               </button>
 
@@ -131,8 +131,24 @@ export default function AdminSidebar({
                     : 'text-neutral-700 dark:text-neutral-300 bg-[#ebebe8] dark:bg-[#18181b]'
                 }`}
               >
-                <Users className="w-4 h-4 text-amber-500" />
+                <Users className="w-4 h-4 text-neutral-400" />
                 Applicant Records ({committeeScopeLabel})
+              </button>
+
+              {/* Committees & Videos */}
+              <button
+                onClick={() => {
+                  handleTabSelect('committees');
+                  setMobileOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold ${
+                  currentActiveTab === 'committees'
+                    ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-md'
+                    : 'text-neutral-700 dark:text-neutral-300 bg-[#ebebe8] dark:bg-[#18181b]'
+                }`}
+              >
+                <Sparkles className="w-4 h-4 text-neutral-400" />
+                Committees & Videos
               </button>
 
               {/* Officer User Management (Super Admin Only) */}
@@ -148,7 +164,7 @@ export default function AdminSidebar({
                       : 'text-neutral-700 dark:text-neutral-300 bg-[#ebebe8] dark:bg-[#18181b]'
                   }`}
                 >
-                  <UserCheck className="w-4 h-4 text-amber-500" />
+                  <UserCheck className="w-4 h-4 text-neutral-400" />
                   Officer Management
                 </button>
               )}
@@ -201,16 +217,16 @@ export default function AdminSidebar({
                 <h4 className="font-extrabold text-sm tracking-wide text-neutral-900 dark:text-neutral-100 truncate">
                   {activeOfficer?.full_name || 'CSO Admin'}
                 </h4>
-                <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3" /> {roleLabel}
+                <p className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-neutral-400" /> {roleLabel}
                 </p>
               </div>
             )}
           </div>
 
           {!collapsed && (
-            <div className="mb-6 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[11px] font-bold flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            <div className="mb-6 p-2.5 rounded-lg bg-[#ebebe8] dark:bg-[#18181b] border border-cso text-neutral-700 dark:text-neutral-300 text-[11px] font-bold flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
               <div className="truncate">
                 <span className="block text-[9px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-black">Scope:</span>
                 <span className="truncate">{committeeScopeLabel}</span>
@@ -219,19 +235,19 @@ export default function AdminSidebar({
           )}
 
           {/* Sidebar Nav Links */}
-          <nav className="space-y-2">
+          <nav className="space-y-1.5">
             
             {/* Overview / Dashboard */}
             <button
               onClick={() => handleTabSelect('dashboard')}
               title="Overview & Analytics"
-              className={`w-full flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-3 rounded-lg text-xs font-bold text-left ${
+              className={`w-full flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-2.5 rounded-lg text-xs font-bold text-left transition-colors ${
                 currentActiveTab === 'dashboard' || currentActiveTab === 'overview'
                   ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-md'
-                  : 'text-neutral-700 dark:text-neutral-300 hover:bg-[#ebebe8] dark:hover:bg-[#18181b]'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:bg-[#ebebe8] dark:hover:bg-[#18181b] hover:text-neutral-900 dark:hover:text-neutral-100'
               }`}
             >
-              <LayoutDashboard className="w-4 h-4 shrink-0 text-amber-500" />
+              <LayoutDashboard className="w-4 h-4 shrink-0" />
               {!collapsed && <span className="ml-3 truncate">Overview & Analytics</span>}
             </button>
 
@@ -239,14 +255,28 @@ export default function AdminSidebar({
             <button
               onClick={() => handleTabSelect('applications')}
               title={`Applicant Records (${committeeScopeLabel})`}
-              className={`w-full flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-3 rounded-lg text-xs font-bold text-left ${
+              className={`w-full flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-2.5 rounded-lg text-xs font-bold text-left transition-colors ${
                 currentActiveTab === 'applications'
                   ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-md'
-                  : 'text-neutral-700 dark:text-neutral-300 hover:bg-[#ebebe8] dark:hover:bg-[#18181b]'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:bg-[#ebebe8] dark:hover:bg-[#18181b] hover:text-neutral-900 dark:hover:text-neutral-100'
               }`}
             >
-              <Users className="w-4 h-4 shrink-0 text-amber-500" />
+              <Users className="w-4 h-4 shrink-0" />
               {!collapsed && <span className="ml-3 truncate">Applicant Records</span>}
+            </button>
+
+            {/* Committee & Video Showcase Manager */}
+            <button
+              onClick={() => handleTabSelect('committees')}
+              title="Committees & Video Manager"
+              className={`w-full flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-2.5 rounded-lg text-xs font-bold text-left transition-colors ${
+                currentActiveTab === 'committees'
+                  ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-md'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:bg-[#ebebe8] dark:hover:bg-[#18181b] hover:text-neutral-900 dark:hover:text-neutral-100'
+              }`}
+            >
+              <Sparkles className="w-4 h-4 shrink-0" />
+              {!collapsed && <span className="ml-3 truncate">Committees & Videos</span>}
             </button>
 
             {/* Officer Management (Super Admin Only) */}
@@ -254,13 +284,13 @@ export default function AdminSidebar({
               <button
                 onClick={() => handleTabSelect('officers')}
                 title="Officer Management"
-                className={`w-full flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-3 rounded-lg text-xs font-bold text-left ${
+                className={`w-full flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-2.5 rounded-lg text-xs font-bold text-left transition-colors ${
                   currentActiveTab === 'officers'
                     ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-md'
-                    : 'text-neutral-700 dark:text-neutral-300 hover:bg-[#ebebe8] dark:hover:bg-[#18181b]'
+                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-[#ebebe8] dark:hover:bg-[#18181b] hover:text-neutral-900 dark:hover:text-neutral-100'
                 }`}
               >
-                <UserCheck className="w-4 h-4 shrink-0 text-amber-500" />
+                <UserCheck className="w-4 h-4 shrink-0" />
                 {!collapsed && <span className="ml-3 truncate">Officer Management</span>}
               </button>
             )}
@@ -282,7 +312,7 @@ export default function AdminSidebar({
           <button
             onClick={onLogout}
             title="Admin Logout"
-            className={`w-full flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-2.5 rounded-lg text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20`}
+            className={`w-full flex items-center ${collapsed ? 'justify-center px-0' : 'px-3.5'} py-2.5 rounded-lg text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition-colors`}
           >
             <LogOut className="w-4 h-4 shrink-0" />
             {!collapsed && <span className="ml-2.5 truncate">Admin Logout</span>}

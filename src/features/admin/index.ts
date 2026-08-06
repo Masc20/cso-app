@@ -2,6 +2,7 @@ export { default as AdminDashboardOverview } from './components/AdminDashboardOv
 export { default as ApplicationsTable } from './components/ApplicationsTable';
 export { default as MetricCards } from './components/MetricCards';
 export { default as OfficerManagementTable } from './components/OfficerManagementTable';
+export { default as CommitteeManagementTable } from './components/CommitteeManagementTable';
 
-export { ApplicationDetailModal, EditOfficerModal } from '@/components/modals';
+export { ApplicationDetailModal, EditOfficerModal, EditCommitteeModal } from '@/components/modals';
 export * from './services/adminApi';

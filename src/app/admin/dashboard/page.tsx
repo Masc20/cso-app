@@ -2,27 +2,32 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAdminAuth, useDarkMode } from '@/hooks';
+import { useAdminAuth, useDarkMode, useToast } from '@/hooks';
 import { AdminSidebar } from '@/components/layout';
-import { Toast } from '@/components/ui';
 import { 
   AdminDashboardOverview, 
   ApplicationsTable, 
   OfficerManagementTable, 
+  CommitteeManagementTable,
   ApplicationDetailModal,
   fetchApplications, 
   fetchRegistrationStatus, 
   toggleRegistrationStatus, 
   fetchOfficerProfiles,
-  updateOfficerProfile
+  updateOfficerProfile,
+  fetchCommittees,
+  saveCommittee,
+  toggleCommitteeActive,
+  deleteCommittee
 } from '@/features/admin';
-import type { ApplicationRecord, OfficerProfile, ToastType } from '@/types';
-import { RefreshCw, Sparkles, Sun, Moon, Loader2 } from 'lucide-react';
+import type { ApplicationRecord, OfficerProfile, Committee, ToastType } from '@/types';
+import { RefreshCw, Sun, Moon, Loader2 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
   const { loading: authLoading, isAuthenticated, profile, logout } = useAdminAuth();
   const { darkMode, setDarkMode } = useDarkMode();
+  const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState('dashboard');
   
@@ -30,32 +35,24 @@ export default function AdminDashboardPage() {
   const [allApplications, setAllApplications] = useState<ApplicationRecord[]>([]);
   const [scopedApplications, setScopedApplications] = useState<ApplicationRecord[]>([]);
   const [officers, setOfficers] = useState<OfficerProfile[]>([]);
+  const [committees, setCommittees] = useState<Committee[]>([]);
   
   const [selectedApplication, setSelectedApplication] = useState<ApplicationRecord | null>(null);
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
   const [dataLoading, setDataLoading] = useState(true);
-  const [toastQueue, setToastQueue] = useState<Array<{ id: number; message: string; type: ToastType }>>([]);
-
-  const enqueueToast = (message: string, type: ToastType) => {
-    setToastQueue(prev => [...prev, {
-      id: Date.now() + Math.random(),
-      message,
-      type
-    }]);
-  };
 
   const isSuperAdmin = profile?.role === 'super_admin';
   const assignedScope = isSuperAdmin ? 'All' : profile?.assigned_committee || 'All';
 
-  // Fetch Dual Stream Applications, Officers, and Settings
+  // Fetch Applications, Officers, Committees, and Settings
   const loadDashboardData = useCallback(async () => {
     setDataLoading(true);
     try {
-      // 1. Fetch Global Applications for Overview Analytics & Demand Distribution
+      // 1. Fetch Global Applications for Overview Analytics
       const globalApps = await fetchApplications('All');
       setAllApplications(globalApps);
 
-      // 2. Fetch Scoped Applications for Applicant Records Table (Committee-locked for Officers)
+      // 2. Fetch Scoped Applications for Applicant Records Table
       if (assignedScope === 'All') {
         setScopedApplications(globalApps);
       } else {
@@ -67,56 +64,104 @@ export default function AdminDashboardPage() {
       const openStatus = await fetchRegistrationStatus();
       setIsRegistrationOpen(openStatus);
 
-      // 4. Fetch Officers if Super Admin
+      // 4. Fetch Officers for Admin Management
       if (isSuperAdmin) {
         const officerList = await fetchOfficerProfiles();
         setOfficers(officerList);
       }
+
+      // 5. Fetch Dynamic Committees & Showcase Videos
+      const commList = await fetchCommittees(true); // Include inactive for admin
+      setCommittees(commList);
+
     } catch (err) {
-      console.error('Error loading dashboard data:', err);
-      enqueueToast('Failed to load dashboard data. Please try again.', 'error');
+      console.warn('Dashboard data fetch exception:', err);
     } finally {
       setDataLoading(false);
     }
   }, [assignedScope, isSuperAdmin]);
 
+  // Auth gate check
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.replace('/admin/login');
-    } else if (isAuthenticated) {
-      loadDashboardData();
+    if (!authLoading) {
+      if (!isAuthenticated) {
+        router.replace('/admin/login');
+      } else {
+        loadDashboardData();
+      }
     }
   }, [authLoading, isAuthenticated, router, loadDashboardData]);
 
+  // Handle Registration Gate Toggle
   const handleToggleRegistration = async () => {
-    const newStatus = !isRegistrationOpen;
-    setIsRegistrationOpen(newStatus);
-    const success = await toggleRegistrationStatus(newStatus);
+    const nextState = !isRegistrationOpen;
+    const success = await toggleRegistrationStatus(nextState);
     if (success) {
-      enqueueToast(`Registration portal ${newStatus ? 'OPENED' : 'CLOSED'} successfully.`, newStatus ? 'success' : 'closed');
+      setIsRegistrationOpen(nextState);
+      showToast(
+        `Recruitment portal is now ${nextState ? 'OPEN' : 'CLOSED'}.`,
+        nextState ? 'success' : 'closed'
+      );
     } else {
-      setIsRegistrationOpen(!newStatus); // Revert on failure
-      enqueueToast('Failed to update registration status.', 'error');
+      showToast('Failed to update registration status.', 'error');
     }
   };
 
-  const handleUpdateApplicationStatus = async (id: string, status: string, notes?: string) => {
-    // Optimistic Update
-    setAllApplications(prev => prev.map(a => a.id === id ? { ...a, application_status: status, admin_notes: notes !== undefined ? notes : a.admin_notes } : a));
-    setScopedApplications(prev => prev.map(a => a.id === id ? { ...a, application_status: status, admin_notes: notes !== undefined ? notes : a.admin_notes } : a));
+  // Status & Permission Update Handlers
+  const handleUpdateApplicationStatus = (id: string, status: string, notes?: string) => {
+    // Optimistic local state update
+    setAllApplications(prev => prev.map(a => a.id === id ? { ...a, application_status: status, admin_notes: notes ?? a.admin_notes } : a));
+    setScopedApplications(prev => prev.map(a => a.id === id ? { ...a, application_status: status, admin_notes: notes ?? a.admin_notes } : a));
     
     const toastType: ToastType = status === 'Rejected' ? 'delete' : 'success';
-    enqueueToast(`Application status updated to "${status}".`, toastType);
+    showToast(`Application status updated to "${status}".`, toastType);
   };
 
   const handleUpdateOfficerPermissions = async (id: string, role: 'super_admin' | 'officer', committee: OfficerProfile['assigned_committee']) => {
     const success = await updateOfficerProfile(id, role, committee);
     if (success) {
-      enqueueToast('Officer profile permissions updated.', 'success');
+      showToast('Officer profile permissions updated.', 'success');
       loadDashboardData();
       return true;
     } else {
-      enqueueToast('Failed to update officer profile.', 'error');
+      showToast('Failed to update officer profile.', 'error');
+      return false;
+    }
+  };
+
+  // Committee CRUD Handlers
+  const handleSaveCommittee = async (committeeData: Partial<Committee>) => {
+    const success = await saveCommittee(committeeData);
+    if (success) {
+      showToast(`Committee "${committeeData.name || committeeData.shortName}" saved successfully.`, 'success');
+      loadDashboardData();
+      return true;
+    } else {
+      showToast('Failed to save committee record.', 'error');
+      return false;
+    }
+  };
+
+  const handleToggleCommitteeActive = async (id: string, isActive: boolean) => {
+    const success = await toggleCommitteeActive(id, isActive);
+    if (success) {
+      showToast(`Committee status updated to ${isActive ? 'Active' : 'Archived'}.`, isActive ? 'success' : 'warning');
+      loadDashboardData();
+      return true;
+    } else {
+      showToast('Failed to update committee active status.', 'error');
+      return false;
+    }
+  };
+
+  const handleDeleteCommittee = async (id: string) => {
+    const success = await deleteCommittee(id);
+    if (success) {
+      showToast('Committee record deleted successfully.', 'delete');
+      loadDashboardData();
+      return true;
+    } else {
+      showToast('Failed to delete committee record.', 'error');
       return false;
     }
   };
@@ -125,7 +170,7 @@ export default function AdminDashboardPage() {
     return (
       <div className="min-h-screen bg-cso-page flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#f59e0b]" />
           <p className="text-xs font-bold text-neutral-600 dark:text-neutral-400 uppercase tracking-widest">
             Loading CSO Command Center...
           </p>
@@ -151,12 +196,13 @@ export default function AdminDashboardPage() {
         {/* Top Header Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-cso">
           <div>
-            <span className="text-[11px] font-extrabold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
               Computer Studies Organization &bull; Command Center
             </span>
             <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-neutral-100 tracking-tight mt-0.5">
               {activeTab === 'dashboard' && 'Executive Overview'}
               {activeTab === 'applications' && 'Applicant Records'}
+              {activeTab === 'committees' && 'Committees & Video Showcases'}
               {activeTab === 'officers' && 'Officer Management'}
             </h1>
           </div>
@@ -201,7 +247,19 @@ export default function AdminDashboardPage() {
           />
         )}
 
-        {/* Tab 3: Officer Management Table (Super Admin Only) */}
+        {/* Tab 3: Committees & Video Showcase Manager */}
+        {activeTab === 'committees' && (
+          <CommitteeManagementTable
+            committees={committees}
+            officerProfile={profile}
+            onSaveCommittee={handleSaveCommittee}
+            onToggleActive={handleToggleCommitteeActive}
+            onDeleteCommittee={handleDeleteCommittee}
+            onRefresh={loadDashboardData}
+          />
+        )}
+
+        {/* Tab 4: Officer Management Table (Super Admin Only) */}
         {activeTab === 'officers' && isSuperAdmin && (
           <OfficerManagementTable
             officers={officers}
@@ -215,7 +273,6 @@ export default function AdminDashboardPage() {
       {/* Feature Application Detail Modal */}
       {selectedApplication && (
         <ApplicationDetailModal
-          isOpen={Boolean(selectedApplication)}
           application={selectedApplication}
           onClose={() => setSelectedApplication(null)}
           onUpdate={(id, status, notes) => {
@@ -224,18 +281,6 @@ export default function AdminDashboardPage() {
           }}
         />
       )}
-
-      {/* Dynamic Visual Toast Primitive */}
-      {toastQueue.slice(0, 3).map((toast, index) => (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          stackIndex={index}
-          autoDismiss
-          onClose={() => setToastQueue(prev => prev.filter(item => item.id !== toast.id))}
-        />
-      ))}
 
     </div>
   );

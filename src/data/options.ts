@@ -15,6 +15,12 @@ export const COURSE_OPTIONS = [
   ['Other Senior High / Tech Track', 'Other Senior High / Tech Track'],
 ] as const;
 
+export const COMMITTEE_OPTIONS = [
+  { id: 'G.A.D Committee', label: 'G.A.D Committee' },
+  { id: 'Gaming Committee', label: 'Gaming Committee' },
+  { id: 'Networking Committee', label: 'Networking Committee' },
+  { id: 'Programming Committee', label: 'Programming Committee' },
+] as const;
 
 export const STATUS_OPTIONS = [
   'All',

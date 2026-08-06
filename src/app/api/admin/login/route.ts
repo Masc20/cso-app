@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../../supabase/supabase';
+import { supabase } from '../../../../lib/supabase';
 import { sanitizeString } from '@/lib/utils/validation';
 import { getClientIp } from '@/lib/utils/formatting';
 import {

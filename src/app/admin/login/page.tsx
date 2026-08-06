@@ -8,7 +8,7 @@ import FloatingInput from '@/components/ui/FloatingInput';
 import { useDarkMode } from '@/hooks/useDarkMode';
 import { useRateLimiter } from '@/hooks/useRateLimiter';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
-import { supabase } from '../../../../supabase/supabase';
+import { supabase } from '../../../lib/supabase';
 
 export default function AdminLoginPage() {
   const router = useRouter();

@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
+import { ToastProvider } from "@/context/ToastContext";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
@@ -18,8 +19,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Computer Studies Organization (CSO) | ACLC College Mandaue City",
-  description: "Official website and committee registration portal for the Computer Studies Organization (CSO) at ACLC College Mandaue City.",
+  title: "Computer Studies Organization (CSO) | ACLC College Of Mandaue",
+  description: "Official website and committee registration portal for the Computer Studies Organization (CSO) at ACLC College Of Mandaue.",
   icons: {
     icon: "/imgs/CSOLOGO.png",
     shortcut: "/imgs/CSOLOGO.png",
@@ -38,7 +39,9 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
         <Analytics />
         <SpeedInsights />
       </body>

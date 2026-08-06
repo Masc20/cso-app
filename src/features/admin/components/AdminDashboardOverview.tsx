@@ -14,7 +14,24 @@ import {
 } from 'lucide-react';
 import type { AdminDashboardOverviewProps } from '@/types';
 import { COMMITTEE_OPTIONS } from '@/data';
-import { calculateCommitteeCounts, calculateTopCommittee } from '@/lib/utils';
+import { calculateCommitteeCounts, calculateTopCommittee, getCommitteeBadgeClass } from '@/lib/utils';
+
+function getCommitteeBarColor(committeeId: string): { dot: string; bar: string } {
+  const comm = committeeId.toLowerCase();
+  if (comm.includes('g.a.d') || comm.includes('gad')) {
+    return { dot: 'bg-amber-500', bar: 'bg-amber-500' };
+  }
+  if (comm.includes('gaming')) {
+    return { dot: 'bg-emerald-500', bar: 'bg-emerald-500' };
+  }
+  if (comm.includes('networking')) {
+    return { dot: 'bg-sky-500', bar: 'bg-sky-500' };
+  }
+  if (comm.includes('programming')) {
+    return { dot: 'bg-fuchsia-500', bar: 'bg-fuchsia-500' };
+  }
+  return { dot: 'bg-neutral-500', bar: 'bg-neutral-500' };
+}
 
 export default function AdminDashboardOverview({
   applications,
@@ -52,7 +69,7 @@ export default function AdminDashboardOverview({
                 {totalApps}
               </h4>
             </div>
-            <div className="w-12 h-12 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-lg bg-[#f4f4f2] dark:bg-[#18181b] text-neutral-700 dark:text-neutral-300 border border-cso flex items-center justify-center">
               <Users className="w-6 h-6" />
             </div>
           </div>
@@ -69,7 +86,7 @@ export default function AdminDashboardOverview({
                 {pendingApps}
               </h4>
             </div>
-            <div className="w-12 h-12 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
               <Clock className="w-6 h-6" />
             </div>
           </div>
@@ -99,11 +116,13 @@ export default function AdminDashboardOverview({
               <p className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
                 Top Choice Committee
               </p>
-              <h4 className="text-xl font-black text-neutral-900 dark:text-neutral-100 mt-1 truncate max-w-[150px]">
-                {topCommittee}
-              </h4>
+              <div className="mt-1.5">
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-extrabold border ${getCommitteeBadgeClass(topCommittee)}`}>
+                  {topCommittee}
+                </span>
+              </div>
             </div>
-            <div className="w-12 h-12 rounded-lg bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 border border-fuchsia-500/20 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-lg bg-[#f4f4f2] dark:bg-[#18181b] text-neutral-700 dark:text-neutral-300 border border-cso flex items-center justify-center">
               <Award className="w-6 h-6" />
             </div>
           </div>
@@ -120,12 +139,12 @@ export default function AdminDashboardOverview({
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <PieChart className="w-5 h-5 text-amber-500" />
+                <PieChart className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
                 <h3 className="text-lg font-black text-neutral-900 dark:text-neutral-100">
                   Committee Applicant Demand Distribution
                 </h3>
               </div>
-              <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400">
+              <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400 font-mono">
                 Global Statistics ({totalApps} total)
               </span>
             </div>
@@ -135,12 +154,13 @@ export default function AdminDashboardOverview({
               {COMMITTEE_OPTIONS.map((comm) => {
                 const count = committeeCounts[comm.id] || 0;
                 const percentage = totalApps > 0 ? Math.round((count / totalApps) * 100) : 0;
+                const colors = getCommitteeBarColor(comm.id);
 
                 return (
                   <div key={comm.id} className="space-y-1.5">
                     <div className="flex items-center justify-between text-xs font-bold">
                       <span className="text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                        <span className={`w-2.5 h-2.5 rounded-full ${colors.dot}`} />
                         {comm.label}
                       </span>
                       <span className="text-neutral-600 dark:text-neutral-400 font-mono">
@@ -152,7 +172,7 @@ export default function AdminDashboardOverview({
                     <div className="w-full h-3 rounded-full bg-[#ebebe8] dark:bg-[#27272a] overflow-hidden p-0.5 border border-cso">
                       <div
                         style={{ width: `${percentage}%` }}
-                        className="h-full rounded-full bg-gradient-to-r from-amber-500 to-emerald-500 transition-all duration-500"
+                        className={`h-full rounded-full ${colors.bar} transition-all duration-500`}
                       />
                     </div>
                   </div>
@@ -180,7 +200,7 @@ export default function AdminDashboardOverview({
           
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-emerald-500" />
+              <Sparkles className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
               <h3 className="text-lg font-black text-neutral-900 dark:text-neutral-100">
                 Recruitment Portal Gate
               </h3>
@@ -224,14 +244,14 @@ export default function AdminDashboardOverview({
                 {toggling ? 'Updating Portal...' : isRegistrationOpen ? 'Close Portal Gate' : 'Open Portal Gate'}
               </button>
             ) : (
-              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 shrink-0" />
+              <div className="p-3 rounded-lg bg-neutral-500/10 border border-neutral-500/20 text-neutral-600 dark:text-neutral-400 text-xs font-bold flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 shrink-0 text-neutral-500" />
                 <span>Only Super Admin officers can open or close the registration gate.</span>
               </div>
             )}
           </div>
 
-          <div className="pt-4 border-t border-cso text-[11px] text-neutral-500 dark:text-neutral-400 font-medium">
+          <div className="pt-4 border-t border-cso text-[11px] text-neutral-500 dark:text-neutral-400 font-medium font-mono">
             <span className="font-bold text-neutral-800 dark:text-neutral-200">Logged Officer: </span>
             {profile?.full_name || 'CSO Officer'} ({isSuperAdmin ? 'Super Admin' : profile?.assigned_committee})
           </div>

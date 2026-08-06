@@ -19,6 +19,66 @@ export function getStatusBadgeClass(status: string): string {
 }
 
 /**
+ * Returns Tailwind CSS styling classes for committee badges based on division identity.
+ */
+export function getCommitteeBadgeClass(committeeName: string): string {
+  const comm = (committeeName || '').toLowerCase();
+  if (comm.includes('g.a.d') || comm.includes('gad')) {
+    return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30';
+  }
+  if (comm.includes('gaming')) {
+    return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
+  }
+  if (comm.includes('networking')) {
+    return 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30';
+  }
+  if (comm.includes('programming')) {
+    return 'bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 border-fuchsia-500/30';
+  }
+  return 'bg-neutral-500/10 text-neutral-600 dark:text-neutral-400 border-neutral-500/30';
+}
+
+/**
+ * Returns text color class for committee options.
+ */
+export function getCommitteeTextColorClass(committeeName: string): string {
+  const comm = (committeeName || '').toLowerCase();
+  if (comm.includes('g.a.d') || comm.includes('gad')) {
+    return 'text-amber-600 dark:text-amber-400 font-bold';
+  }
+  if (comm.includes('gaming')) {
+    return 'text-emerald-600 dark:text-emerald-400 font-bold';
+  }
+  if (comm.includes('networking')) {
+    return 'text-sky-600 dark:text-sky-400 font-bold';
+  }
+  if (comm.includes('programming')) {
+    return 'text-fuchsia-600 dark:text-fuchsia-400 font-bold';
+  }
+  return 'text-neutral-800 dark:text-neutral-200 font-bold';
+}
+
+/**
+ * Returns text color class for status options.
+ */
+export function getStatusTextColorClass(status: string): string {
+  switch (status) {
+    case 'Approved':
+      return 'text-emerald-600 dark:text-emerald-400 font-bold';
+    case 'Contacted':
+      return 'text-sky-600 dark:text-sky-400 font-bold';
+    case 'Under Review':
+      return 'text-amber-600 dark:text-amber-400 font-bold';
+    case 'Rejected':
+      return 'text-rose-600 dark:text-rose-400 font-bold';
+    case 'Pending':
+      return 'text-amber-600 dark:text-amber-400 font-bold';
+    default:
+      return 'text-neutral-800 dark:text-neutral-200 font-bold';
+  }
+}
+
+/**
  * Extracts client IP address from Next.js server request headers.
  */
 export function getClientIp(req: NextRequest): string {
@@ -61,7 +121,7 @@ export function formatStudentId(inputValue: string, prevValue: string = ''): str
 
   const startsWithLetter = /^[A-Z]/.test(value);
 
-  if (startsWithLetter && value.length === 3 && !value.endsWith('-')) {
+  if (startsWithLetter && value.length === 4 && !value.endsWith('-')) {
     value = `${value}-01-`;
   } else if (startsWithLetter && value.length === 12 && !value.endsWith('-')) {
     value = `${value}-MAN121`;

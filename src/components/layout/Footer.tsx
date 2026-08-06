@@ -1,10 +1,18 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Mail, MapPin } from 'lucide-react';
-import { COMMITTEES, OFFICIAL_SOCIAL_LINKS, CAMPUS_INFO } from '@/data';
+import { OFFICIAL_SOCIAL_LINKS, CAMPUS_INFO } from '@/data';
+import { fetchCommittees } from '@/features/admin';
+import type { Committee } from '@/types';
 
 export default function Footer() {
+  const [committees, setCommittees] = useState<Committee[]>([]);
+
+  useEffect(() => {
+    fetchCommittees(false).then(setCommittees).catch(() => {});
+  }, []);
+
   return (
     <footer className="w-full bg-[#e5e5df] text-neutral-800 border-t border-[#d0d0c8] dark:bg-[#09090b] dark:text-neutral-200 dark:border-cso pt-12 pb-8 mt-16">
       <div className="w-full px-6 sm:px-10 md:px-14">
@@ -48,12 +56,15 @@ export default function Footer() {
               Committees
             </h5>
             <ul className="space-y-2.5 text-xs text-neutral-700 dark:text-neutral-300 font-semibold">
-              {COMMITTEES.map((comm) => (
+              {committees.map((comm) => (
                 <li key={comm.id} className="flex items-center gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-cso-input p-0.5 border border-cso shrink-0 flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-full bg-cso-input p-0.5 border border-cso shrink-0 flex items-center justify-center overflow-hidden">
                     <img 
-                      src={comm.logo} 
+                      src={comm.logo || '/imgs/CSOLOGO.png'} 
                       alt={`${comm.name} Logo`} 
+                      onError={(e) => {
+                        (e.target as HTMLElement).setAttribute('src', '/imgs/CSOLOGO.png');
+                      }}
                       className="w-full h-full object-contain drop-shadow-sm" 
                     />
                   </div>
