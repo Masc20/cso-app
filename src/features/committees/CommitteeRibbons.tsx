@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Palette, Gamepad2, Network, Code2, ArrowRight, Play } from 'lucide-react';
 import type { CommitteeRibbonsProps, Committee } from '@/types';
 import { CommitteeVideoModal } from '@/components/modals';
