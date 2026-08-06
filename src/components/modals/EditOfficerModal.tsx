@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { X, ShieldCheck, UserCheck, CheckCircle2, Save } from 'lucide-react';
 import type { EditOfficerModalProps, OfficerProfile } from '@/types';
 import { getCommitteeBadgeClass, getCommitteeTextColorClass } from '@/lib/utils';
-import Modal from './Modal';
+import Modal from '../ui/Modal';
 
 export default function EditOfficerModal({
   isOpen,

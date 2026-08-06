@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Layers, Plus, Edit3, Video, Trash2, Power, Play } from 'lucide-react';
-import type { Committee, CommitteeManagementTableProps} from '@/types';
-import { EditCommitteeModal, CommitteeVideoModal } from '@/components/modals';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableEmpty } from '@/components/ui';
+import { Plus, Edit3, Trash2, Video, Play, Power } from 'lucide-react';
+import type { CommitteeManagementTableProps, Committee } from '@/types';
 import { getCommitteeBadgeClass } from '@/lib/utils';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableEmpty } from '@/components/ui';
+import { EditCommitteeModal, CommitteeVideoModal, ConfirmModal } from '@/components/modals';
 
 export default function CommitteeManagementTable({
   committees,
@@ -16,38 +16,23 @@ export default function CommitteeManagementTable({
   onRefresh
 }: CommitteeManagementTableProps) {
   const [selectedEditCommittee, setSelectedEditCommittee] = useState<Committee | null>(null);
-  const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [selectedPreviewCommittee, setSelectedPreviewCommittee] = useState<Committee | null>(null);
+  const [deletingCommittee, setDeletingCommittee] = useState<Committee | null>(null);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
 
-  const isSuperAdmin = !officerProfile || officerProfile.role === 'super_admin';
-  const assignedScope = officerProfile?.assigned_committee || 'All';
-
-  // Filter committees based on RBAC scope
-  const visibleCommittees = committees.filter(c => {
-    if (isSuperAdmin || assignedScope === 'All') return true;
-    return (
-      c.name?.toLowerCase() === assignedScope.toLowerCase() || 
-      c.shortName?.toLowerCase() === assignedScope.toLowerCase() ||
-      c.short_name?.toLowerCase() === assignedScope.toLowerCase()
-    );
-  });
+  const isSuperAdmin = officerProfile?.role === 'super_admin';
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="bg-cso-card border border-cso rounded-xl p-4 sm:p-6 shadow-xl space-y-4">
       
-      {/* Top Action Bar */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-cso-card border border-cso shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Table Action Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pb-2 border-b border-cso">
         <div>
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-            Committee Registry & Video Manager
-          </span>
-          <h3 className="text-lg font-black text-neutral-900 dark:text-neutral-100 flex items-center gap-2 mt-0.5">
-            <Layers className="w-5 h-5 text-neutral-500 dark:text-neutral-400" /> Active Committees & Video Showcases
+          <h3 className="text-base sm:text-lg font-black text-neutral-900 dark:text-neutral-100 tracking-tight">
+            CSO Committee Wings & Video Showcases
           </h3>
-          <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
-            {isSuperAdmin 
-              ? 'Super Admin Controls: Add, edit, upload video showcases, or archive committee divisions.' 
-              : `Officer Scope: Manage intro video & details for ${assignedScope}`}
+          <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
+            Manage committee information, descriptions, tag skillsets, and introduction showcase videos.
           </p>
         </div>
 
@@ -57,36 +42,38 @@ export default function CommitteeManagementTable({
               setSelectedEditCommittee(null);
               setIsCreatingNew(true);
             }}
-            className="px-4 py-2.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg transition-transform active:scale-95 shrink-0"
+            className="px-4 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md shrink-0"
           >
-            <Plus className="w-4 h-4" /> Add New Committee
+            <Plus className="w-4 h-4" /> Add Committee
           </button>
         )}
       </div>
 
-      {/* Centralized Table Primitive */}
+      {/* Centralized Table Component */}
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Committee & Emblem</TableHead>
-            <TableHead>Description & Tags</TableHead>
-            <TableHead>Showcase Video Status</TableHead>
+            <TableHead>Committee Identity</TableHead>
+            <TableHead>Description & Skillsets</TableHead>
+            <TableHead>Video Showcase</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {visibleCommittees.length === 0 ? (
-            <TableEmpty colSpan={5} message="No committee records available for your assigned scope." />
+          {committees.length === 0 ? (
+            <TableEmpty colSpan={5} message="No committee records found." />
           ) : (
-            visibleCommittees.map((comm) => {
-              const hasVideo = Boolean(comm.videoUrl || comm.video_url);
-              const displayTitle = comm.videoTitle || comm.video_title || `${comm.shortName} Video Showcase`;
+            committees.map((comm) => {
+              const videoSrc = comm.videoUrl || comm.video_url;
+              const videoTitle = comm.videoTitle || comm.video_title;
+              const hasVideo = Boolean(videoSrc && videoSrc.trim());
+              const displayTitle = videoTitle || (videoSrc ? videoSrc.split('/').pop() : 'Intro Video');
 
               return (
                 <TableRow key={comm.id}>
                   
-                  {/* Logo & Name */}
+                  {/* Committee Logo & Name */}
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full p-1.5 bg-cso-input border border-cso flex items-center justify-center shrink-0 shadow-sm overflow-hidden">
@@ -182,11 +169,7 @@ export default function CommitteeManagementTable({
                           </button>
 
                           <button
-                            onClick={() => {
-                              if (confirm(`Are you sure you want to delete ${comm.name}?`)) {
-                                onDeleteCommittee(comm.id);
-                              }
-                            }}
+                            onClick={() => setDeletingCommittee(comm)}
                             className="p-1.5 rounded-lg border border-rose-500/30 text-rose-500 hover:bg-rose-500/10 transition-colors"
                             title="Delete Committee"
                           >
@@ -233,6 +216,27 @@ export default function CommitteeManagementTable({
           onApply={() => setSelectedPreviewCommittee(null)}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={Boolean(deletingCommittee)}
+        onClose={() => setDeletingCommittee(null)}
+        onConfirm={() => {
+          if (deletingCommittee) {
+            onDeleteCommittee(deletingCommittee.id);
+            setDeletingCommittee(null);
+          }
+        }}
+        title="Delete Committee Division?"
+        message={
+          <>
+            Are you sure you want to permanently delete <strong className="text-neutral-900 dark:text-neutral-100">{deletingCommittee?.name}</strong>? This action cannot be undone.
+          </>
+        }
+        confirmText="Delete Record"
+        cancelText="Cancel"
+        variant="danger"
+      />
 
     </div>
   );

@@ -2,17 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Video, Trash2, Upload, Link as LinkIcon, CheckCircle2, Save, Layers } from 'lucide-react';
-import type { Committee } from '@/types';
+import type { Committee, EditCommitteeModalProps } from '@/types';
 import { Modal, FloatingInput, FloatingTextarea } from '@/components/ui';
 import { supabase } from '@/lib/supabase';
-
-interface EditCommitteeModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  committee: Committee | null;
-  onSave: (committeeData: Partial<Committee>) => Promise<boolean>;
-  isSuperAdmin: boolean;
-}
 
 export default function EditCommitteeModal({
   isOpen,

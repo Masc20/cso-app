@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import { X, Sparkles, ArrowRight, Video } from 'lucide-react';
 import type { CommitteeVideoModalProps } from '@/types';
 import { getCommitteeVideoUrl } from '@/lib/utils';
-import Modal from './Modal';
+import { Modal } from '@/components/ui';
 
 export default function CommitteeVideoModal({
   isOpen,

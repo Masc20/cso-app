@@ -1,22 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { 
   UserCheck, 
   ShieldCheck, 
   Search, 
   Edit3 
 } from 'lucide-react';
-import type { OfficerProfile } from '@/types';
+import type { OfficerProfile, OfficerManagementTableProps } from '@/types';
 import { EditOfficerModal } from '@/components/modals';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableEmpty } from '@/components/ui';
 import { getCommitteeBadgeClass } from '@/lib/utils';
-
-interface OfficerManagementTableProps {
-  officers: OfficerProfile[];
-  onUpdateOfficer: (id: string, role: 'super_admin' | 'officer', committee: OfficerProfile['assigned_committee']) => Promise<boolean>;
-  onRefresh: () => void;
-}
 
 export default function OfficerManagementTable({ officers, onUpdateOfficer, onRefresh }: OfficerManagementTableProps) {
   const [searchTerm, setSearchTerm] = useState('');

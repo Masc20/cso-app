@@ -228,6 +228,22 @@ export interface CommitteeManagementTableProps {
   onDeleteCommittee: (id: string) => Promise<boolean>;
   onRefresh: () => void;
 }
+
+export interface EditCommitteeModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  committee: Committee | null;
+  onSave: (committeeData: Partial<Committee>) => Promise<boolean>;
+  isSuperAdmin: boolean;
+}
+
+export interface OfficerManagementTableProps {
+  officers: OfficerProfile[];
+  onUpdateOfficer: (id: string, role: 'super_admin' | 'officer', committee: OfficerProfile['assigned_committee']) => Promise<boolean>;
+  onRefresh: () => void;
+}
+
+
 export interface ToastContextValue {
   showToast: (message: string, type?: ToastType) => void;
   removeToast: (id: string) => void;
