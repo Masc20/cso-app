@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '../../supabase/supabase';
 import { User } from '@supabase/supabase-js';
 import type { OfficerProfile } from '@/types';
 
@@ -15,7 +15,6 @@ export function useAdminAuth() {
     const email = (authUser.email || '').toLowerCase();
     const meta = authUser.user_metadata || {};
 
-    // 1. Priority 1: Supabase Auth User Metadata (e.g. metadata set in Supabase Dashboard -> Auth -> Users)
     if (meta.role || meta.assigned_committee) {
       setProfile({
         id: authUser.id,
@@ -27,7 +26,6 @@ export function useAdminAuth() {
       return;
     }
 
-    // 2. Priority 2: Supabase officer_profiles PostgreSQL Table
     try {
       const { data, error } = await supabase
         .from('officer_profiles')
@@ -43,7 +41,6 @@ export function useAdminAuth() {
       console.warn('Officer profile DB query note:', err);
     }
 
-    // 3. Priority 3: Smart Email Name Auto-Detection Fallback
     let role: 'super_admin' | 'officer' = 'officer';
     let assigned_committee: OfficerProfile['assigned_committee'] = 'All';
 
@@ -59,13 +56,9 @@ export function useAdminAuth() {
     } else if (email.includes('network') || email.includes('cisco') || email.includes('net')) {
       role = 'officer';
       assigned_committee = 'Networking Committee';
-    } else if (email.includes('program') || email.includes('dev') || email.includes('code')) {
+    } else if (email.includes('programming') || email.includes('dev') || email.includes('code')) {
       role = 'officer';
       assigned_committee = 'Programming Committee';
-    } else {
-      // Default legacy accounts
-      role = 'super_admin';
-      assigned_committee = 'All';
     }
 
     setProfile({

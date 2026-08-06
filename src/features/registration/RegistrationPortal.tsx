@@ -365,7 +365,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
               <FloatingInput
                 label="Student ID Number"
                 required
-                infoTooltip="Format: e.g. C00-01-0000-MAN121 or your LRN."
+                infoTooltip="Format: e.g. 'A00-01-...' or your LRN."
                 disabled={cooldownSeconds > 0 || loading}
                 maxLength={25}
                 icon={<Code className="w-4 h-4" />}

@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '../../../../supabase/supabase';
 import type { ApplicationRecord, OfficerProfile } from '@/types';
 
 export type { ApplicationRecord, OfficerProfile };

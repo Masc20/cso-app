@@ -61,7 +61,7 @@ export function formatStudentId(inputValue: string, prevValue: string = ''): str
 
   const startsWithLetter = /^[A-Z]/.test(value);
 
-  if (startsWithLetter && value.length === 4 && !value.endsWith('-')) {
+  if (startsWithLetter && value.length === 3 && !value.endsWith('-')) {
     value = `${value}-01-`;
   } else if (startsWithLetter && value.length === 12 && !value.endsWith('-')) {
     value = `${value}-MAN121`;

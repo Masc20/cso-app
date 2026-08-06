@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '../../../../supabase/supabase';
 import { sanitizeString, isValidFacebookUrl, isValidHttpUrl } from '@/lib/utils/validation';
 import { getClientIp } from '@/lib/utils/formatting';
 import { fetchRegistrationStatus } from '@/features/admin/services/adminApi';
