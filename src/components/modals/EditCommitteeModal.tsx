@@ -238,26 +238,27 @@ export default function EditCommitteeModal({
               />
 
               {/* Video Source Switch */}
-              <div>
-                <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
-                  Video Input Source
+              <div className="flex flex-col justify-center space-y-1">
+                <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300">
+                  Video Source Mode
                 </label>
-                <div className="flex items-center gap-2">
+                <div className="grid grid-cols-2 gap-1.5 p-1 rounded-lg bg-cso-input border border-cso">
                   <button
                     type="button"
                     onClick={() => setVideoSourceType('url')}
-                    className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold border transition-colors flex items-center justify-center gap-1.5 ${
+                    className={`py-1 px-2.5 rounded-md text-[11px] font-bold transition-all flex items-center justify-center gap-1 ${
                       videoSourceType === 'url'
                         ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 border-neutral-900 dark:border-neutral-100 shadow-sm'
                         : 'bg-cso-card text-neutral-600 dark:text-neutral-400 border-cso hover:bg-neutral-200 dark:hover:bg-[#27272a]'
                     }`}
                   >
-                    <LinkIcon className="w-3.5 h-3.5" /> YouTube / URL
+                    <LinkIcon className="w-3.5 h-3.5" /> URL / External Link
                   </button>
+
                   <button
                     type="button"
                     onClick={() => setVideoSourceType('file')}
-                    className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold border transition-colors flex items-center justify-center gap-1.5 ${
+                    className={`py-1 px-2.5 rounded-md text-[11px] font-bold transition-all flex items-center justify-center gap-1 ${
                       videoSourceType === 'file'
                         ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 border-neutral-900 dark:border-neutral-100 shadow-sm'
                         : 'bg-cso-card text-neutral-600 dark:text-neutral-400 border-cso hover:bg-neutral-200 dark:hover:bg-[#27272a]'
@@ -312,29 +313,39 @@ export default function EditCommitteeModal({
                 type="checkbox"
                 checked={isActive}
                 onChange={e => setIsActive(e.target.checked)}
-                className="w-5 h-5 rounded accent-neutral-800 dark:accent-neutral-200 cursor-pointer"
+                className="w-4 h-4 rounded text-neutral-900 focus:ring-neutral-400"
               />
             </div>
           )}
 
         </div>
 
-        {/* Fixed Footer Bar */}
-        <div className="shrink-0 pt-3 mt-3 border-t border-cso flex items-center justify-between">
-          {saveSuccess ? (
-            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-              <CheckCircle2 className="w-4 h-4" /> Saved!
-            </span>
-          ) : (
-            <span />
-          )}
+        {/* Modal Action Bar */}
+        <div className="shrink-0 flex items-center justify-between pt-3 mt-4 border-t border-cso">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg bg-cso-input border border-cso hover:bg-neutral-200 dark:hover:bg-[#27272a] text-neutral-700 dark:text-neutral-300 font-bold text-xs transition-colors"
+          >
+            Cancel
+          </button>
 
           <button
             type="submit"
             disabled={saving || uploadingFile}
-            className="px-5 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-neutral-100 dark:text-neutral-900 font-extrabold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md disabled:opacity-50 ml-auto"
+            className="px-5 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 font-extrabold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md disabled:opacity-50"
           >
-            <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Updates'}
+            {saving ? (
+              <span>Saving...</span>
+            ) : saveSuccess ? (
+              <>
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Saved Successfully!
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" /> Save Committee Details
+              </>
+            )}
           </button>
         </div>
 

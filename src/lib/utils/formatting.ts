@@ -89,32 +89,25 @@ export function getClientIp(req: NextRequest): string {
 
 /**
  * Auto-URL Helper: Resolves committee video filename or full URL.
- * Accepts filenames (e.g. 'gad_intro.mp4'), relative paths ('/videos/...'), or full URLs (YouTube / CDN).
  */
 export function getCommitteeVideoUrl(pathOrUrl?: string): string {
   if (!pathOrUrl || !pathOrUrl.trim()) return '';
   const trimmed = pathOrUrl.trim();
   
-  // If it's already a full HTTP/HTTPS URL or relative public path, return as is
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
     return trimmed;
   }
   
-  // Otherwise, automatically construct the Supabase Storage CDN public bucket URL using process.env
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   return `${supabaseUrl}/storage/v1/object/public/cso-videos/${trimmed}`;
 }
 
 /**
  * Formats raw student ID input by auto-appending prefixes based on character length and patterns.
- * Matches PHP autofill behavior:
- * - When 1st char is letter and length hits 4, appends '-01-' (e.g. 'AMAC' -> 'AMAC-01-')
- * - When 1st char is letter and length hits 12, appends '-MAN121' (e.g. 'AMAC-01-22-1' -> 'AMAC-01-22-1-MAN121')
  */
 export function formatStudentId(inputValue: string, prevValue: string = ''): string {
   let value = inputValue.toUpperCase();
 
-  // If user is deleting (backspacing), allow deleting without auto-appending again
   if (prevValue && value.length < prevValue.length) {
     return value;
   }

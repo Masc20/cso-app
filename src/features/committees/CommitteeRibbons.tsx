@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Palette, Gamepad2, Network, Code2, ArrowRight, Play } from 'lucide-react';
 import type { CommitteeRibbonsProps, Committee } from '@/types';
 import { CommitteeVideoModal } from '@/components/modals';
 import { fetchCommittees } from '@/features/admin';
-import { RibbonSkeleton } from '@/components/ui/Skeleton'
+import { RibbonSkeleton } from '@/components/ui/Skeleton';
 
 export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbonsProps) {
   const [selectedVideoCommittee, setSelectedVideoCommittee] = useState<Committee | null>(null);
@@ -29,60 +29,83 @@ export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbons
     loadDynamicCommittees();
   }, []);
 
-  const getCommitteeStyles = (comm: Committee) => {
-    const name = (comm.name || comm.id || '').toLowerCase();
-    
-    if (name.includes('g.a.d') || name.includes('gad')) {
+  const getCommitteeTheme = (comm: Committee) => {
+    const str = `${comm.themeColor || ''} ${comm.theme_color || ''} ${comm.id || ''} ${comm.name || ''} ${comm.shortName || ''} ${comm.short_name || ''}`.toLowerCase();
+
+    if (str.includes('amber') || str.includes('g.a.d') || str.includes('gad') || str.includes('art') || str.includes('design')) {
       return {
         icon: <Palette className="w-5 h-5 text-amber-500" />,
         borderBg: 'bg-amber-500/60 dark:bg-amber-400/50 group-hover:bg-amber-500',
-        hoverGlow: 'group-hover:drop-shadow-[0_15px_30px_rgba(245,158,11,0.45)] dark:group-hover:drop-shadow-[0_15px_35px_rgba(245,158,11,0.6)]',
+        glowClass: 'ribbon-glow-amber',
         accentLine: 'from-[#f59e0b] via-[#ec4899] to-[#10b981]',
-        ctaText: 'group-hover:text-amber-600 dark:group-hover:text-amber-400',
-        badgeBg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
+        badgeBg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30',
+        ctaHoverText: 'group-hover:text-amber-600 dark:group-hover:text-amber-400'
       };
     }
-    
-    if (name.includes('gaming')) {
+
+    if (str.includes('emerald') || str.includes('gaming') || str.includes('esports') || str.includes('game')) {
       return {
         icon: <Gamepad2 className="w-5 h-5 text-emerald-500" />,
         borderBg: 'bg-emerald-500/60 dark:bg-emerald-400/50 group-hover:bg-emerald-500',
-        hoverGlow: 'group-hover:drop-shadow-[0_15px_30px_rgba(16,185,129,0.45)] dark:group-hover:drop-shadow-[0_15px_35px_rgba(16,185,129,0.6)]',
+        glowClass: 'ribbon-glow-emerald',
         accentLine: 'from-[#10b981] to-[#059669]',
-        ctaText: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400',
-        badgeBg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+        badgeBg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
+        ctaHoverText: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400'
       };
     }
 
-    if (name.includes('networking')) {
+    if (str.includes('sky') || str.includes('networking') || str.includes('network') || str.includes('sysadmin') || str.includes('cyber')) {
       return {
         icon: <Network className="w-5 h-5 text-sky-500" />,
         borderBg: 'bg-sky-500/60 dark:bg-sky-400/50 group-hover:bg-sky-500',
-        hoverGlow: 'group-hover:drop-shadow-[0_15px_30px_rgba(14,165,233,0.45)] dark:group-hover:drop-shadow-[0_15px_35px_rgba(14,165,233,0.6)]',
+        glowClass: 'ribbon-glow-sky',
         accentLine: 'from-[#0ea5e9] to-[#0284c7]',
-        ctaText: 'group-hover:text-sky-600 dark:group-hover:text-sky-400',
-        badgeBg: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30'
+        badgeBg: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30',
+        ctaHoverText: 'group-hover:text-sky-600 dark:group-hover:text-sky-400'
       };
     }
 
-    if (name.includes('programming')) {
+    if (str.includes('rose') || str.includes('red')) {
       return {
-        icon: <Code2 className="w-5 h-5 text-fuchsia-500" />,
-        borderBg: 'bg-fuchsia-500/60 dark:bg-fuchsia-400/50 group-hover:bg-fuchsia-500',
-        hoverGlow: 'group-hover:drop-shadow-[0_15px_30px_rgba(217,70,239,0.45)] dark:group-hover:drop-shadow-[0_15px_35px_rgba(217,70,239,0.6)]',
-        accentLine: 'from-[#d946ef] to-[#c026d3]',
-        ctaText: 'group-hover:text-fuchsia-600 dark:group-hover:text-fuchsia-400',
-        badgeBg: 'bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 border-fuchsia-500/30'
+        icon: <Code2 className="w-5 h-5 text-rose-500" />,
+        borderBg: 'bg-rose-500/60 dark:bg-rose-400/50 group-hover:bg-rose-500',
+        glowClass: 'ribbon-glow-rose',
+        accentLine: 'from-[#f43f5e] to-[#e11d48]',
+        badgeBg: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30',
+        ctaHoverText: 'group-hover:text-rose-600 dark:group-hover:text-rose-400'
       };
     }
 
+    if (str.includes('indigo') || str.includes('purple')) {
+      return {
+        icon: <Code2 className="w-5 h-5 text-indigo-500" />,
+        borderBg: 'bg-indigo-500/60 dark:bg-indigo-400/50 group-hover:bg-indigo-500',
+        glowClass: 'ribbon-glow-indigo',
+        accentLine: 'from-[#6366f1] to-[#4f46e5]',
+        badgeBg: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30',
+        ctaHoverText: 'group-hover:text-indigo-600 dark:group-hover:text-indigo-400'
+      };
+    }
+
+    if (str.includes('violet')) {
+      return {
+        icon: <Code2 className="w-5 h-5 text-violet-500" />,
+        borderBg: 'bg-violet-500/60 dark:bg-violet-400/50 group-hover:bg-violet-500',
+        glowClass: 'ribbon-glow-violet',
+        accentLine: 'from-[#8b5cf6] to-[#7c3aed]',
+        badgeBg: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30',
+        ctaHoverText: 'group-hover:text-violet-600 dark:group-hover:text-violet-400'
+      };
+    }
+
+    // Default Programming / Fuchsia
     return {
-      icon: <Code2 className="w-5 h-5 text-sky-500" />,
-      borderBg: 'bg-sky-500/60 dark:bg-sky-400/50 group-hover:bg-sky-500',
-      hoverGlow: 'group-hover:drop-shadow-[0_15px_30px_rgba(14,165,233,0.45)] dark:group-hover:drop-shadow-[0_15px_35px_rgba(14,165,233,0.6)]',
-      accentLine: comm.accentColor || 'from-sky-500 to-sky-600',
-      ctaText: 'group-hover:text-sky-600 dark:group-hover:text-sky-400',
-      badgeBg: comm.badgeBg || 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30'
+      icon: <Code2 className="w-5 h-5 text-fuchsia-500" />,
+      borderBg: 'bg-fuchsia-500/60 dark:bg-fuchsia-400/50 group-hover:bg-fuchsia-500',
+      glowClass: 'ribbon-glow-fuchsia',
+      accentLine: comm.accentColor || 'from-[#d946ef] to-[#c026d3]',
+      badgeBg: comm.badgeBg || 'bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 border-fuchsia-500/30',
+      ctaHoverText: 'group-hover:text-fuchsia-600 dark:group-hover:text-fuchsia-400'
     };
   };
 
@@ -110,7 +133,7 @@ export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbons
         </p>
       </div>
 
-      {/* Dynamic Active Committee Banner Ribbons Grid */}
+      {/* 4 Committee Banner Ribbons Grid */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 items-stretch">
         {loading || committees.length === 0 ? (
           Array.from({ length: 4 }).map((_, idx) => (
@@ -118,22 +141,23 @@ export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbons
           ))
         ) : (
           committees.map((comm) => {
-            const styles = getCommitteeStyles(comm);
+            const shortName = comm.shortName || comm.short_name || comm.name;
+            const theme = getCommitteeTheme(comm);
 
             return (
               <div
                 key={comm.id}
                 onClick={() => onSelectCommittee(comm.name || comm.id)}
-                className={`ribbon-banner cursor-pointer group relative p-[2px] rounded-t-xl transition-all ${styles.hoverGlow}`}
+                className={`ribbon-banner cursor-pointer group relative p-[2px] rounded-t-xl transition-all ${theme.glowClass}`}
               >
                 {/* Outer Clipped Border Container Layer */}
-                <div className={`ribbon-clip w-full h-full p-[0.5px] rounded-t-xl transition-colors ${styles.borderBg}`}>
+                <div className={`ribbon-clip w-full h-full p-[0.5px] rounded-t-xl transition-colors ${theme.borderBg}`}>
                   
                   {/* Inner Card Content Container */}
-                  <div className="ribbon-clip w-full h-full bg-cso-card rounded-t-xl p-6 pb-16 flex flex-col items-center text-center relative overflow-hidden">
+                  <div className="ribbon-clip w-full h-full bg-cso-card rounded-t-xl p-6 pb-14 flex flex-col items-center text-center relative overflow-hidden">
                     
                     {/* Top Color Accent Line matching logo */}
-                    <div className={`absolute top-0 inset-x-0 h-2.5 bg-gradient-to-r ${styles.accentLine} rounded-t-xl`} />
+                    <div className={`absolute top-0 inset-x-0 h-2.5 bg-gradient-to-r ${theme.accentLine} rounded-t-xl`} />
 
                     {/* Circular Logo Container */}
                     <div className="relative mt-2 mb-3 w-24 h-24 sm:w-28 sm:h-28 rounded-full p-2 bg-cso-input shadow-md group-hover:scale-105 transition-transform flex items-center justify-center shrink-0">
@@ -154,19 +178,19 @@ export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbons
                         e.stopPropagation();
                         setSelectedVideoCommittee(comm);
                       }}
-                      className="mb-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white transition-all shadow-sm z-10"
+                      className="mb-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-black uppercase tracking-wider bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30 hover:bg-amber-500 hover:text-neutral-950 transition-all shadow-sm z-10"
                     >
                       <Play className="w-3 h-3 fill-current" /> Intro Video
                     </button>
 
                     {/* Committee Short Title */}
                     <h4 className="text-lg font-black tracking-tight text-neutral-900 dark:text-neutral-100 flex items-center justify-center gap-1.5">
-                      {comm.shortName || comm.short_name}
+                      {shortName}
                     </h4>
 
                     {/* Sub-badge */}
-                    <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-md border mt-2 ${styles.badgeBg}`}>
-                      {styles.icon} {comm.name}
+                    <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-md border mt-2 ${theme.badgeBg}`}>
+                      {theme.icon} {comm.name}
                     </span>
 
                     {/* Committee Brief */}
@@ -181,14 +205,14 @@ export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbons
                           key={idx} 
                           className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-cso-input text-neutral-800 dark:text-neutral-300 border border-cso"
                         >
-                          {tag}
+                          #{tag}
                         </span>
                       ))}
                     </div>
 
                     {/* CTA Arrow Button */}
-                    <div className={`mt-5 pt-3 border-t border-cso w-full flex items-center justify-center gap-1.5 text-xs font-bold text-neutral-800 dark:text-neutral-200 ${styles.ctaText} transition-colors`}>
-                      Join {comm.shortName || comm.short_name} <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    <div className={`mt-5 pt-3 border-t border-cso w-full flex items-center justify-center gap-1.5 text-xs font-bold text-neutral-800 dark:text-neutral-200 ${theme.ctaHoverText} transition-colors`}>
+                      Join {shortName} <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                     </div>
 
                   </div>
@@ -201,12 +225,14 @@ export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbons
       </div>
 
       {/* Centralized Committee Video Modal Primitive */}
-      <CommitteeVideoModal
-        isOpen={Boolean(selectedVideoCommittee)}
-        committee={selectedVideoCommittee}
-        onClose={() => setSelectedVideoCommittee(null)}
-        onApply={(committeeId) => onSelectCommittee(committeeId)}
-      />
+      {selectedVideoCommittee && (
+        <CommitteeVideoModal
+          isOpen={Boolean(selectedVideoCommittee)}
+          committee={selectedVideoCommittee}
+          onClose={() => setSelectedVideoCommittee(null)}
+          onApply={(committeeId) => onSelectCommittee(committeeId)}
+        />
+      )}
 
     </section>
   );

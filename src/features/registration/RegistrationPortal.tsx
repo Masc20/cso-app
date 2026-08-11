@@ -1,18 +1,19 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Send, CheckCircle2, AlertCircle, User, Link as LinkIcon, GraduationCap, Code, ShieldCheck, Lock, ExternalLink, Clock, Loader2, Sparkles } from 'lucide-react';
+import { Send, CheckCircle2, AlertCircle, User, Link as LinkIcon, GraduationCap, Code, ExternalLink, Clock, Loader2, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { FloatingInput, FloatingTextarea, FloatingSelect } from '@/components/ui';
 import { fetchRegistrationStatus, fetchCommittees } from '@/features/admin';
 import { sanitizeString, isValidFacebookUrl, isValidHttpUrl, formatStudentId, normalizeUrlInput } from '@/lib/utils';
 import { useToast } from '@/hooks';
-import { COURSE_OPTIONS, YEAR_LEVEL_OPTIONS, COMMITTEE_OPTIONS } from '@/data';
-import type { RegistrationPortalProps } from '@/types';
+import { COURSE_OPTIONS, YEAR_LEVEL_OPTIONS } from '@/data';
+import type { RegistrationPortalProps, Committee } from '@/types';
 
 export default function RegistrationPortal({ selectedCommittee }: RegistrationPortalProps) {
   const { showToast } = useToast();
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
+  const [activeCommittees, setActiveCommittees] = useState<Committee[]>([]);
   const [formData, setFormData] = useState({
     studentId: '',
     firstName: '',
@@ -93,11 +94,19 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
   const isFormValid = Object.keys(fieldErrors).length === 0;
 
   useEffect(() => {
-    const checkStatus = async () => {
+    const checkStatusAndCommittees = async () => {
       const open = await fetchRegistrationStatus();
       setIsRegistrationOpen(open);
+      try {
+        const comms = await fetchCommittees(false);
+        if (comms && comms.length > 0) {
+          setActiveCommittees(comms);
+        }
+      } catch (err) {
+        console.warn('Failed to load active committees for form:', err);
+      }
     };
-    checkStatus();
+    checkStatusAndCommittees();
   }, []);
 
   useEffect(() => {
@@ -130,7 +139,6 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Mark ALL fields as touched to show errors if form is submitted with missing/invalid inputs
     setTouchedFields({
       firstName: true,
       lastName: true,
@@ -199,123 +207,113 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
       setTouchedFields({});
       showToast('Application submitted successfully!', 'success');
 
-      // Trigger Confetti Celebration
       try {
         confetti({
-          particleCount: 120,
-          spread: 80,
+          particleCount: 80,
+          spread: 70,
           origin: { y: 0.6 }
         });
-      } catch (err) {
-        console.log('Confetti triggered', err);
+      } catch {
+        // Confetti fallback
       }
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       setLoading(false);
-      setErrorMsg(err?.message || 'Network error during submission. Please check your connection.');
+      const msg = err instanceof Error ? err.message : 'Connection error. Please try again.';
+      setErrorMsg(msg);
     }
   };
 
-  const [dynamicCommittees, setDynamicCommittees] = useState<{ id: string; label: string }[]>([...COMMITTEE_OPTIONS]);
+  const handleResetForm = () => {
+    setFormData({
+      studentId: '',
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      facebookLink: '',
+      yearLevel: '',
+      courseProgram: '',
+      primaryCommittee: '',
+      secondaryCommittee: 'None',
+      portfolioUrl: '',
+      motivationStatement: ''
+    });
+    setSuccess(false);
+    setErrorMsg('');
+    setTouchedFields({});
+  };
 
-  useEffect(() => {
-    const loadDynamicCommittees = async () => {
-      const live = await fetchCommittees(false);
-      if (live && live.length > 0) {
-        setDynamicCommittees(live.map(c => ({ id: c.name, label: c.name })));
-      }
-    };
-    loadDynamicCommittees();
-  }, []);
+  const committeeSelectOptions = useMemo(() => {
+    const list = activeCommittees.length > 0
+      ? activeCommittees.map(c => ({ value: c.name, label: c.name }))
+      : [
+          { value: 'G.A.D Committee', label: 'G.A.D Committee' },
+          { value: 'Gaming Committee', label: 'Gaming Committee' },
+          { value: 'Networking Committee', label: 'Networking Committee' },
+          { value: 'Programming Committee', label: 'Programming Committee' }
+        ];
 
-  const committeeSelectOptions = dynamicCommittees.map(c => ({ value: c.id || c.label, label: c.label }));
-  
-  // Filter out the selected primary committee from the secondary committee options list
-  const secondaryCommitteeOptions = [
-    { value: 'None', label: 'None' },
-    ...committeeSelectOptions.filter(c => c.value !== formData.primaryCommittee)
-  ];
+    return list;
+  }, [activeCommittees]);
+
+  const secondaryCommitteeOptions = useMemo(() => {
+    const baseOptions = [{ value: 'None', label: 'None (Primary Only)' }];
+    const filtered = committeeSelectOptions.filter(opt => opt.value !== formData.primaryCommittee);
+    return [...baseOptions, ...filtered];
+  }, [committeeSelectOptions, formData.primaryCommittee]);
+
+  const activeCommitteesMap = useMemo(() => {
+    const map = new Map<string, Committee>();
+    activeCommittees.forEach(c => map.set(c.name, c));
+    return map;
+  }, [activeCommittees]);
 
   return (
-    <section id="register" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="bg-cso-card border-2 border-cso rounded-xl p-6 sm:p-10 shadow-xl relative overflow-hidden">
+    <section id="register" className="relative w-full py-16 px-4 bg-[#e5e5df] dark:bg-[#121215] transition-colors">
+      <div className="max-w-3xl mx-auto bg-cso-card border border-cso rounded-2xl p-6 sm:p-10 shadow-2xl space-y-6">
         
-        {/* Top Decorative Color Line */}
-        <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-amber-500 via-emerald-500 to-fuchsia-500" />
-
         {/* Section Header */}
-        <div className="text-center mb-8">
-          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold border ${
-            isRegistrationOpen
-              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
-              : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30'
-          }`}>
-            {isRegistrationOpen ? <ShieldCheck className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
-            {isRegistrationOpen ? 'Secure Registration Portal' : 'Registration Portal Closed'}
+        <div className="text-center space-y-2 border-b border-cso pb-6">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+            <Sparkles className="w-3.5 h-3.5" /> Official Registration Portal
           </span>
-          <h3 className="text-3xl font-extrabold text-neutral-900 dark:text-neutral-100 mt-2">
-            Join a CSO Committee
-          </h3>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1 font-medium">
-            {isRegistrationOpen
-              ? 'Fill out the registration details below to apply for your preferred committee.'
-              : 'Registration is currently closed by the Computer Studies Organization (CSO).'}
+          <h2 className="text-2xl sm:text-4xl font-black text-neutral-900 dark:text-neutral-100 tracking-tight">
+            Apply for CSO Committee Membership
+          </h2>
+          <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 font-medium">
+            Fill in your details below to join the Computer Studies Organization for School Year 2025-2026.
           </p>
         </div>
 
-        {/* CLOSED REGISTRATION BANNER NOTICE */}
-        {!isRegistrationOpen ? (
-          <div className="py-10 px-6 text-center bg-[#f4f4f2] dark:bg-[#18181b] border border-cso rounded-xl space-y-4 my-4">
-            <div className="w-16 h-16 bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-full flex items-center justify-center mx-auto border border-rose-500/30">
-              <Lock className="w-8 h-8" />
-            </div>
-            <h4 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-              Committee Registration is Currently Closed
-            </h4>
-            <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 max-w-lg mx-auto leading-relaxed">
-              Applications for the current semester recruitment drive have been closed by CSO officers. Stay tuned to our official Facebook page for announcements on future workshops, events, and recruitment rounds!
+        {/* Closed Registration Banner */}
+        {!isRegistrationOpen && (
+          <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-center space-y-2">
+            <Clock className="w-8 h-8 mx-auto" />
+            <h3 className="text-lg font-black uppercase tracking-wider">Recruitment Portal Closed</h3>
+            <p className="text-xs font-medium max-w-md mx-auto">
+              CSO committee registration is currently closed or under officer review. Please check back later or contact an officer.
             </p>
-            <div className="pt-2">
-              <a
-                href="https://www.facebook.com/profile.php?id=100094218363222"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1877f2] text-white font-extrabold text-xs uppercase tracking-wider hover:opacity-90 shadow-md"
-              >
-                Follow Official CSO Facebook Page <ExternalLink className="w-4 h-4" />
-              </a>
-            </div>
           </div>
-        ) : success ? (
-          <div className="py-12 text-center space-y-4">
-            <div className="w-16 h-16 bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 rounded-full flex items-center justify-center mx-auto border border-emerald-500/30">
+        )}
+
+        {/* Success Confirmation Card */}
+        {success ? (
+          <div className="p-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-4 animate-scale-up">
+            <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center mx-auto shadow-md">
               <CheckCircle2 className="w-10 h-10" />
             </div>
-            <h4 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-              Application Submitted Successfully!
-            </h4>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 max-w-md mx-auto">
-              Thank you, <span className="font-semibold text-neutral-900 dark:text-neutral-100">{formData.firstName} {formData.lastName}</span>! Your registration for <span className="font-semibold text-amber-600 dark:text-amber-400">{formData.primaryCommittee}</span> has been logged. We will reach out via your Facebook account.
-            </p>
+            <div>
+              <h3 className="text-xl sm:text-2xl font-black text-neutral-900 dark:text-neutral-100">
+                Application Submitted Successfully!
+              </h3>
+              <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 mt-2 font-medium max-w-md mx-auto leading-relaxed">
+                Thank you for applying to join the Computer Studies Organization! Your application has been logged. Our officers will review your submission and reach out via Facebook.
+              </p>
+            </div>
+            
             <button
-              onClick={() => {
-                setSuccess(false);
-                setFormData({
-                  studentId: '',
-                  firstName: '',
-                  middleName: '',
-                  lastName: '',
-                  facebookLink: '',
-                  yearLevel: '',
-                  courseProgram: '',
-                  primaryCommittee: 'Programming Committee',
-                  secondaryCommittee: 'None',
-                  portfolioUrl: '',
-                  motivationStatement: ''
-                });
-                setTouchedFields({});
-              }}
-              className="mt-4 px-6 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 text-white font-bold text-xs uppercase tracking-wider min-h-[36px]"
+              onClick={handleResetForm}
+              className="mt-4 px-6 py-2.5 rounded-lg bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 font-extrabold text-xs uppercase tracking-wider hover:bg-neutral-800 dark:hover:bg-white transition-colors shadow-md"
             >
               Submit Another Application
             </button>

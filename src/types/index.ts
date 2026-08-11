@@ -11,8 +11,6 @@ import type { LucideIcon } from 'lucide-react';
  * 1. DOMAIN ENTITY MODELS
  * -------------------------------------------------------------------- */
 
-
-
 export interface OfficerProfile {
   id: string;
   email: string;
@@ -48,6 +46,8 @@ export interface Committee {
   short_name?: string;
   description: string;
   logo: string;
+  themeColor?: string;
+  theme_color?: string;
   accentColor?: string;
   borderGlow?: string;
   badgeBg?: string;
@@ -229,20 +229,11 @@ export interface CommitteeManagementTableProps {
   onRefresh: () => void;
 }
 
-export interface EditCommitteeModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  committee: Committee | null;
-  onSave: (committeeData: Partial<Committee>) => Promise<boolean>;
-  isSuperAdmin: boolean;
-}
-
 export interface OfficerManagementTableProps {
   officers: OfficerProfile[];
   onUpdateOfficer: (id: string, role: 'super_admin' | 'officer', committee: OfficerProfile['assigned_committee']) => Promise<boolean>;
   onRefresh: () => void;
 }
-
 
 export interface ToastContextValue {
   showToast: (message: string, type?: ToastType) => void;
