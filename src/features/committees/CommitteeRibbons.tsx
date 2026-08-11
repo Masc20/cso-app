@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Palette, Gamepad2, Network, Code2, ArrowRight, Play } from 'lucide-react';
+import { ArrowRight, Play } from 'lucide-react';
 import type { CommitteeRibbonsProps, Committee } from '@/types';
 import { CommitteeVideoModal } from '@/components/modals';
 import { fetchCommittees } from '@/features/admin';
 import { RibbonSkeleton } from '@/components/ui/Skeleton';
+import { resolveCommitteeTheme, getCommitteeIcon } from '@/config/committeeThemes';
 
 export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbonsProps) {
   const [selectedVideoCommittee, setSelectedVideoCommittee] = useState<Committee | null>(null);
@@ -28,86 +29,6 @@ export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbons
     };
     loadDynamicCommittees();
   }, []);
-
-  const getCommitteeTheme = (comm: Committee) => {
-    const str = `${comm.themeColor || ''} ${comm.theme_color || ''} ${comm.id || ''} ${comm.name || ''} ${comm.shortName || ''} ${comm.short_name || ''}`.toLowerCase();
-
-    if (str.includes('amber') || str.includes('g.a.d') || str.includes('gad') || str.includes('art') || str.includes('design')) {
-      return {
-        icon: <Palette className="w-5 h-5 text-amber-500" />,
-        borderBg: 'bg-amber-500/60 dark:bg-amber-400/50 group-hover:bg-amber-500',
-        glowClass: 'ribbon-glow-amber',
-        accentLine: 'from-[#f59e0b] via-[#ec4899] to-[#10b981]',
-        badgeBg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30',
-        ctaHoverText: 'group-hover:text-amber-600 dark:group-hover:text-amber-400'
-      };
-    }
-
-    if (str.includes('emerald') || str.includes('gaming') || str.includes('esports') || str.includes('game')) {
-      return {
-        icon: <Gamepad2 className="w-5 h-5 text-emerald-500" />,
-        borderBg: 'bg-emerald-500/60 dark:bg-emerald-400/50 group-hover:bg-emerald-500',
-        glowClass: 'ribbon-glow-emerald',
-        accentLine: 'from-[#10b981] to-[#059669]',
-        badgeBg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
-        ctaHoverText: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400'
-      };
-    }
-
-    if (str.includes('sky') || str.includes('networking') || str.includes('network') || str.includes('sysadmin') || str.includes('cyber')) {
-      return {
-        icon: <Network className="w-5 h-5 text-sky-500" />,
-        borderBg: 'bg-sky-500/60 dark:bg-sky-400/50 group-hover:bg-sky-500',
-        glowClass: 'ribbon-glow-sky',
-        accentLine: 'from-[#0ea5e9] to-[#0284c7]',
-        badgeBg: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30',
-        ctaHoverText: 'group-hover:text-sky-600 dark:group-hover:text-sky-400'
-      };
-    }
-
-    if (str.includes('rose') || str.includes('red')) {
-      return {
-        icon: <Code2 className="w-5 h-5 text-rose-500" />,
-        borderBg: 'bg-rose-500/60 dark:bg-rose-400/50 group-hover:bg-rose-500',
-        glowClass: 'ribbon-glow-rose',
-        accentLine: 'from-[#f43f5e] to-[#e11d48]',
-        badgeBg: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30',
-        ctaHoverText: 'group-hover:text-rose-600 dark:group-hover:text-rose-400'
-      };
-    }
-
-    if (str.includes('indigo') || str.includes('purple')) {
-      return {
-        icon: <Code2 className="w-5 h-5 text-indigo-500" />,
-        borderBg: 'bg-indigo-500/60 dark:bg-indigo-400/50 group-hover:bg-indigo-500',
-        glowClass: 'ribbon-glow-indigo',
-        accentLine: 'from-[#6366f1] to-[#4f46e5]',
-        badgeBg: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/30',
-        ctaHoverText: 'group-hover:text-indigo-600 dark:group-hover:text-indigo-400'
-      };
-    }
-
-    if (str.includes('violet')) {
-      return {
-        icon: <Code2 className="w-5 h-5 text-violet-500" />,
-        borderBg: 'bg-violet-500/60 dark:bg-violet-400/50 group-hover:bg-violet-500',
-        glowClass: 'ribbon-glow-violet',
-        accentLine: 'from-[#8b5cf6] to-[#7c3aed]',
-        badgeBg: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30',
-        ctaHoverText: 'group-hover:text-violet-600 dark:group-hover:text-violet-400'
-      };
-    }
-
-    // Default Programming / Fuchsia
-    return {
-      icon: <Code2 className="w-5 h-5 text-fuchsia-500" />,
-      borderBg: 'bg-fuchsia-500/60 dark:bg-fuchsia-400/50 group-hover:bg-fuchsia-500',
-      glowClass: 'ribbon-glow-fuchsia',
-      accentLine: comm.accentColor || 'from-[#d946ef] to-[#c026d3]',
-      badgeBg: comm.badgeBg || 'bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 border-fuchsia-500/30',
-      ctaHoverText: 'group-hover:text-fuchsia-600 dark:group-hover:text-fuchsia-400'
-    };
-  };
 
   return (
     <section id="committees" className="relative w-full bg-[#e5e5df] dark:bg-[#121215] pt-20 pb-20 px-4 mt-20 transition-colors border-y border-[#d0d0c8] dark:border-[#27272a]">
@@ -142,7 +63,8 @@ export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbons
         ) : (
           committees.map((comm) => {
             const shortName = comm.shortName || comm.short_name || comm.name;
-            const theme = getCommitteeTheme(comm);
+            const theme = resolveCommitteeTheme(comm);
+            const icon = getCommitteeIcon(shortName);
 
             return (
               <div
@@ -190,7 +112,7 @@ export default function CommitteeRibbons({ onSelectCommittee }: CommitteeRibbons
 
                     {/* Sub-badge */}
                     <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-md border mt-2 ${theme.badgeBg}`}>
-                      {theme.icon} {comm.name}
+                      {icon} {comm.name}
                     </span>
 
                     {/* Committee Brief */}

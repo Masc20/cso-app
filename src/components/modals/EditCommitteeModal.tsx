@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Video, Trash2, Upload, Link as LinkIcon, CheckCircle2, Save, Layers } from 'lucide-react';
+import { X, Video, Trash2, Upload, Link as LinkIcon, CheckCircle2, Save, Layers, Palette } from 'lucide-react';
 import type { Committee, EditCommitteeModalProps } from '@/types';
-import { Modal, FloatingInput, FloatingTextarea } from '@/components/ui';
+import { Modal, FloatingInput, FloatingTextarea, FloatingSelect } from '@/components/ui';
 import { supabase } from '@/lib/supabase';
+import { THEME_COLOR_OPTIONS } from '@/config/committeeThemes';
 
 export default function EditCommitteeModal({
   isOpen,
@@ -17,6 +18,7 @@ export default function EditCommitteeModal({
   const [shortName, setShortName] = useState('');
   const [description, setDescription] = useState('');
   const [logo, setLogo] = useState('/cso-logo.png');
+  const [themeColor, setThemeColor] = useState('fuchsia');
   const [tagsInput, setTagsInput] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
   const [videoTitle, setVideoTitle] = useState('');
@@ -33,6 +35,7 @@ export default function EditCommitteeModal({
       setShortName(committee.shortName || committee.short_name || '');
       setDescription(committee.description || '');
       setLogo(committee.logo || '/cso-logo.png');
+      setThemeColor(committee.themeColor || committee.theme_color || 'fuchsia');
       setTagsInput(Array.isArray(committee.tags) ? committee.tags.join(', ') : '');
       setVideoUrl(committee.videoUrl || committee.video_url || '');
       setVideoTitle(committee.videoTitle || committee.video_title || '');
@@ -43,6 +46,7 @@ export default function EditCommitteeModal({
       setShortName('');
       setDescription('');
       setLogo('/cso-logo.png');
+      setThemeColor('fuchsia');
       setTagsInput('');
       setVideoUrl('');
       setVideoTitle('');
@@ -68,7 +72,7 @@ export default function EditCommitteeModal({
       const fileName = `${committee?.id || 'comm'}_${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from('cso-videos')
         .upload(filePath, file, { upsert: true });
 
@@ -110,6 +114,8 @@ export default function EditCommitteeModal({
       short_name: shortName || name.split(' ')[0],
       description,
       logo: logo || '/cso-logo.png',
+      themeColor,
+      theme_color: themeColor,
       tags: parsedTags,
       videoUrl: videoUrl.trim() || undefined,
       video_url: videoUrl.trim() || undefined,
@@ -194,8 +200,17 @@ export default function EditCommitteeModal({
             onChange={e => setDescription(e.target.value)}
           />
 
-          {/* Tags & Logo */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Theme Color, Tags & Logo */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <FloatingSelect
+              label="Brand Theme Color"
+              icon={<Palette className="w-4 h-4 text-neutral-500" />}
+              options={THEME_COLOR_OPTIONS}
+              value={themeColor}
+              disabled={!isSuperAdmin}
+              onChange={e => setThemeColor(e.target.value)}
+            />
+
             <FloatingInput
               label="Tags (Comma separated)"
               placeholder="e.g. Coding, Hackathons, Web"

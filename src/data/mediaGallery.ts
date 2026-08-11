@@ -31,8 +31,15 @@ export const MEDIA_ITEMS: MediaItem[] = [
     id: 'officers-1',
     title: 'CSO Executive Officers, Committee Heads, & Mayors (2025-2026)',
     category: 'Officers',
-    src: '/imgs/CSO Officers.jpg',
+    src: '/imgs/Officers/CSO Officers 2026.jpg',
     subtitle: 'Leading the Computer Studies Organization towards tech excellence.'
+  },
+  {
+    id: 'officers-2',
+    title: 'CSO Officers the big PAYB',
+    category: 'Officers',
+    src: '/imgs/Officers/The Big Payb.jpg',
+    subtitle: 'Netwoking at Latitude'
   },
 
   // All Documented Activities
@@ -49,6 +56,13 @@ export const MEDIA_ITEMS: MediaItem[] = [
     category: 'Activities',
     src: '/imgs/Activities/DOSTHUB/DOSTHUB2.jpg',
     subtitle: 'Demonstrating student prototypes and research at the DOST Hub Expo.'
+  },
+  {
+    id: 'act-dosthub-3',
+    title: 'DOST Hub Tech Expo',
+    category: 'Activities',
+    src: '/imgs/Activities/DOSTHUB/DOSTHUB3.jpg',
+    subtitle: 'CSO Headlines at the DOST iHub Expo.'
   },
   {
     id: 'act-ethph-1',
