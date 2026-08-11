@@ -257,7 +257,7 @@ export default function RegistrationPortal({ selectedCommittee }: RegistrationPo
   }, [activeCommittees]);
 
   const secondaryCommitteeOptions = useMemo(() => {
-    const baseOptions = [{ value: 'None', label: 'None (Primary Only)' }];
+    const baseOptions = [{ value: 'None', label: 'None' }];
     const filtered = committeeSelectOptions.filter(opt => opt.value !== formData.primaryCommittee);
     return [...baseOptions, ...filtered];
   }, [committeeSelectOptions, formData.primaryCommittee]);
