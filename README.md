@@ -57,6 +57,9 @@ src/
 │       ├── Toast.tsx           # Reusable Toast Notification Item
 │       └── index.ts            # UI Primitives Barrel Export
 │
+├── config/                     # Single-Source-of-Truth App Configurations
+│   └── committeeThemes.tsx     # Scalable Committee Theme System & Preset Resolver
+│
 ├── context/                    # Global React Context Providers
 │   └── ToastContext.tsx        # Non-overlapping Vertical Stacked Toast Provider
 │
@@ -107,27 +110,25 @@ src/
 
 ## Key Capabilities & System Features
 
-1. **Centralized Primitive `<Table>` & `<TablePagination>` System**:
+1. **Scalable Single-Source-of-Truth Theme Architecture (`src/config/committeeThemes.tsx`)**:
+   - Centralized theme tokens (`borderBg`, `glowClass`, `accentLine`, `badgeBg`, `ctaHoverText`).
+   - Easily scalable: adding a new color palette (e.g. `amber`, `emerald`, `sky`, `fuchsia`, `rose`, `indigo`, `violet`) takes under 30 seconds by updating a single configuration file.
+   - Dynamic resolver `resolveCommitteeTheme()` automatically inspects `theme_color` / `themeColor` or falls back gracefully to title keyword matching.
+
+2. **Centralized Primitive `<Table>` & `<TablePagination>` System**:
    - Sticky top headers (`sticky top-0 z-20 bg-[#f4f4f2] dark:bg-[#121215]`), max-height scroll containers (`max-h-[65vh]`), and dynamic pagination controls (`5`, `10`, `25`, `50` rows per page with first/last page guards).
 
-2. **Global Non-Overlapping Toast System (`ToastProvider`)**:
+3. **Global Non-Overlapping Toast System (`ToastProvider`)**:
    - Managed globally via `useToast()` hook. Toasts render in a non-overlapping vertical flex column stack (`flex flex-col-reverse gap-2.5 items-end`).
    - Independent 3.5-second auto-dismiss timers per toast and dynamic light/dark theme adaptation.
 
-3. **Multi-Tier Officer Role-Based Access Control (RBAC)**:
+4. **Multi-Tier Officer Role-Based Access Control (RBAC)**:
    - **Super Admin**: Full access to global analytics, officer role editing (`super_admin` vs `officer`), committee scope assignment, committee deletion, and recruitment gate toggling.
    - **Committee Officer**: Hard-locked view to their assigned committee applicants (e.g. `G.A.D Committee`, `Gaming Committee`, `Networking Committee`, `Programming Committee`) with scope lock indicators (`Scope Locked`).
 
-4. **Dynamic Supabase Committee & Video Showcase Manager**:
+5. **Dynamic Supabase Committee & Video Showcase Manager**:
    - Live synchronization with Supabase `cso_committees` table.
    - Integrated MP4 video showcase upload directly to Supabase Storage (`cso-videos` bucket) or external YouTube/embed link support.
-
-5. **Signature Committee Brand Color System**:
-   - Dynamic brand badge highlights, dropdown options, and card hover ambient glows:
-     - 🟡 **G.A.D**: Warm Amber
-     - 🟢 **Gaming**: Esports Emerald Green
-     - 🔵 **Networking**: Cyber Sky Blue
-     - 🟣 **Programming**: Neon Fuchsia Purple
 
 6. **Native Geometry Polygon Skeleton Loading**:
    - `RibbonSkeleton` matches the exact downwards polygon clip-path (`.ribbon-clip`) and circular logo outline during async Supabase data fetching.
@@ -228,9 +229,10 @@ CREATE TABLE IF NOT EXISTS public.cso_committees (
     short_name TEXT NOT NULL,
     description TEXT NOT NULL,
     logo TEXT NOT NULL DEFAULT '/imgs/CSOLOGO.png',
-    accent_color TEXT DEFAULT 'from-amber-500 to-amber-600',
-    border_glow TEXT DEFAULT 'hover:border-amber-500/50',
-    badge_bg TEXT DEFAULT 'bg-amber-500/10 text-amber-500 border-amber-500/30',
+    theme_color TEXT DEFAULT 'sky',
+    accent_color TEXT DEFAULT 'from-sky-500 to-sky-600',
+    border_glow TEXT DEFAULT 'hover:border-sky-500/50',
+    badge_bg TEXT DEFAULT 'bg-sky-500/10 text-sky-500 border-sky-500/30',
     tags JSONB DEFAULT '[]'::jsonb,
     video_url TEXT,
     video_poster TEXT,
