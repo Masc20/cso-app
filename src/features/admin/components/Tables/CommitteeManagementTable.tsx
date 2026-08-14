@@ -1,3 +1,10 @@
+/**
+ *  TODO: 
+ *    - fix this spaghetti logic
+ *      - first centralized the color into one column called (theme)
+ *      - add a option to change the icons of each new and old ribbons
+ */
+
 'use client';
 
 import React, { useState } from 'react';

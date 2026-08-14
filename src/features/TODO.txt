@@ -1,0 +1,5 @@
+this file is for Global or multi change TODOs
+
+1. all tables must have a multi delete function
+2. update the migration file
+3. check all files for TODOs:

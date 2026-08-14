@@ -1,3 +1,17 @@
+/*
+ * TODO: 
+ *  - fix the approval flow
+ *    - chairman has the power to automatically approve one or more applicants (you can suggest who else)
+ *  
+ * 
+ * FUTURE FEATURE: 
+ *  - add a automatic msg function to automatically sends a msg to that specified to the applicants and committees
+ *    - Sample msg: 
+ *      - "You have been acccepted to join the '(one Committee)', please msg '(Committee leaders gmail or fb) for futher processing...'
+ * 
+ */
+
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
