@@ -12,6 +12,8 @@ export const COURSE_OPTIONS = [
   ['BSA', 'BSA (Accounting)'],
   ['BSBA', 'BSBA (Business Administration)'],
   ['BSHM', 'BSHM (Hotel Management)'],
+  ['WADT', 'WADT (Web Application Developement Technology)'],
+  ['HRT', 'HRT (Hotel and Restauran Technology)'],
   ['Other Senior High / Tech Track', 'Other Senior High / Tech Track'],
 ] as const;
 
