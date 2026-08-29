@@ -109,6 +109,9 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500 dark:text-neutral-400 font-medium">
           <p>&copy; {new Date().getFullYear()} {CAMPUS_INFO.organizationName}. All rights reserved.</p>
+          <p>
+            Maintained by ACLC College of Mandaue - Computer Studies Organization (CSO) 
+          </p>
           <p className="flex items-center gap-1">
             Developed by Melecio Andre Cabahug - CSO (2025 - 2026) Internal Vice Chairman
           </p>

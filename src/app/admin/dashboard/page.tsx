@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuth, useDarkMode, useToast } from '@/hooks';
-import { AdminSidebar } from '@/components/layout';
+import { AdminSidebar, AdminFooter } from '@/components/layout';
 import { 
   AdminDashboardOverview, 
   ApplicationsTable, 
@@ -181,7 +181,6 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-cso-page flex flex-col md:flex-row transition-colors">
-      
       {/* Sidebar Navigation */}
       <AdminSidebar
         activeTab={activeTab}
@@ -190,85 +189,90 @@ export default function AdminDashboardPage() {
         profile={profile}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
-        
-        {/* Top Header Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-cso">
-          <div>
-            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-              Computer Studies Organization &bull; Command Center
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-neutral-100 tracking-tight mt-0.5">
-              {activeTab === 'dashboard' && 'Executive Overview'}
-              {activeTab === 'applications' && 'Applicant Records'}
-              {activeTab === 'committees' && 'Committees & Video Showcases'}
-              {activeTab === 'officers' && 'Officer Management'}
-            </h1>
+      {/* Main Content Column */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+        <main className="flex-1 p-4 sm:p-8">
+          
+          {/* Top Header Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-cso">
+            <div>
+              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+                Computer Studies Organization &bull; Command Center
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-black text-neutral-900 dark:text-neutral-100 tracking-tight mt-0.5">
+                {activeTab === 'dashboard' && 'Executive Overview'}
+                {activeTab === 'applications' && 'Applicant Records'}
+                {activeTab === 'committees' && 'Committees & Video Showcases'}
+                {activeTab === 'officers' && 'Officer Management'}
+              </h1>
+            </div>
+
+            {/* Quick Action Controls */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={loadDashboardData}
+                className="p-2.5 rounded-lg border border-cso bg-cso-card hover:bg-neutral-200 dark:hover:bg-[#27272a] text-neutral-700 dark:text-neutral-300 transition-colors shadow-sm"
+                title="Refresh Data"
+              >
+                <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin text-amber-500' : ''}`} />
+              </button>
+
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className="p-2.5 rounded-lg border border-cso bg-cso-card hover:bg-neutral-200 dark:hover:bg-[#27272a] text-neutral-700 dark:text-neutral-300 transition-colors shadow-sm"
+                title="Toggle Light/Dark Theme"
+              >
+                {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-neutral-700" />}
+              </button>
+            </div>
           </div>
 
-          {/* Quick Action Controls */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={loadDashboardData}
-              className="p-2.5 rounded-lg border border-cso bg-cso-card hover:bg-neutral-200 dark:hover:bg-[#27272a] text-neutral-700 dark:text-neutral-300 transition-colors shadow-sm"
-              title="Refresh Data"
-            >
-              <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin text-amber-500' : ''}`} />
-            </button>
+          {/* Tab 1: Executive Dashboard Overview */}
+          {activeTab === 'dashboard' && (
+            <AdminDashboardOverview
+              applications={allApplications}
+              officers={officers}
+              onNavigateTab={(tab: 'overview' | 'applications' | 'officers' | 'dashboard') => setActiveTab(tab)}
+              isRegistrationOpen={isRegistrationOpen}
+              onToggleRegistration={handleToggleRegistration}
+            />
+          )}
 
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2.5 rounded-lg border border-cso bg-cso-card hover:bg-neutral-200 dark:hover:bg-[#27272a] text-neutral-700 dark:text-neutral-300 transition-colors shadow-sm"
-              title="Toggle Light/Dark Theme"
-            >
-              {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-neutral-700" />}
-            </button>
-          </div>
-        </div>
+          {/* Tab 2: Applicant Records Table */}
+          {activeTab === 'applications' && (
+            <ApplicationsTable
+              applications={scopedApplications}
+              onSelectApplication={(app) => setSelectedApplication(app)}
+              userAssignedCommittee={assignedScope}
+            />
+          )}
 
-        {/* Tab 1: Executive Dashboard Overview */}
-        {activeTab === 'dashboard' && (
-          <AdminDashboardOverview
-            applications={allApplications}
-            officers={officers}
-            onNavigateTab={(tab: 'overview' | 'applications' | 'officers' | 'dashboard') => setActiveTab(tab)}
-            isRegistrationOpen={isRegistrationOpen}
-            onToggleRegistration={handleToggleRegistration}
-          />
-        )}
+          {/* Tab 3: Committees & Video Showcase Manager */}
+          {activeTab === 'committees' && (
+            <CommitteeManagementTable
+              committees={committees}
+              officerProfile={profile}
+              onSaveCommittee={handleSaveCommittee}
+              onToggleActive={handleToggleCommitteeActive}
+              onDeleteCommittee={handleDeleteCommittee}
+              onRefresh={loadDashboardData}
+            />
+          )}
 
-        {/* Tab 2: Applicant Records Table */}
-        {activeTab === 'applications' && (
-          <ApplicationsTable
-            applications={scopedApplications}
-            onSelectApplication={(app) => setSelectedApplication(app)}
-            userAssignedCommittee={assignedScope}
-          />
-        )}
+          {/* Tab 4: Officer Management Table (Super Admin Only) */}
+          {activeTab === 'officers' && isSuperAdmin && (
+            <OfficerManagementTable
+              officers={officers}
+              onUpdateOfficer={handleUpdateOfficerPermissions}
+              onRefresh={loadDashboardData}
+            />
+          )}
 
-        {/* Tab 3: Committees & Video Showcase Manager */}
-        {activeTab === 'committees' && (
-          <CommitteeManagementTable
-            committees={committees}
-            officerProfile={profile}
-            onSaveCommittee={handleSaveCommittee}
-            onToggleActive={handleToggleCommitteeActive}
-            onDeleteCommittee={handleDeleteCommittee}
-            onRefresh={loadDashboardData}
-          />
-        )}
+        </main>
 
-        {/* Tab 4: Officer Management Table (Super Admin Only) */}
-        {activeTab === 'officers' && isSuperAdmin && (
-          <OfficerManagementTable
-            officers={officers}
-            onUpdateOfficer={handleUpdateOfficerPermissions}
-            onRefresh={loadDashboardData}
-          />
-        )}
-
-      </main>
+        {/* Admin Footer */}
+        <AdminFooter />
+      </div>
 
       {/* Feature Application Detail Modal */}
       {selectedApplication && (
@@ -281,7 +285,6 @@ export default function AdminDashboardPage() {
           }}
         />
       )}
-
     </div>
   );
 }
